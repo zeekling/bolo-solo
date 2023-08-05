@@ -96,7 +96,7 @@
         <emoji-java.version>5.1.0</emoji-java.version>
         <jodd.version>6.0.5</jodd.version>
         <owasp.version>1.2.2</owasp.version>
-        <snakeyaml.version>1.18</snakeyaml.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
         <user-agent-utils.version>1.21</user-agent-utils.version>
         <servlet.version>3.1.0</servlet.version>
 
