@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.util;
 
+import org.apache.commons.cli.CommandLine;
 import org.b3log.latke.logging.Logger;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -37,11 +38,16 @@ public class RedisCacheUtils {
 
  public static boolean REDIS_ENABLE = false;
 
+ public static boolean INITED = false;
+
  private static final Object LOCK = new Object();
 
  private static JedisPool jedisPool = null;
 
- public static void initRedis(ResourceBundle solo) {
+ public static void initRedisArgs(ResourceBundle solo) {
+  if (INITED) {
+   return;
+  }
   boolean redisEnable = Boolean.parseBoolean(solo.getString("redisEnable"));
   RedisCacheUtils.REDIS_ENABLE = redisEnable;
   if (!redisEnable) {
@@ -53,13 +59,38 @@ public class RedisCacheUtils {
   if ("single".equals(mode)) {
    RedisCacheUtils.REDIS_MODE = mode;
    RedisCacheUtils.REDIS_CACHE_ADDRESS = solo.getString("redisAddress");
-   RedisCacheUtils.initJedis();
   } else {
    LOGGER.error("Only support single mode.");
   }
+  INITED = true;
  }
 
- private static void initJedis() {
+ public static void initRedisArgs(CommandLine commandLine) {
+  if (!commandLine.hasOption("redisEnable")) {
+   return;
+  }
+  if (INITED) {
+   return;
+  }
+  LOGGER.info("command has redisEnable");
+  boolean redisEnable = Boolean.parseBoolean(commandLine.getOptionValue("redisEnable"));
+  RedisCacheUtils.REDIS_ENABLE = redisEnable;
+  if (!redisEnable) {
+   LOGGER.info("redis cache is not enable.");
+   return;
+  }
+  LOGGER.info("redis cache enable.");
+  String mode = commandLine.getOptionValue("redisMode");
+  if ("single".equals(mode)) {
+   RedisCacheUtils.REDIS_MODE = mode;
+   RedisCacheUtils.REDIS_CACHE_ADDRESS = commandLine.getOptionValue("redisAddress");
+  } else {
+   LOGGER.error("Only support single mode.");
+  }
+  INITED = true;
+ }
+
+ public static void initJedis() {
   if (jedisPool != null) {
    return;
   }

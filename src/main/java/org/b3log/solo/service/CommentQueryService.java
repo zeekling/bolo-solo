@@ -186,7 +186,8 @@ public class CommentQueryService {
                 comment.put(Common.COMMENT_TITLE, title);
 
                 String commentContent = comment.optString(Comment.COMMENT_CONTENT);
-                commentContent = Markdowns.toHTML(commentContent, "common_" + title + "_" + article.getString(Keys.OBJECT_ID));
+                long aLong = comment.getLong(Comment.COMMENT_CREATED);
+                commentContent = Markdowns.toHTML(commentContent, "common_" + title + "_" + onId + "_" + aLong);
                 commentContent = Markdowns.clean(commentContent);
                 comment.put(Comment.COMMENT_CONTENT, commentContent);
 
@@ -228,6 +229,7 @@ public class CommentQueryService {
             final List<JSONObject> ret = new ArrayList<>();
             final List<JSONObject> comments = commentRepository.getComments(onId, 1, Integer.MAX_VALUE);
             for (final JSONObject comment : comments) {
+                long aLong = comment.getLong(Comment.COMMENT_CREATED);
                 comment.put(Comment.COMMENT_TIME, comment.optLong(Comment.COMMENT_CREATED));
                 comment.put(Comment.COMMENT_T_DATE, new Date(comment.optLong(Comment.COMMENT_CREATED)));
                 comment.put("commentDate2", new Date(comment.optLong(Comment.COMMENT_CREATED))); // 1.9.0 向后兼容
@@ -246,7 +248,7 @@ public class CommentQueryService {
                 }
 
                 String commentContent = comment.optString(Comment.COMMENT_CONTENT);
-                commentContent = Markdowns.toHTML(commentContent, "common_" + commentName + "_" + onId);
+                commentContent = Markdowns.toHTML(commentContent, "common_" + commentName + "_" + onId + "_" + aLong);
                 commentContent = Markdowns.clean(commentContent);
                 comment.put(Comment.COMMENT_CONTENT, commentContent);
 

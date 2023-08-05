@@ -544,8 +544,9 @@ public class DataModelService {
             for (final JSONObject comment : recentComments) {
                 String commentContent = comment.optString(Comment.COMMENT_CONTENT);
                 String commentName =  comment.getString(Comment.COMMENT_NAME);
-                commentContent = Markdowns.toHTML(commentContent, "comment_" + commentName +
-                        "_" + comment.getString(Comment.COMMENT_ON_ID));
+                String onId = comment.getString(Comment.COMMENT_ON_ID);
+                long aLong = comment.getLong(Comment.COMMENT_CREATED);
+                commentContent = Markdowns.toHTML(commentContent, "comment_" + commentName + "_" + onId + "_" + aLong);
                 commentContent = Markdowns.clean(commentContent);
                 comment.put(Comment.COMMENT_CONTENT, commentContent);
                 comment.put(Comment.COMMENT_NAME, commentName);

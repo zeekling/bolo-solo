@@ -110,7 +110,7 @@ public final class Solos {
         ResourceBundle solo = getResourceBundle();
         FAVICON_API = solo.getString("faviconAPI");
         initMarkDown(solo);
-        RedisCacheUtils.initRedis(solo);
+        RedisCacheUtils.initRedisArgs(solo);
     }
 
     private static ResourceBundle getResourceBundle() {

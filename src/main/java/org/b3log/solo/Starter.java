@@ -24,6 +24,7 @@ import org.b3log.latke.logging.Logger;
 import org.b3log.latke.util.Strings;
 import org.b3log.solo.bolo.Global;
 import org.b3log.solo.util.Markdowns;
+import org.b3log.solo.util.RedisCacheUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Slf4jLog;
@@ -98,6 +99,23 @@ public final class Starter {
                 hasArg().desc("lute http URL, default is http://localhost:8249, see https://github.com/b3log/lute-http for more details").build();
         options.addOption(luteHttpOpt);
 
+        final Option redisEnableOpt = Option.builder("redisEnable").longOpt("redis_enable").argName("REDIS_ENABLE")
+                .hasArg().desc("Enable redis cache").build();
+        options.addOption(redisEnableOpt);
+
+        final Option redisModeOpt = Option.builder("redisMode").longOpt("redis_mode").argName("REDIS_MODE")
+                .hasArg().desc("Redis cache mode").build();
+        options.addOption(redisModeOpt);
+
+        final Option redisAddressOpt = Option.builder("redisAddress").longOpt("redis_address").argName("REDIS_ADDRESS")
+                .hasArg().desc("Redis cache address").build();
+        options.addOption(redisAddressOpt);
+
+        final Option redisPassOpt = Option.builder("redisPass").longOpt("redis_pass").argName("REDIS_PASS")
+                .hasArg().desc("Redis cache password").build();
+
+        options.addOption(redisPassOpt);
+
         options.addOption("h", "help", false, "print help for the command");
 
         final HelpFormatter helpFormatter = new HelpFormatter();
@@ -170,6 +188,9 @@ public final class Starter {
             Markdowns.LUTE_ENGINE_URL = luteHttp;
             Markdowns.LUTE_AVAILABLE = true;
         }
+
+        RedisCacheUtils.initRedisArgs(commandLine);
+        RedisCacheUtils.initJedis();
 
         String webappDirLocation = "src/main/webapp/"; // POM structure in dev env
         final File file = new File(webappDirLocation);
