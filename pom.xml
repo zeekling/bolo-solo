@@ -8,6 +8,7 @@
     Author: <a href="https://github.com/nanolikeyou">nanolikeyou</a>
     Author: <a href="https://github.com/hzchendou">hzchendou</a>
     Author: <a href="https://github.com/adlered">adlered</a>
+    Author: <a href="https://github.com/gakkiyomi">gakkiyomi</a>
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -17,7 +18,7 @@
     <artifactId>bolo</artifactId>
     <packaging>war</packaging>
     <name>Bolo</name>
-    <version>v2.6.1-stable</version>
+    <version>v2.6.2-stable</version>
     <description>
         本地化、稳定精致的 Java 博客系统 - 菠萝博客。
     </description>
