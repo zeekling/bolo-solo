@@ -97,7 +97,7 @@
     <properties>
         <org.b3log.latke.version>2.5.8</org.b3log.latke.version>
 
-        <slf4j.version>1.7.28</slf4j.version>
+        <slf4j.version>2.0.17</slf4j.version>
         <jsoup.version>1.12.1</jsoup.version>
         <flexmark.version>0.62.2</flexmark.version>
         <jetty.version>9.4.12.v20180830</jetty.version>
@@ -173,7 +173,7 @@
 
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>slf4j-reload4j</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
 
