@@ -42,7 +42,7 @@ import org.b3log.solo.service.OptionQueryService;
 import org.b3log.solo.service.UserQueryService;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.owasp.encoder.Encode;
 
 import javax.servlet.http.HttpServletRequest;
@@ -111,8 +111,8 @@ public class SearchProcessor {
             final InputStream resourceAsStream = SearchProcessor.class.getResourceAsStream("/opensearch.xml");
             String content = IOUtils.toString(resourceAsStream, "UTF-8");
             final JSONObject preference = optionQueryService.getPreference();
-            content = StringUtils.replace(content, "${blogTitle}", Jsoup.clean(preference.optString(Option.ID_C_BLOG_TITLE), Whitelist.none()));
-            content = StringUtils.replace(content, "${blogSubtitle}", Jsoup.clean(preference.optString(Option.ID_C_BLOG_SUBTITLE), Whitelist.none()));
+            content = StringUtils.replace(content, "${blogTitle}", Jsoup.clean(preference.optString(Option.ID_C_BLOG_TITLE), Safelist.none()));
+            content = StringUtils.replace(content, "${blogSubtitle}", Jsoup.clean(preference.optString(Option.ID_C_BLOG_SUBTITLE), Safelist.none()));
             content = StringUtils.replace(content, "${servePath}", Latkes.getServePath());
 
             renderer.setContent(content);

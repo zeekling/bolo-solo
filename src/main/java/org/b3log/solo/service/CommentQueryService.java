@@ -45,7 +45,7 @@ import org.b3log.solo.util.Markdowns;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 /**
  * Comment query service.
@@ -190,7 +190,7 @@ public class CommentQueryService {
                 comment.put(Comment.COMMENT_CONTENT, commentContent);
 
                 String commentName = comment.optString(Comment.COMMENT_NAME);
-                commentName = Jsoup.clean(commentName, Whitelist.none());
+                commentName = Jsoup.clean(commentName, Safelist.none());
                 comment.put(Comment.COMMENT_NAME, commentName);
 
                 comment.put(Comment.COMMENT_TIME, comment.optLong(Comment.COMMENT_CREATED));
@@ -249,7 +249,7 @@ public class CommentQueryService {
                 comment.put(Comment.COMMENT_CONTENT, commentContent);
 
                 String commentName = comment.optString(Comment.COMMENT_NAME);
-                commentName = Jsoup.clean(commentName, Whitelist.none());
+                commentName = Jsoup.clean(commentName, Safelist.none());
                 comment.put(Comment.COMMENT_NAME, commentName);
 
                 ret.add(comment);

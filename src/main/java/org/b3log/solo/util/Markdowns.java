@@ -40,7 +40,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.parser.Parser;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 import org.jsoup.select.NodeVisitor;
 
 import java.io.InputStream;
@@ -145,7 +145,7 @@ public final class Markdowns {
      * @return html
      */
     public static String clean(final String html) {
-        final Whitelist whitelist = Whitelist.relaxed();
+        final Safelist whitelist = Safelist.relaxed();
         // 允许代码块语言高亮信息
         whitelist.addAttributes("pre", "class").
                 addAttributes("div", "class", "data-code").
