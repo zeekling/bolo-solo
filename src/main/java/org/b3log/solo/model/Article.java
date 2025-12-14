@@ -22,7 +22,7 @@ import org.b3log.solo.util.Images;
 import org.b3log.solo.util.Markdowns;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
+import org.jsoup.safety.Safelist;
 
 /**
  * This class defines all article model relevant keys.
@@ -272,7 +272,7 @@ public final class Article {
      * @return the abstract plain text
      */
     public static String getAbstractText(final String content) {
-        final String ret = Jsoup.clean(Markdowns.toHTML(content), Whitelist.none());
+        final String ret = Jsoup.clean(Markdowns.toHTML(content), Safelist.none());
         if (ret.length() > ARTICLE_ABSTRACT_LENGTH) {
             return ret.substring(0, ARTICLE_ABSTRACT_LENGTH) + "....";
         }
