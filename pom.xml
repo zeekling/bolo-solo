@@ -117,6 +117,7 @@
         <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
         <testng.version>6.1.1</testng.version>
         <mysql-connector-java.version>8.0.18</mysql-connector-java.version>
+        <h2.version>2.2.224</h2.version>
 
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -128,6 +129,11 @@
             <groupId>org.b3log</groupId>
             <artifactId>latke-core</artifactId>
             <version>${org.b3log.latke.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
         </dependency>
         <dependency>
             <groupId>com.rometools</groupId>
