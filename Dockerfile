@@ -1,4 +1,4 @@
-FROM docker.io/library/maven:3.8.5-openjdk-8-slim as MVN_BUILD
+FROM docker.io/library/maven:3.9.11-amazoncorretto-21-al2023 as MVN_BUILD
 
 WORKDIR /opt/bolo/
 ADD . /tmp
