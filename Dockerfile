@@ -1,11 +1,11 @@
-FROM docker.io/library/maven:3.8.5-openjdk-8-slim as MVN_BUILD
+FROM docker.io/library/maven:3.9-eclipse-temurin-21-noble as MVN_BUILD
 
 WORKDIR /opt/bolo/
 ADD . /tmp
 RUN cd /tmp && mvn package -DskipTests -Pci && mv target/bolo/* /opt/bolo/ \
     && cp -f /tmp/src/main/resources/docker/* /opt/bolo/WEB-INF/classes/
 
-FROM openjdk:8u131-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine-3.23
 LABEL maintainer="Liang Ding<d@b3log.org>"
 
 WORKDIR /opt/bolo/
