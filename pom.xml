@@ -98,15 +98,15 @@
         <org.b3log.latke.version>2.5.8</org.b3log.latke.version>
 
         <slf4j.version>1.7.28</slf4j.version>
-        <jsoup.version>1.12.1</jsoup.version>
-        <flexmark.version>0.62.2</flexmark.version>
-        <jetty.version>9.4.12.v20180830</jetty.version>
+        <jsoup.version>1.14.3</jsoup.version>
+        <flexmark.version>0.64.8</flexmark.version>
+        <jetty.version>9.4.53.v20231009</jetty.version>
         <commons-cli.version>1.3.1</commons-cli.version>
         <commons-codec.version>1.10</commons-codec.version>
         <emoji-java.version>5.1.0</emoji-java.version>
         <jodd.version>6.0.5</jodd.version>
         <owasp.version>1.2.2</owasp.version>
-        <snakeyaml.version>1.18</snakeyaml.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
         <user-agent-utils.version>1.21</user-agent-utils.version>
         <servlet.version>3.1.0</servlet.version>
 
@@ -115,8 +115,12 @@
         <maven-war-plugin.version>3.2.2</maven-war-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.2</jacoco-maven-plugin.version>
-        <testng.version>6.1.1</testng.version>
-        <mysql-connector-java.version>8.0.18</mysql-connector-java.version>
+        <testng.version>7.10.2</testng.version>
+        <mysql-connector-java.version>8.0.33</mysql-connector-java.version>
+        <commons-io.version>2.15.0</commons-io.version>
+        <commons-lang.version>3.14.0</commons-lang.version>
+        <qiniu-java-sdk.version>7.15.1</qiniu-java-sdk.version>
+        <cos_api.version>5.6.58</cos_api.version>
 
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.source>21</maven.compiler.source>
@@ -156,6 +160,12 @@
             <groupId>org.b3log</groupId>
             <artifactId>latke-repository-h2</artifactId>
             <version>${org.b3log.latke.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>2.2.224</version>
         </dependency>
 
         <dependency>
