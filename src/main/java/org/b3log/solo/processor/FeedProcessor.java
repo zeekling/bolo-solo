@@ -21,17 +21,15 @@ import com.vdurmont.emoji.EmojiParser;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.service.ServiceException;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AtomRenderer;
-import org.b3log.latke.servlet.renderer.RssRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AtomRenderer;
+import org.b3log.latke.http.renderer.RssRenderer;
 import org.b3log.latke.util.Locales;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.model.Article;
@@ -63,7 +61,7 @@ import java.util.List;
  * @author <a href="https://github.com/nanolikeyou">nanolikeyou</a>
  * @since 0.3.1
  */
-@RequestProcessor
+@Singleton
 public class FeedProcessor {
 
     /**
@@ -94,7 +92,6 @@ public class FeedProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/atom.xml", method = {HttpMethod.GET, HttpMethod.HEAD})
     public void blogArticlesAtom(final RequestContext context) {
         final AtomRenderer renderer = new AtomRenderer();
         context.setRenderer(renderer);
@@ -167,7 +164,6 @@ public class FeedProcessor {
      * @param context the specified context
      * @throws Exception exception
      */
-    @RequestProcessing(value = "/rss.xml", method = {HttpMethod.GET, HttpMethod.HEAD})
     public void blogArticlesRSS(final RequestContext context) {
         final RssRenderer renderer = new RssRenderer();
         context.setRenderer(renderer);

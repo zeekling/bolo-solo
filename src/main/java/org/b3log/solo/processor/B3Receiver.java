@@ -21,13 +21,11 @@ import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.solo.model.*;
 import org.b3log.solo.repository.ArticleRepository;
 import org.b3log.solo.repository.CommentRepository;
@@ -45,7 +43,7 @@ import java.util.Date;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 0.5.5
  */
-@RequestProcessor
+@Singleton
 public class B3Receiver {
 
     /**
@@ -134,7 +132,6 @@ public class B3Receiver {
      *
      * @param context the specified request context
      */
-    @RequestProcessing(value = "/apis/symphony/article", method = {HttpMethod.POST, HttpMethod.PUT})
     public void postArticle(final RequestContext context) {
         final JSONObject ret = new JSONObject().put(Keys.CODE, 0);
         context.renderJSON(ret);

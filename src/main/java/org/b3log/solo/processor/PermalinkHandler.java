@@ -24,10 +24,10 @@ import org.b3log.latke.ioc.BeanManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
-import org.b3log.latke.servlet.DispatcherServlet;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.handler.Handler;
+import org.b3log.latke.http.Dispatcher;
+import org.b3log.latke.http.HttpMethod;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.handler.Handler;
 import org.b3log.solo.model.Article;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.repository.ArticleRepository;
@@ -127,7 +127,7 @@ public class PermalinkHandler implements Handler {
      *
      * @param context the specified request context
      * @param article the specified article
-     * @see DispatcherServlet#result(RequestContext)
+     * @see Dispatcher#result(RequestContext)
      */
     private void dispatchToArticleProcessor(final RequestContext context, final JSONObject article) {
         context.attr(Article.ARTICLE, article);

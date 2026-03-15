@@ -21,15 +21,13 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.bolo.SslUtils;
 import org.b3log.solo.model.Option;
@@ -55,7 +53,7 @@ import java.util.Iterator;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 2.9.2
  */
-@RequestProcessor
+@Singleton
 public class KanBanNiangProcessor {
 
     /**
@@ -139,7 +137,6 @@ public class KanBanNiangProcessor {
      *
      * @param context the specified request context
      */
-    @RequestProcessing(value = "/plugins/kanbanniang/assets/model", method = HttpMethod.GET)
     public void randomModel(final RequestContext context) {
         final JsonRenderer renderer = new JsonRenderer();
         context.setRenderer(renderer);
@@ -186,7 +183,6 @@ public class KanBanNiangProcessor {
      *
      * @param context the specified request context
      */
-    @RequestProcessing(value = "/plugins/kanbanniang/assets/absoluteRandomModel", method = HttpMethod.GET)
     public void absolutelyRandomModel(final RequestContext context) {
         final JsonRenderer renderer = new JsonRenderer();
         context.setRenderer(renderer);
@@ -226,7 +222,6 @@ public class KanBanNiangProcessor {
      *
      * @param context
      */
-    @RequestProcessing(value = "/plugins/kanbanniang/assets/list")
     public void kanbanniangList(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);

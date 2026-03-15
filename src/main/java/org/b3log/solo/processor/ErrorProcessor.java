@@ -21,14 +21,12 @@ import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
 import org.b3log.latke.util.Locales;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.service.DataModelService;
@@ -48,7 +46,7 @@ import java.util.Map;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 0.4.5
  */
-@RequestProcessor
+@Singleton
 public class ErrorProcessor {
 
     /**
@@ -86,7 +84,6 @@ public class ErrorProcessor {
      * @param context the specified context
      * @throws Exception exception
      */
-    @RequestProcessing(value = "/error/{statusCode}", method = {HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE})
     public void showErrorPage(final RequestContext context) {
         final String statusCode = context.pathVar("statusCode");
         if (StringUtils.equals("GET", context.method())) {

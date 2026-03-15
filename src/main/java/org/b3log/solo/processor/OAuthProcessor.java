@@ -21,6 +21,7 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Role;
@@ -29,10 +30,7 @@ import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.repository.jdbc.util.Connections;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.util.Requests;
 import org.b3log.solo.bolo.tool.MD5Utils;
 import org.b3log.solo.model.Option;
@@ -64,7 +62,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 2.9.5
  */
-@RequestProcessor
+@Singleton
 public class OAuthProcessor {
 
     /**
@@ -118,7 +116,6 @@ public class OAuthProcessor {
      *
      * @param context
      */
-    @RequestProcessing(value = "/oauth/bolo/login", method = HttpMethod.POST)
     public void adminLogin(final RequestContext context) {
         HttpServletResponse response = context.getResponse();
         HttpServletRequest request = context.getRequest();

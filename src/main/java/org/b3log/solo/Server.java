@@ -29,6 +29,8 @@ import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.util.Locales;
 import org.b3log.latke.util.Stopwatchs;
 import org.b3log.latke.util.Strings;
+import org.b3log.solo.bolo.pic.PicUploadProcessor;
+import org.b3log.solo.bolo.prop.MailProcessor;
 import org.b3log.solo.bolo.prop.MailService;
 import org.b3log.solo.bolo.waf.WAF;
 import org.b3log.solo.event.*;
@@ -36,9 +38,22 @@ import org.b3log.solo.handler.AfterRequestHandler;
 import org.b3log.solo.handler.BeforeRequestHandler;
 import org.b3log.solo.handler.SkinHandler;
 import org.b3log.solo.model.Option;
+import org.b3log.solo.processor.ArticleProcessor;
+import org.b3log.solo.processor.B3Receiver;
+import org.b3log.solo.processor.BlogProcessor;
+import org.b3log.solo.processor.CategoryProcessor;
+import org.b3log.solo.processor.CommentProcessor;
+import org.b3log.solo.processor.ErrorProcessor;
+import org.b3log.solo.processor.FeedProcessor;
+import org.b3log.solo.processor.IndexProcessor;
 import org.b3log.solo.processor.InitCheckHandler;
 import org.b3log.solo.processor.KanBanNiangProcessor;
+import org.b3log.solo.processor.OAuthProcessor;
 import org.b3log.solo.processor.PermalinkHandler;
+import org.b3log.solo.processor.SearchProcessor;
+import org.b3log.solo.processor.SitemapProcessor;
+import org.b3log.solo.processor.TagProcessor;
+import org.b3log.solo.processor.UserTemplateProcessor;
 import org.b3log.solo.repository.OptionRepository;
 import org.b3log.solo.service.*;
 import org.b3log.solo.util.Markdowns;
@@ -149,13 +164,108 @@ public final class Server {
     }
 
     public static void routeProcessors() {
+        final BeanManager beanManager = BeanManager.getInstance();
+        
         Dispatcher.startRequestHandler = new BeforeRequestHandler();
         Dispatcher.HANDLERS.add(1, new SkinHandler());
         Dispatcher.HANDLERS.add(2, new InitCheckHandler());
         Dispatcher.HANDLERS.add(3, new PermalinkHandler());
         Dispatcher.endRequestHandler = new AfterRequestHandler();
 
+        routeFrontendProcessors(beanManager);
         SoloServletListener.routeConsoleProcessors();
+    }
+
+    private static void routeFrontendProcessors(final BeanManager beanManager) {
+        final IndexProcessor indexProcessor = beanManager.getReference(IndexProcessor.class);
+        Dispatcher.get("", indexProcessor::showIndex);
+        Dispatcher.get("/", indexProcessor::showIndex);
+        Dispatcher.get("/start", indexProcessor::showStart);
+        Dispatcher.get("/root", indexProcessor::showRoot);
+        Dispatcher.get("/logout", indexProcessor::logout);
+        Dispatcher.get("/kill-browser", indexProcessor::showKillBrowser);
+        Dispatcher.get("/admin/logs", indexProcessor::logs);
+
+        final ArticleProcessor articleProcessor = beanManager.getReference(ArticleProcessor.class);
+        Dispatcher.post("/console/markdown/2html", articleProcessor::markdown2HTML);
+        Dispatcher.get("/console/article-pwd", articleProcessor::showArticlePwdForm);
+        Dispatcher.post("/console/article-pwd", articleProcessor::onArticlePwdForm);
+        Dispatcher.post("/articles/random", articleProcessor::getRandomArticles);
+        Dispatcher.get("/article/id/{id}/relevant/articles", articleProcessor::getRelevantArticles);
+        Dispatcher.get("/get-article-content", articleProcessor::getArticleContent);
+        Dispatcher.get("/articles", articleProcessor::getArticlesByPage);
+        Dispatcher.get("/articles/tags/{tagTitle}", articleProcessor::getTagArticlesByPage);
+        Dispatcher.get("/articles/archives/{yyyy}/{MM}", articleProcessor::getArchivesArticlesByPage);
+        Dispatcher.get("/articles/authors/{author}", articleProcessor::getAuthorsArticlesByPage);
+        Dispatcher.get("/authors/{author}", articleProcessor::showAuthorArticles);
+        Dispatcher.get("/archives/{yyyy}/{MM}", articleProcessor::showArchiveArticles);
+        Dispatcher.get("/follow/articles/{followName}", articleProcessor::showFollowUserArticles);
+        Dispatcher.get("/follow/{followName}/article/{articleTitle}", articleProcessor::showRssArticle);
+        Dispatcher.get("/article", articleProcessor::showArticle);
+
+        final BlogProcessor blogProcessor = beanManager.getReference(BlogProcessor.class);
+        Dispatcher.get("/manifest.json", blogProcessor::getPWAManifestJSON);
+        Dispatcher.get("/favicon/{width}/{height}", blogProcessor::getFavicon);
+        Dispatcher.get("/blog/info", blogProcessor::getBlogInfo);
+        Dispatcher.get("/blog/articles-tags", blogProcessor::getArticlesTags);
+
+        final FeedProcessor feedProcessor = beanManager.getReference(FeedProcessor.class);
+        Dispatcher.get("/atom.xml", feedProcessor::blogArticlesAtom);
+        Dispatcher.head("/atom.xml", feedProcessor::blogArticlesAtom);
+        Dispatcher.get("/rss.xml", feedProcessor::blogArticlesRSS);
+        Dispatcher.head("/rss.xml", feedProcessor::blogArticlesRSS);
+
+        final ErrorProcessor errorProcessor = beanManager.getReference(ErrorProcessor.class);
+        Dispatcher.get("/error/{statusCode}", errorProcessor::showErrorPage);
+        Dispatcher.post("/error/{statusCode}", errorProcessor::showErrorPage);
+        Dispatcher.put("/error/{statusCode}", errorProcessor::showErrorPage);
+        Dispatcher.delete("/error/{statusCode}", errorProcessor::showErrorPage);
+
+        final CategoryProcessor categoryProcessor = beanManager.getReference(CategoryProcessor.class);
+        Dispatcher.get("/articles/category/{categoryURI}", categoryProcessor::getCategoryArticlesByPage);
+        Dispatcher.get("/category/{categoryURI}", categoryProcessor::showCategoryArticles);
+
+        final CommentProcessor commentProcessor = beanManager.getReference(CommentProcessor.class);
+        Dispatcher.post("/article/comments", commentProcessor::addArticleComment);
+        Dispatcher.get("/article/commentSync/getList", commentProcessor::commentGetArticleList);
+        Dispatcher.get("/article/commentSync/{localaid}/{remoteaid}/{symphony}", commentProcessor::commentSync);
+        Dispatcher.get("/article/fishpi/commentSync/{localaid}/{remoteaid}", commentProcessor::commentSyncFromFishPI);
+
+        final TagProcessor tagProcessor = beanManager.getReference(TagProcessor.class);
+        Dispatcher.get("/tags/{tagTitle}", tagProcessor::showTagArticles);
+
+        final SitemapProcessor sitemapProcessor = beanManager.getReference(SitemapProcessor.class);
+        Dispatcher.get("/sitemap.xml", sitemapProcessor::sitemap);
+
+        final SearchProcessor searchProcessor = beanManager.getReference(SearchProcessor.class);
+        Dispatcher.get("/opensearch.xml", searchProcessor::showOpensearchXML);
+        Dispatcher.get("/search", searchProcessor::search);
+
+        final OAuthProcessor oauthProcessor = beanManager.getReference(OAuthProcessor.class);
+        Dispatcher.post("/oauth/bolo/login", oauthProcessor::adminLogin);
+
+        final UserTemplateProcessor userTemplateProcessor = beanManager.getReference(UserTemplateProcessor.class);
+        Dispatcher.get("/{name}.html", userTemplateProcessor::showPage);
+        Dispatcher.get("/admin/usite/refresh", userTemplateProcessor::refreshUsite);
+        Dispatcher.post("/admin/usite/set", userTemplateProcessor::setUsite);
+        Dispatcher.get("/admin/usite/get", userTemplateProcessor::getUsite);
+
+        final KanBanNiangProcessor kanBanNiangProcessor = beanManager.getReference(KanBanNiangProcessor.class);
+        Dispatcher.get("/plugins/kanbanniang/assets/model", kanBanNiangProcessor::randomModel);
+        Dispatcher.get("/plugins/kanbanniang/assets/absoluteRandomModel", kanBanNiangProcessor::absolutelyRandomModel);
+        Dispatcher.get("/plugins/kanbanniang/assets/list", kanBanNiangProcessor::kanbanniangList);
+
+        final B3Receiver b3Receiver = beanManager.getReference(B3Receiver.class);
+        Dispatcher.post("/apis/symphony/article", b3Receiver::postArticle);
+        Dispatcher.put("/apis/symphony/article", b3Receiver::postArticle);
+
+        final PicUploadProcessor picUploadProcessor = beanManager.getReference(PicUploadProcessor.class);
+        Dispatcher.post("/pic/upload", picUploadProcessor::uploadPicture);
+        Dispatcher.get("/pic/local/check", picUploadProcessor::checkLocalImageBedAvailable);
+        Dispatcher.get("/image/{imageFilename}", picUploadProcessor::getLocalImage);
+
+        final MailProcessor mailProcessor = beanManager.getReference(MailProcessor.class);
+        Dispatcher.get("/prop/mail/send", mailProcessor::sendMail);
     }
 
     private static void validateSkin() {

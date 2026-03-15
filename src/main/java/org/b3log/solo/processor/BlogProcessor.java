@@ -37,15 +37,13 @@ import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.User;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.bolo.SslUtils;
 import org.b3log.solo.bolo.prop.FaviconCache;
@@ -68,7 +66,7 @@ import org.json.JSONObject;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 0.4.6
  */
-@RequestProcessor
+@Singleton
 public class BlogProcessor {
 
     /**
@@ -129,7 +127,6 @@ public class BlogProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/manifest.json", method = HttpMethod.GET)
     public void getPWAManifestJSON(final RequestContext context) {
         final JsonRenderer renderer = new JsonRenderer();
         renderer.setPretty(true);
@@ -152,7 +149,6 @@ public class BlogProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/favicon/{width}/{height}")
     public void getFavicon(final RequestContext context) {
         synchronized (this) {
             String resolution = context.pathVar("width") + "/" + context.pathVar("height");
@@ -277,7 +273,6 @@ public class BlogProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/blog/info", method = HttpMethod.GET)
     public void getBlogInfo(final RequestContext context) {
         final JsonRenderer renderer = new JsonRenderer();
         context.setRenderer(renderer);
@@ -316,7 +311,6 @@ public class BlogProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/blog/articles-tags", method = HttpMethod.GET)
     public void getArticlesTags(final RequestContext context) {
         final JSONObject requestJSONObject = new JSONObject();
         requestJSONObject.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, 1);

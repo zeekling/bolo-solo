@@ -30,6 +30,7 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
@@ -41,11 +42,8 @@ import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.SortDirection;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.bolo.Global;
 import org.b3log.solo.bolo.prop.CommentMailService;
 import org.b3log.solo.bolo.prop.MailService;
@@ -88,7 +86,7 @@ import pers.adlered.simplecurrentlimiter.main.SimpleCurrentLimiter;
  * @author <a href="https://ld246.com/member/armstrong">ArmstrongCN</a>
  * @since 0.3.1
  */
-@RequestProcessor
+@Singleton
 public class CommentProcessor {
 
     /**
@@ -201,7 +199,6 @@ public class CommentProcessor {
      *
      * @param context the specified context, including a request json object
      */
-    @RequestProcessing(value = "/article/comments", method = HttpMethod.POST)
     public void addArticleComment(final RequestContext context) {
         // 为 false 时不发送提醒邮件至管理员邮箱
         boolean sendEmailToAdmin = true;
@@ -407,8 +404,6 @@ public class CommentProcessor {
         requestJSONObject.put(Comment.COMMENT_NAME, currentUser.optString(User.USER_NAME));
         requestJSONObject.put(Comment.COMMENT_URL, currentUser.optString(User.USER_URL));
     }
-
-    @RequestProcessing(value = "/article/commentSync/getList", method = HttpMethod.GET)
     public void commentGetArticleList(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -443,7 +438,6 @@ public class CommentProcessor {
      *
      * @param context
      */
-    @RequestProcessing(value = "/article/commentSync/{localaid}/{remoteaid}/{symphony}", method = HttpMethod.GET)
     public void commentSync(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -487,7 +481,6 @@ public class CommentProcessor {
      *
      * @param context
      */
-    @RequestProcessing(value = "/article/fishpi/commentSync/{localaid}/{remoteaid}", method = HttpMethod.GET)
     public void commentSyncFromFishPI(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);

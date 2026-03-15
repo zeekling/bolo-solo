@@ -21,10 +21,7 @@ import io.github.biezhi.ome.OhMyEmail;
 import io.github.biezhi.ome.SendMailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.solo.util.Solos;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author : https://github.com/adlered
  * @date : 2019-12-20 20:02
  **/
-@RequestProcessor
+@Singleton
 public class MailProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(MailProcessor.class);
 
@@ -71,8 +68,6 @@ public class MailProcessor {
     /*
         === 静态方法区 ===
      */
-
-    @RequestProcessing(value = "/prop/mail/send", method = {HttpMethod.GET})
     public void sendMail(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);

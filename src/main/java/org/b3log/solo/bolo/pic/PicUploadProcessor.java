@@ -21,12 +21,10 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.b3log.latke.ioc.Inject;
+import org.b3log.latke.ioc.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.bolo.pic.util.UploadUtil;
 import org.b3log.solo.model.Option;
@@ -55,7 +53,7 @@ import java.util.Map;
  * @author : https://github.com/adlered
  * @date : 2020-03-04 20:50
  **/
-@RequestProcessor
+@Singleton
 public class PicUploadProcessor {
 
     /**
@@ -74,7 +72,6 @@ public class PicUploadProcessor {
      *
      * @param context RT
      */
-    @RequestProcessing(value = "/pic/upload", method = {HttpMethod.POST})
     public void uploadPicture(final RequestContext context) {
         synchronized (this) {
             if (!Solos.isAdminOrAuthorLoggedIn(context)) {
@@ -141,7 +138,6 @@ public class PicUploadProcessor {
      *
      * @param context RT
      */
-    @RequestProcessing(value = "/pic/local/check", method = {HttpMethod.GET})
     public void checkLocalImageBedAvailable(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -189,7 +185,6 @@ public class PicUploadProcessor {
      *
      * @param context RT
      */
-    @RequestProcessing(value = "/image/{imageFilename}", method = HttpMethod.GET)
     public void getLocalImage(final RequestContext context) {
         try {
             final HttpServletResponse response = context.getResponse();
