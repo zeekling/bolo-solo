@@ -32,8 +32,8 @@ import org.b3log.solo.repository.OptionRepository;
 import org.b3log.solo.util.Images;
 import org.b3log.solo.util.Solos;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;

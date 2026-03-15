@@ -17,7 +17,7 @@
  */
 package org.b3log.solo.upgrade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
 import org.slf4j.Logger;

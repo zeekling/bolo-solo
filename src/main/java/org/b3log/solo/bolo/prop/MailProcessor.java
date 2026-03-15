@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
 import org.b3log.latke.http.RequestContext;
 import org.b3log.solo.util.Solos;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * <h3>bolo-solo</h3>

@@ -17,7 +17,7 @@
  */
 package org.b3log.solo.improve;
 
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 
 public class ImproveHelperExecutor {
 

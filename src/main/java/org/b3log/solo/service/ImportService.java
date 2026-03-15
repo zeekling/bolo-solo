@@ -18,8 +18,8 @@
 package org.b3log.solo.service;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ import org.b3log.solo.model.Article;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 import java.io.File;
 import java.util.*;
 

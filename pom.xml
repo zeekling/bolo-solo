@@ -118,12 +118,13 @@
         <testng.version>7.10.2</testng.version>
         <mysql-connector-java.version>8.0.33</mysql-connector-java.version>
         <commons-io.version>2.15.0</commons-io.version>
-        <commons-lang.version>3.14.0</commons-lang.version>
-        <qiniu-java-sdk.version>7.15.1</qiniu-java-sdk.version>
+<commons-lang.version>3.14.0</commons-lang.version>
+<commons-text.version>1.11.0</commons-text.version>
+<qiniu-java-sdk.version>7.15.1</qiniu-java-sdk.version>
         <cos_api.version>5.6.58</cos_api.version>
 
-        <maven.compiler.target>21</maven.compiler.target>
-        <maven.compiler.source>21</maven.compiler.source>
+<maven.compiler.target>21</maven.compiler.target>
+<maven.compiler.source>21</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -138,11 +139,12 @@
             <artifactId>rome</artifactId>
             <version>2.1.0</version>
         </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.version}</version>
-        </dependency>
+<dependency>
+<groupId>jakarta.servlet</groupId>
+<artifactId>jakarta.servlet-api</artifactId>
+<version>6.0.0</version>
+<scope>provided</scope>
+</dependency>
 
         <dependency>
             <groupId>mysql</groupId>
@@ -249,13 +251,19 @@
             <version>${snakeyaml.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>${commons-codec.version}</version>
-        </dependency>
+<dependency>
+<groupId>commons-codec</groupId>
+<artifactId>commons-codec</artifactId>
+<version>${commons-codec.version}</version>
+</dependency>
 
-        <dependency>
+<dependency>
+<groupId>org.apache.commons</groupId>
+<artifactId>commons-text</artifactId>
+<version>${commons-text.version}</version>
+</dependency>
+
+<dependency>
             <groupId>eu.bitwalker</groupId>
             <artifactId>UserAgentUtils</artifactId>
             <version>${user-agent-utils.version}</version>

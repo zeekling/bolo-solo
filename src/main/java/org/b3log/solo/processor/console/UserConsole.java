@@ -17,7 +17,7 @@
  */
 package org.b3log.solo.processor.console;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.bolo.tool.MD5Utils;
 import org.b3log.solo.model.UserExt;
 import org.b3log.solo.service.UserMgmtService;
@@ -211,7 +211,7 @@ public class UserConsole {
             for (int i = 0; i < users.length(); i++) {
                 final JSONObject user = users.optJSONObject(i);
                 String userName = user.optString(User.USER_NAME);
-                userName = StringEscapeUtils.escapeXml(userName);
+                userName = StringEscapeUtils.escapeXml10(userName);
                 user.put(User.USER_NAME, userName);
             }
         } catch (final ServiceException e) {

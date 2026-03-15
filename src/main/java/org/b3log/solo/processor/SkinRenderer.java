@@ -18,8 +18,8 @@
 package org.b3log.solo.processor;
 
 import freemarker.template.Template;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
@@ -35,7 +35,7 @@ import org.b3log.solo.service.ArticleMgmtService;
 import org.b3log.solo.util.Skins;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.StringWriter;
 import java.util.Map;
 

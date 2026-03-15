@@ -17,8 +17,8 @@
  */
 package org.b3log.solo.model.atom;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.b3log.latke.util.XMLs;
@@ -298,15 +298,15 @@ public final class Feed {
         stringBuilder.append(START_FEED_ELEMENT);
 
         stringBuilder.append(START_ID_ELEMENT);
-        stringBuilder.append(StringEscapeUtils.escapeXml(id));
+        stringBuilder.append(StringEscapeUtils.escapeXml10(id));
         stringBuilder.append(END_ID_ELEMENT);
 
         stringBuilder.append(START_TITLE_ELEMENT);
-        stringBuilder.append(StringEscapeUtils.escapeXml(title));
+        stringBuilder.append(StringEscapeUtils.escapeXml10(title));
         stringBuilder.append(END_TITLE_ELEMENT);
 
         stringBuilder.append(START_SUBTITLE_ELEMENT);
-        stringBuilder.append(StringEscapeUtils.escapeXml(subtitle));
+        stringBuilder.append(StringEscapeUtils.escapeXml10(subtitle));
         stringBuilder.append(END_SUBTITLE_ELEMENT);
 
         stringBuilder.append(START_UPDATED_ELEMENT);
@@ -320,7 +320,7 @@ public final class Feed {
         stringBuilder.append(END_NAME_ELEMENT);
         stringBuilder.append(END_AUTHOR_ELEMENT);
 
-        stringBuilder.append(LINK_ELEMENT.replace(LINK_VARIABLE, StringEscapeUtils.escapeXml(link)));
+        stringBuilder.append(LINK_ELEMENT.replace(LINK_VARIABLE, StringEscapeUtils.escapeXml10(link)));
 
         for (final Entry entry : entries) {
             stringBuilder.append(entry.toString());

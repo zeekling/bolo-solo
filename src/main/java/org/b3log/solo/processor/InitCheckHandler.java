@@ -17,7 +17,7 @@
  */
 package org.b3log.solo.processor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
@@ -30,7 +30,7 @@ import org.b3log.solo.improve.ImproveHelperExecutor;
 import org.b3log.solo.service.InitService;
 import org.b3log.solo.service.UpgradeService;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Checks initialization handler.
