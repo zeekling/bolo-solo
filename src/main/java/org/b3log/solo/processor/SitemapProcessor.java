@@ -17,22 +17,20 @@
  */
 package org.b3log.solo.processor;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.FilterOperator;
 import org.b3log.latke.repository.PropertyFilter;
 import org.b3log.latke.repository.Query;
 import org.b3log.latke.repository.SortDirection;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.TextXmlRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.TextXmlRenderer;
 import org.b3log.latke.util.URLs;
 import org.b3log.latke.util.XMLs;
 import org.b3log.solo.model.ArchiveDate;
@@ -48,7 +46,7 @@ import org.b3log.solo.repository.TagRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Sitemap processor.
@@ -57,13 +55,13 @@ import javax.servlet.http.HttpServletResponse;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 0.3.1
  */
-@RequestProcessor
+@Singleton
 public class SitemapProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(SitemapProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SitemapProcessor.class);
 
     /**
      * Article repository.
@@ -94,7 +92,6 @@ public class SitemapProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/sitemap.xml", method = HttpMethod.GET)
     public void sitemap(final RequestContext context) {
         final TextXmlRenderer renderer = new TextXmlRenderer();
         context.setRenderer(renderer);
@@ -108,10 +105,10 @@ public class SitemapProcessor {
 
             String content = sitemap.toString();
             content = XMLs.format(content);
-            LOGGER.log(Level.INFO, "Generated sitemap");
+            LOGGER.info("Generated sitemap");
             renderer.setContent(content);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Generates sitemap failed", e);
+            LOGGER.error("Generates sitemap failed", e);
 
             context.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
@@ -136,7 +133,7 @@ public class SitemapProcessor {
             final String permalink = article.getString(Article.ARTICLE_PERMALINK);
 
             final URL url = new URL();
-            url.setLoc(StringEscapeUtils.escapeXml(Latkes.getServePath() + permalink));
+            url.setLoc(StringEscapeUtils.escapeXml10(Latkes.getServePath() + permalink));
             final long updated = article.getLong(Article.ARTICLE_UPDATED);
             final String lastMod = DateFormatUtils.ISO_DATETIME_TIME_ZONE_FORMAT.format(updated);
             url.setLastMod(lastMod);

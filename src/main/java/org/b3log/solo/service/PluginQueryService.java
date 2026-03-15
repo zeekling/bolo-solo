@@ -18,8 +18,8 @@
 package org.b3log.solo.service;
 
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.Plugin;
 import org.b3log.latke.plugin.AbstractPlugin;
@@ -48,7 +48,7 @@ public class PluginQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PluginQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginQueryService.class);
 
     /**
      * Plugin repository.
@@ -123,7 +123,7 @@ public class PluginQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets plugins failed", e);
+            LOGGER.error("Gets plugins failed", e);
 
             throw new ServiceException(e);
         }
@@ -144,13 +144,13 @@ public class PluginQueryService {
         try {
             ret = pluginRepository.get(pluginId);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "get plugin[" + pluginId + "] fail");
+            LOGGER.error("get plugin[" + pluginId + "] fail");
             throw new ServiceException("get plugin[" + pluginId + "] fail");
 
         }
 
         if (ret == null) {
-            LOGGER.log(Level.ERROR, "can not find plugin[" + pluginId + "]");
+            LOGGER.error("can not find plugin[" + pluginId + "]");
             throw new ServiceException("can not find plugin[" + pluginId + "]");
         }
 

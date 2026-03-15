@@ -19,14 +19,14 @@ package org.b3log.solo.util;
 
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
-import org.apache.commons.lang.StringUtils;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -44,7 +44,7 @@ public final class GitHubs {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(GitHubs.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GitHubs.class);
 
     /**
      * Private constructor.
@@ -128,11 +128,11 @@ public final class GitHubs {
 
             return sortedCompatibleResult;
         } catch (JSONException e) {
-            LOGGER.log(Level.ERROR, "Gets GitHub repos failed because the request has been reached GitHub's limit, try again at later.");
+            LOGGER.error("Gets GitHub repos failed because the request has been reached GitHub's limit, try again at later.");
 
             return null;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets GitHub repos failed, please check your network connection to github.com");
+            LOGGER.error("Gets GitHub repos failed, please check your network connection to github.com");
 
             return null;
         }
@@ -157,7 +157,7 @@ public final class GitHubs {
             response.charset("UTF-8");
             String responseBody = response.bodyText();
             if (200 != statusCode && 409 != statusCode) {
-                LOGGER.log(Level.ERROR, "Get git tree of file [" + filePath + "] failed: " + responseBody);
+                LOGGER.error("Get git tree of file [" + filePath + "] failed: " + responseBody);
                 return false;
             }
 
@@ -182,12 +182,12 @@ public final class GitHubs {
             response.charset("UTF-8");
             responseBody = response.bodyText();
             if (200 != statusCode && 201 != statusCode) {
-                LOGGER.log(Level.ERROR, "Updates repo [" + repoName + "] file [" + filePath + "] failed: " + responseBody);
+                LOGGER.error("Updates repo [" + repoName + "] file [" + filePath + "] failed: " + responseBody);
                 return false;
             }
             return true;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Updates repo [" + repoName + "] file [" + filePath + "] failed: " + e.getMessage());
+            LOGGER.error("Updates repo [" + repoName + "] file [" + filePath + "] failed: " + e.getMessage());
             return false;
         }
     }
@@ -216,7 +216,7 @@ public final class GitHubs {
             response.charset("UTF-8");
             String responseBody = response.bodyText();
             if (201 != statusCode && 422 != statusCode) {
-                LOGGER.log(Level.ERROR, "Creates GitHub repo [" + repoName + "] failed: " + responseBody);
+                LOGGER.error("Creates GitHub repo [" + repoName + "] failed: " + responseBody);
                 return false;
             }
             if (201 == statusCode) {
@@ -228,12 +228,12 @@ public final class GitHubs {
             statusCode = response.statusCode();
             responseBody = response.bodyText();
             if (200 != statusCode) {
-                LOGGER.log(Level.ERROR, "Updates GitHub repo [" + repoName + "] failed: " + responseBody);
+                LOGGER.error("Updates GitHub repo [" + repoName + "] failed: " + responseBody);
                 return false;
             }
             return true;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Creates or updates GitHub repo failed: " + e.getMessage());
+            LOGGER.error("Creates or updates GitHub repo failed: " + e.getMessage());
             return false;
         }
     }
@@ -254,7 +254,7 @@ public final class GitHubs {
             response.charset("UTF-8");
             return new JSONObject(response.bodyText());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets GitHub user info failed: " + e.getMessage());
+            LOGGER.error("Gets GitHub user info failed: " + e.getMessage());
             return null;
         }
     }

@@ -20,12 +20,12 @@ package org.b3log.solo.bolo.prop;
 import io.github.biezhi.ome.OhMyEmail;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.HttpMethod;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.solo.bolo.prop.bind.MailBind;
@@ -34,7 +34,7 @@ import org.b3log.solo.repository.OptionRepository;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +50,7 @@ public class MailService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(MailService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailService.class);
 
     /**
      * 添加指定用户评论的邮件提醒服务
@@ -90,7 +90,7 @@ public class MailService {
             transaction.commit();
         } catch (RepositoryException RE) {
         }
-        LOGGER.log(Level.INFO, "Generate user comment context [commentId: " + commentId + ", commentUser: " + commentUser + ", email: " + commentEmail + "]");
+        LOGGER.info("Generate user comment context [commentId: " + commentId + ", commentUser: " + commentUser + ", email: " + commentEmail + "]");
     }
 
     /**
@@ -196,9 +196,9 @@ public class MailService {
                 }
             }
         } catch (RepositoryException RE) {
-            LOGGER.log(Level.WARN, "Cannot load Mailbox Settings, please check " + getMailSet());
+            LOGGER.warn("Cannot load Mailbox Settings, please check " + getMailSet());
         } catch (NullPointerException NPE) {
-            LOGGER.log(Level.WARN, "Cannot load Mailbox Settings, please check.");
+            LOGGER.warn("Cannot load Mailbox Settings, please check.");
         }
     }
 
@@ -218,7 +218,7 @@ public class MailService {
 
             return "[mailBox=" + mailBox + ", mailUsername=" + mailUsername + ", mailPassword=" + mailPassword + "]";
         } catch (RepositoryException RE) {
-            LOGGER.log(Level.WARN, "Cannot load Mailbox Settings, please check.");
+            LOGGER.warn("Cannot load Mailbox Settings, please check.");
 
             return "";
         }
@@ -250,7 +250,7 @@ public class MailService {
         } catch (RepositoryException RE) {
         }
 
-        LOGGER.log(Level.INFO, "All comment mail context cleared successfully.");
+        LOGGER.info("All comment mail context cleared successfully.");
 
         context.renderJSON().renderCode(200);
         context.renderJSON().renderMsg("All comment mail context cleared successfully.");

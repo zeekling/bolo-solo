@@ -19,13 +19,13 @@ package org.b3log.solo.bolo.tool;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.HttpMethod;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.solo.util.Solos;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * <h3>bolo-solo</h3>

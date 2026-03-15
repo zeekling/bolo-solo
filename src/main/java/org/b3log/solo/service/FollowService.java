@@ -25,8 +25,8 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.repository.Query;
 import org.b3log.latke.repository.SortDirection;
@@ -55,7 +55,7 @@ public class FollowService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(FollowService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FollowService.class);
 
     /**
      * Follow repository.
@@ -123,7 +123,7 @@ public class FollowService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets follows failed", e);
+            LOGGER.error("Gets follows failed", e);
             throw new ServiceException(e);
         }
     }
@@ -162,7 +162,7 @@ public class FollowService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets a follow failed", e);
+            LOGGER.error("Gets a follow failed", e);
 
             throw new ServiceException(e);
         }
@@ -178,7 +178,7 @@ public class FollowService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets a follow failed", e);
+            LOGGER.error("Gets a follow failed", e);
 
             throw new ServiceException(e);
         }
@@ -203,7 +203,7 @@ public class FollowService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Removes a follow[id=" + followId + "] failed", e);
+            LOGGER.error("Removes a follow[id=" + followId + "] failed", e);
             throw new ServiceException(e);
         }
     }
@@ -240,7 +240,7 @@ public class FollowService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             throw new ServiceException(e);
         }
@@ -274,7 +274,7 @@ public class FollowService {
                     transaction.rollback();
                 }
 
-                LOGGER.log(Level.WARN, "Cant not find the target follow of source follow[order={0}]", srcFollowOrder);
+                LOGGER.warn("Cant not find the target follow of source follow[order={0}]", srcFollowOrder);
                 return;
             }
 
@@ -291,7 +291,7 @@ public class FollowService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Changes follow's order failed", e);
+            LOGGER.error("Changes follow's order failed", e);
 
             throw new ServiceException(e);
         }
@@ -330,22 +330,22 @@ public class FollowService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Adds a follow failed", e);
+            LOGGER.error("Adds a follow failed", e);
             throw new ServiceException(e);
         }
     }
 
     public void syncAllFollowArticles() {
         try {
-            LOGGER.log(Level.INFO, "Syncs all follow articles");
+            LOGGER.info("Syncs all follow articles");
             final List<JSONObject> res = followRepository.getList(new Query());
             if (null == res || res.isEmpty()) {
-                LOGGER.log(Level.WARN, "No follows to sync articles");
+                LOGGER.warn("No follows to sync articles");
                 return;
             }
             res.forEach(follow -> syncFollowArticles(follow));
         } catch (final Throwable e) {
-            LOGGER.log(Level.ERROR, "Syncs all follow articles failed", e);
+            LOGGER.error("Syncs all follow articles failed", e);
         }
 
     }
@@ -357,13 +357,13 @@ public class FollowService {
             final String followIcon = follow.optString(Follow.FOLLOW_ICON);
             // Syncs articles for the follow
             final List<JSONObject> articles = new RssParser(followAddress, followIcon, followName).parse2Article();
-            LOGGER.log(Level.INFO, "Syncs follow articles, followName={0}, articleCount={1}",
+            LOGGER.info("Syncs follow articles, followName={0}, articleCount={1}",
                     new Object[] { followName, articles.size() });
             articleCache.putArticles(followName, articles.stream()
                     .collect(Collectors.toMap(article -> article.optString(Article.ARTICLE_TITLE),
                             Function.identity(), (existing, replacement) -> existing)));
         } catch (final Throwable e) {
-            LOGGER.log(Level.ERROR, "Syncs follow articles failed", e);
+            LOGGER.error("Syncs follow articles failed", e);
         }
     }
 }

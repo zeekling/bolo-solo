@@ -37,7 +37,7 @@ import com.qiniu.storage.model.DefaultPutRet;
 import com.qiniu.util.Auth;
 import com.upyun.RestManager;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -52,8 +52,8 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 import org.b3log.latke.Latkes;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.solo.bolo.tool.PassSSL;
 import org.json.JSONObject;
 
@@ -81,7 +81,7 @@ public class UploadUtil {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(UploadUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UploadUtil.class);
 
     public static String upload(String config, File file) throws Exception {
         String result = "";
@@ -108,7 +108,7 @@ public class UploadUtil {
                 File localNewFile = new File(localImagePath + "/" + localFilename);
                 FileUtils.copyFile(file, localNewFile);
                 result = Latkes.getServePath() + "/image/" + localFilename;
-                LOGGER.log(Level.INFO, "An image has been uploaded to local [path=" + localNewFile.getAbsolutePath() + "]");
+                LOGGER.info("An image has been uploaded to local [path=" + localNewFile.getAbsolutePath() + "]");
                 break;
             case "picuang":
                 String picuangSite = config.split("<<>>")[1];
@@ -210,7 +210,7 @@ public class UploadUtil {
                 String nowDate[] = LocalDate.now().toString().split("-");
                 String dateDir = "/" + nowDate[0] + "/" + nowDate[1] + "-" + nowDate[2] + "/";
                 if (!upyunRestManager.mkDir(dateDir).isSuccessful()) {
-                    LOGGER.log(Level.INFO, "Directory creation failed [path=" + dateDir + "]");
+                    LOGGER.info("Directory creation failed [path=" + dateDir + "]");
                 }
                 upyunRestManager.writeFile(dateDir + upyunFilename, file, upyunParams);
                 result = upyunTreaty + "://" + upyunDomain + dateDir + upyunFilename;

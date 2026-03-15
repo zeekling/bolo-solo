@@ -18,14 +18,14 @@
 package org.b3log.solo.service;
 
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.service.annotation.Service;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.util.Requests;
 import org.b3log.latke.util.URLs;
 import org.b3log.solo.cache.StatisticCache;
@@ -36,9 +36,9 @@ import org.b3log.solo.util.Solos;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -64,7 +64,7 @@ public class StatisticMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(StatisticMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatisticMgmtService.class);
 
     /**
      * Online visitor expiration in 5 minutes.
@@ -113,11 +113,11 @@ public class StatisticMgmtService {
 
             if (currentTimeMillis > (onlineVisitor.getValue() + ONLINE_VISITOR_EXPIRATION)) {
                 iterator.remove();
-                LOGGER.log(Level.TRACE, "Removed online visitor[ip={0}]", onlineVisitor.getKey());
+                LOGGER.trace("Removed online visitor[ip={0}]", onlineVisitor.getKey());
             }
         }
 
-        LOGGER.log(Level.DEBUG, "Current online visitor count [{0}]", ONLINE_VISITORS.size());
+        LOGGER.debug("Current online visitor count [{0}]", ONLINE_VISITORS.size());
     }
 
     /**
@@ -190,7 +190,7 @@ public class StatisticMgmtService {
                 response.addCookie(c);
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.WARN, "Parses cookie failed, clears the cookie[name=visited]");
+            LOGGER.warn("Parses cookie failed, clears the cookie[name=visited]");
 
             final Cookie c = new Cookie("visited", null);
             c.setMaxAge(0);
@@ -232,7 +232,7 @@ public class StatisticMgmtService {
                 return;
             }
 
-            LOGGER.log(Level.TRACE, "Before inc blog view count is [{0}]", statistic);
+            LOGGER.trace("Before inc blog view count is [{0}]", statistic);
 
             statistic.put(Option.OPTION_VALUE, statistic.optInt(Option.OPTION_VALUE) + 1);
 
@@ -244,12 +244,12 @@ public class StatisticMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Updates blog view count failed", e);
+            LOGGER.error("Updates blog view count failed", e);
 
             return;
         }
 
-        LOGGER.log(Level.TRACE, "Inced blog view count[statistic={0}]", statistic);
+        LOGGER.trace("Inced blog view count[statistic={0}]", statistic);
     }
 
     /**
@@ -263,9 +263,9 @@ public class StatisticMgmtService {
         }
 
         final String remoteAddr = Requests.getRemoteAddr(request);
-        LOGGER.log(Level.DEBUG, "Current request [IP={0}]", remoteAddr);
+        LOGGER.debug("Current request [IP={0}]", remoteAddr);
         ONLINE_VISITORS.put(remoteAddr, System.currentTimeMillis());
-        LOGGER.log(Level.DEBUG, "Current online visitor count [{0}]", ONLINE_VISITORS.size());
+        LOGGER.debug("Current online visitor count [{0}]", ONLINE_VISITORS.size());
     }
 
     /**

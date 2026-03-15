@@ -38,14 +38,14 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Plugin;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.Filter;
@@ -106,7 +106,7 @@ public class ExportService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ExportService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportService.class);
 
     /**
      * Archive date repository.
@@ -218,7 +218,7 @@ public class ExportService {
     public byte[] exportSQL() {
         final Latkes.RuntimeDatabase runtimeDatabase = Latkes.getRuntimeDatabase();
         if (Latkes.RuntimeDatabase.H2 != runtimeDatabase && Latkes.RuntimeDatabase.MYSQL != runtimeDatabase) {
-            LOGGER.log(Level.ERROR, "Just support MySQL/H2 export now");
+            LOGGER.error("Just support MySQL/H2 export now");
 
             return null;
         }
@@ -239,7 +239,7 @@ public class ExportService {
                     sql = Execs.exec("mysqldump -u" + dbUser + " --databases " + db, 60 * 1000 * 5);
                 }
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Export failed, please check command \"mysqldump\" is on your system", e);
+                LOGGER.error("Export failed, please check command \"mysqldump\" is on your system", e);
 
                 return null;
             }
@@ -256,14 +256,14 @@ public class ExportService {
 
                 sql = sqlBuilder.toString();
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Export failed", e);
+                LOGGER.error("Export failed", e);
 
                 return null;
             }
         }
 
         if (StringUtils.isBlank(sql)) {
-            LOGGER.log(Level.ERROR, "Export failed, executing export script returns empty");
+            LOGGER.error("Export failed, executing export script returns empty");
 
             return null;
         }
@@ -290,7 +290,7 @@ public class ExportService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Export failed", e);
+            LOGGER.error("Export failed", e);
 
             return null;
         }
@@ -385,7 +385,7 @@ public class ExportService {
             }
 
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Exports public articles to your repo failed: " + e.getMessage());
+            LOGGER.error("Exports public articles to your repo failed: " + e.getMessage());
         }
     }
 
@@ -409,7 +409,7 @@ public class ExportService {
             diffUploadReadme(pat, loginName, loginName, readme, "profile-readme.md");
             JdbcRepository.dispose();
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Exports public articles to your repo failed: " + e.getMessage());
+            LOGGER.error("Exports public articles to your repo failed: " + e.getMessage());
         }
     }
 
@@ -443,7 +443,7 @@ public class ExportService {
         boolean ok = GitHubs.updateFile(pat, loginName, repoName, "README.md",
                 readme.getBytes(StandardCharsets.UTF_8));
         if (ok) {
-            LOGGER.log(Level.INFO, String.format("Exported public articles to your repo [%s]", repoName));
+            LOGGER.info(String.format("Exported public articles to your repo [%s]", repoName));
         }
         return ok;
     }
@@ -452,7 +452,7 @@ public class ExportService {
      * Exports public articles to admin's HacPai account.
      */
     public void exportHacPai(boolean manual) {
-        LOGGER.log(Level.INFO, "Backup public articles to HacPai....");
+        LOGGER.info("Backup public articles to HacPai....");
         try {
             final JSONObject preference = optionQueryService.getPreference();
             if (null == preference) {
@@ -494,8 +494,7 @@ public class ExportService {
             String userName = userQueryService.getB3username();
             String userB3Key = userQueryService.getB3password();
             if (Option.DefaultPreference.DEFAULT_B3LOG_USERNAME.equals(userName)) {
-                LOGGER.log(Level.INFO,
-                        "Backup public articles to HacPai skipped because using the default B3 account.");
+                LOGGER.info("Backup public articles to HacPai skipped because using the default B3 account.");
 
                 return;
             }
@@ -592,7 +591,7 @@ public class ExportService {
             response.charset("UTF-8");
             LOGGER.info("Backup public articles to HacPai completed: " + response.bodyText());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Exports articles to github repo failed:" + e.getMessage());
+            LOGGER.error("Exports articles to github repo failed:" + e.getMessage());
         }
     }
 
@@ -681,7 +680,7 @@ public class ExportService {
                 new File(dir).mkdirs();
                 FileUtils.writeStringToFile(new File(dir + filename), text, "UTF-8");
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Write markdown file failed", e);
+                LOGGER.error("Write markdown file failed", e);
             }
         });
     }
@@ -801,7 +800,7 @@ public class ExportService {
         try {
             return repository.get(new Query()).optJSONArray(Keys.RESULTS);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets data from repository [" + repository.getName() + "] failed", e);
+            LOGGER.error("Gets data from repository [" + repository.getName() + "] failed", e);
 
             return new JSONArray();
         }

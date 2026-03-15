@@ -17,8 +17,8 @@
  */
 package org.b3log.solo.bolo.waf;
 
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.HttpMethod;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 

@@ -17,17 +17,17 @@
  */
 package org.b3log.solo.processor.console;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Link;
 import org.b3log.solo.service.LinkMgmtService;
@@ -50,7 +50,7 @@ public class LinkConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(LinkConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinkConsole.class);
 
     /**
      * Link query service.
@@ -98,7 +98,7 @@ public class LinkConsole {
             jsonObject.put(Keys.STATUS_CODE, true);
             jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             jsonObject.put(Keys.STATUS_CODE, false);
             jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
@@ -147,7 +147,7 @@ public class LinkConsole {
             ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
             renderer.setJSONObject(ret);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -196,7 +196,7 @@ public class LinkConsole {
             ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
             renderer.setJSONObject(ret);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -246,7 +246,7 @@ public class LinkConsole {
             ret.put(Keys.STATUS_CODE, true);
             renderer.setJSONObject(ret);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -299,11 +299,11 @@ public class LinkConsole {
             for (int i = 0; i < links.length(); i++) {
                 final JSONObject link = links.optJSONObject(i);
                 String title = link.optString(Link.LINK_TITLE);
-                title = StringEscapeUtils.escapeXml(title);
+                title = StringEscapeUtils.escapeXml10(title);
                 link.put(Link.LINK_TITLE, title);
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -347,7 +347,7 @@ public class LinkConsole {
             renderer.setJSONObject(result);
             result.put(Keys.STATUS_CODE, true);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);

@@ -23,11 +23,11 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.b3log.latke.Latkes;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.solo.bolo.tool.PassSSL;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**

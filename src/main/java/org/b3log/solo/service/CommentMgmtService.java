@@ -24,13 +24,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.RepositoryException;
@@ -71,7 +71,7 @@ public class CommentMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CommentMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentMgmtService.class);
 
     /**
      * Minimum length of comment name.
@@ -205,7 +205,7 @@ public class CommentMgmtService {
 
             String commentName = requestJSONObject.getString(Comment.COMMENT_NAME);
             if (MAX_COMMENT_NAME_LENGTH < commentName.length() || MIN_COMMENT_NAME_LENGTH > commentName.length()) {
-                LOGGER.log(Level.WARN, "Comment name is too long [{0}]", commentName);
+                LOGGER.warn("Comment name is too long [{0}]", commentName);
                 ret.put(Keys.MSG, langPropsService.get("nameTooLongLabel"));
 
                 return ret;
@@ -213,7 +213,7 @@ public class CommentMgmtService {
 
             final JSONObject commenter = userRepository.getByUserName(commentName);
             if (null == commenter) {
-                LOGGER.log(Level.INFO, "Newing user [" + commentName + "] ...");
+                LOGGER.info("Newing user [" + commentName + "] ...");
             }
 
             final String commentURL = requestJSONObject.optString(Comment.COMMENT_URL);
@@ -226,7 +226,7 @@ public class CommentMgmtService {
 
             if (MAX_COMMENT_CONTENT_LENGTH < commentContent.length()
                     || MIN_COMMENT_CONTENT_LENGTH > commentContent.length()) {
-                LOGGER.log(Level.WARN, "Comment content length is invalid[{0}]", commentContent.length());
+                LOGGER.warn("Comment content length is invalid[{0}]", commentContent.length());
                 ret.put(Keys.MSG, langPropsService.get("commentContentCannotEmptyLabel"));
 
                 return ret;
@@ -237,7 +237,7 @@ public class CommentMgmtService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.WARN, "Checks add comment request[" + requestJSONObject.toString() + "] failed", e);
+            LOGGER.warn("Checks add comment request[" + requestJSONObject.toString() + "] failed", e);
 
             ret.put(Keys.STATUS_CODE, false);
             ret.put(Keys.MSG, langPropsService.get("addFailLabel"));
@@ -330,7 +330,7 @@ public class CommentMgmtService {
 
                     ret.put(Common.IS_REPLY, true);
                 } else {
-                    LOGGER.log(Level.WARN, "Not found orginal comment[id={0}] of reply[name={1}, content={2}]",
+                    LOGGER.warn("Not found orginal comment[id={0}] of reply[name={1}, content={2}]",
                             originalCommentId, commentName, commentContent);
                 }
             }
@@ -394,7 +394,7 @@ public class CommentMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Removes a comment of an article failed", e);
+            LOGGER.error("Removes a comment of an article failed", e);
             throw new ServiceException(e);
         }
     }
@@ -404,7 +404,7 @@ public class CommentMgmtService {
             commentRepository.removeComments(articleId);
             setArticleCommentCount(articleId, 0);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Removes a comment of an article failed", e);
+            LOGGER.error("Removes a comment of an article failed", e);
             throw new ServiceException(e);
         }
     }
@@ -448,11 +448,11 @@ public class CommentMgmtService {
     public void syncAllArticleCommentFromFishPI() {
         final Transaction transaction = commentRepository.beginTransaction();
         try {
-            LOGGER.log(Level.INFO, "Sync comment from fishpi start");
+            LOGGER.info("Sync comment from fishpi start");
             // sync article comment with fishpi use option fishpiArticleRef
             final JSONObject fishPiArticleRef = optionQueryService.getOptions("fishPiArticleRef");
             if (fishPiArticleRef == null) {
-                LOGGER.log(Level.WARN, "fishPiArticleRef is null, sync aborted.");
+                LOGGER.warn("fishPiArticleRef is null, sync aborted.");
                 transaction.commit();
                 return;
             }
@@ -466,19 +466,18 @@ public class CommentMgmtService {
                 final String localaid = entry.getKey().split("_")[1];
                 final String remoteaid = (String) entry.getValue();
                 if (localaid != null && remoteaid != null) {
-                    LOGGER.log(Level.DEBUG, String.format("===> Article: %s , PAGE 1 <===", localaid));
+                    LOGGER.debug(String.format("===> Article: %s , PAGE 1 <===", localaid));
                     int pageCount = syncCommentFromFishPI(
                             Long.parseLong(localaid),
                             Long.parseLong(remoteaid),
                             1);
                     if (pageCount == -1) {
-                        LOGGER.log(Level.WARN, "评论同步失败，无法连接到摸鱼派服务器或 apiKey 错误。");
+                        LOGGER.warn("评论同步失败，无法连接到摸鱼派服务器或 apiKey 错误。");
                     } else if (pageCount == 0) {
-                        LOGGER.log(Level.WARN, "远端文章评论为空");
+                        LOGGER.warn("远端文章评论为空");
                     } else if (pageCount > 1) {
                         for (int i = 2; i <= pageCount; i++) {
-                            LOGGER.log(Level.DEBUG,
-                                    String.format("===> Article: %s , PAGE %s <===", localaid, i));
+                            LOGGER.debug(String.format("===> Article: %s , PAGE %s <===", localaid, i));
                             syncCommentFromFishPI(
                                     Long.parseLong(localaid),
                                     Long.parseLong(remoteaid),
@@ -487,13 +486,13 @@ public class CommentMgmtService {
                     }
                 }
             }
-            LOGGER.log(Level.INFO, "Sync comment from fishpi success");
+            LOGGER.info("Sync comment from fishpi success");
             transaction.commit();
         } catch (final Throwable e) {
             if (transaction.isActive()) {
                 transaction.rollback();
             }
-            LOGGER.log(Level.ERROR, "Sync comment from fishpi failed", e);
+            LOGGER.error("Sync comment from fishpi failed", e);
         }
     }
 
@@ -529,11 +528,11 @@ public class CommentMgmtService {
                 String id = object.optString("oId");
                 if (commpentMaps.containsKey(id)) {
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.log(Level.DEBUG, "Import content skip: " + commentContent);
+                        LOGGER.debug("Import content skip: " + commentContent);
                     }
                     continue;
                 }
-                LOGGER.log(Level.INFO, "Import content: " + commentContent);
+                LOGGER.info("Import content: " + commentContent);
                 String link = String.format("https://%s/member/%s", Global.FISH_PI_DOMAIN,
                         object.optString("commentAuthorName"));
                 String avatar = object.optString("commentAuthorThumbnailURL");

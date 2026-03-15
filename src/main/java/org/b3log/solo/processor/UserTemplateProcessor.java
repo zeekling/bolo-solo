@@ -22,19 +22,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
 import org.b3log.latke.util.Locales;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.service.DataModelService;
@@ -61,13 +59,13 @@ import freemarker.template.Template;
  * @author <a href="https://github.com/adlered">gakkiyomi (Bolo Commiter)</a>
  * @since 0.4.6
  */
-@RequestProcessor
+@Singleton
 public class UserTemplateProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleProcessor.class);
 
     /**
      * DataModelService.
@@ -110,11 +108,10 @@ public class UserTemplateProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/{name}.html", method = HttpMethod.GET)
     public void showPage(final RequestContext context) {
         final String requestURI = context.requestURI();
         final String templateName = context.pathVar("name") + ".ftl";
-        LOGGER.log(Level.DEBUG, "Shows page [requestURI={0}, templateName={1}]", requestURI, templateName);
+        LOGGER.debug("Shows page [requestURI={0}, templateName={1}]", requestURI, templateName);
 
         final HttpServletRequest request = context.getRequest();
         final HttpServletResponse response = context.getResponse();
@@ -140,7 +137,7 @@ public class UserTemplateProcessor {
                     (String) context.attr(Keys.TEMAPLTE_DIR_NAME), dataModel);
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -151,7 +148,6 @@ public class UserTemplateProcessor {
      * 
      * @param context
      */
-    @RequestProcessing(value = "/admin/usite/refresh", method = HttpMethod.GET)
     public void refreshUsite(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -164,8 +160,6 @@ public class UserTemplateProcessor {
         context.renderJSON().renderCode(200);
         context.renderJSON().renderMsg("OK");
     }
-
-    @RequestProcessing(value = "/admin/usite/set", method = HttpMethod.POST)
     public void setUsite(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -191,14 +185,14 @@ public class UserTemplateProcessor {
                     "usiteWeChat", "usiteZhiHu", "usiteBehance", "usiteTelegram", "usiteFacebook");
             for (String i : usiteList) {
                 if (!usiteObject.has(i)) {
-                    LOGGER.log(Level.ERROR, "Updates usite option failed: Invalid JSON Object.");
+                    LOGGER.error("Updates usite option failed: Invalid JSON Object.");
                     context.renderJSON().renderCode(500);
 
                     return;
                 }
             }
         } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Updates usite option failed", e);
+            LOGGER.error("Updates usite option failed", e);
             context.renderJSON().renderCode(500);
 
             return;
@@ -207,19 +201,17 @@ public class UserTemplateProcessor {
         usiteOpt.put(Option.OPTION_VALUE, usite);
         try {
             optionMgmtService.addOrUpdateOption(usiteOpt);
-            LOGGER.log(Level.INFO, "Usite refresh from Local successful: " + usite);
+            LOGGER.info("Usite refresh from Local successful: " + usite);
             context.renderJSON().renderCode(200);
 
             return;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Updates usite option failed", e);
+            LOGGER.error("Updates usite option failed", e);
             context.renderJSON().renderCode(500);
 
             return;
         }
     }
-
-    @RequestProcessing(value = "/admin/usite/get", method = HttpMethod.GET)
     public void getUsite(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);

@@ -17,7 +17,7 @@
  */
 package org.b3log.solo.log4j;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Priority;
 import org.apache.log4j.spi.LoggingEvent;

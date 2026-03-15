@@ -17,13 +17,13 @@
  */
 package org.b3log.solo.service;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.RepositoryException;
@@ -60,7 +60,7 @@ public class UserMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(UserMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserMgmtService.class);
 
     /**
      * Length of hashed password.
@@ -116,7 +116,7 @@ public class UserMgmtService {
         String userName = userQueryService.getB3username();
         String userB3Key = userQueryService.getB3password();
         if (Option.DefaultPreference.DEFAULT_B3LOG_USERNAME.equals(userName)) {
-            LOGGER.log(Level.INFO, "Usite refresh skipped because using the default B3 account.");
+            LOGGER.info("Usite refresh skipped because using the default B3 account.");
 
             return;
         }
@@ -134,13 +134,13 @@ public class UserMgmtService {
             res.charset("UTF-8");
             final JSONObject result = new JSONObject(res.bodyText());
             if (0 != result.optInt(Keys.STATUS_CODE)) {
-                LOGGER.log(Level.DEBUG, "Updates usite option failed: Invalid Username or B3log Key.");
+                LOGGER.debug("Updates usite option failed: Invalid Username or B3log Key.");
 
                 return;
             }
             usite = result.optJSONObject(Common.DATA);
         } catch (final Exception e) {
-            LOGGER.log(Level.DEBUG, "Gets usite failed", e);
+            LOGGER.debug("Gets usite failed", e);
 
             return;
         }
@@ -154,9 +154,9 @@ public class UserMgmtService {
         usiteOpt.put(Option.OPTION_VALUE, usite.toString());
         try {
             optionMgmtService.addOrUpdateOption(usiteOpt);
-            LOGGER.log(Level.INFO, "Usite refresh from HacPai successful: " + usite.toString());
+            LOGGER.info("Usite refresh from HacPai successful: " + usite.toString());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Updates usite option failed", e);
+            LOGGER.error("Updates usite option failed", e);
 
             return;
         }
@@ -223,7 +223,7 @@ public class UserMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Updates a user failed", e);
+            LOGGER.error("Updates a user failed", e);
             throw new ServiceException(e);
         }
     }
@@ -261,7 +261,7 @@ public class UserMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Updates a user failed", e);
+            LOGGER.error("Updates a user failed", e);
             throw new ServiceException(e);
         }
     }
@@ -329,7 +329,7 @@ public class UserMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Adds a user failed", e);
+            LOGGER.error("Adds a user failed", e);
             throw new ServiceException(e);
         }
     }
@@ -351,7 +351,7 @@ public class UserMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Removes a user [id=" + userId + "] failed", e);
+            LOGGER.error("Removes a user [id=" + userId + "] failed", e);
             throw new ServiceException(e);
         }
     }

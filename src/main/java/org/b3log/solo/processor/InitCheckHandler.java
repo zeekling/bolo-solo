@@ -17,20 +17,20 @@
  */
 package org.b3log.solo.processor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.handler.Handler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.handler.Handler;
 import org.b3log.solo.bolo.waf.WAF;
 import org.b3log.solo.improve.ImproveHelperExecutor;
 import org.b3log.solo.service.InitService;
 import org.b3log.solo.service.UpgradeService;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Checks initialization handler.
@@ -44,7 +44,7 @@ public class InitCheckHandler implements Handler {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(InitCheckHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InitCheckHandler.class);
 
     /**
      * Whether initialization info reported.
@@ -55,7 +55,7 @@ public class InitCheckHandler implements Handler {
     public void handle(final RequestContext context) {
         final String requestURI = context.requestURI();
         final boolean isSpiderBot = (boolean) context.attr(Keys.HttpRequest.IS_SEARCH_ENGINE_BOT);
-        LOGGER.log(Level.TRACE, "Request [URI={0}]", requestURI);
+        LOGGER.trace("Request [URI={0}]", requestURI);
 
         // Bolo WAF
         String requestIP = context.remoteAddr();
@@ -83,7 +83,7 @@ public class InitCheckHandler implements Handler {
         } else if (UpgradeService.boloFastMigration) {
             context.attr(Keys.HttpRequest.REQUEST_URI, Latkes.getContextPath() + "/start");
             context.handle();
-            LOGGER.log(Level.DEBUG, "Bolo Fast Migrating is enabled, so redirects to /start");
+            LOGGER.debug("Bolo Fast Migrating is enabled, so redirects to /start");
 
             return;
         }
@@ -97,7 +97,7 @@ public class InitCheckHandler implements Handler {
         }
 
         if (!initReported) {
-            LOGGER.log(Level.DEBUG, "Bolo has not been initialized, so redirects to /start");
+            LOGGER.debug("Bolo has not been initialized, so redirects to /start");
             initReported = true;
         }
 

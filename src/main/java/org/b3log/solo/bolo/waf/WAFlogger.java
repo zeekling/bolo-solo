@@ -17,8 +17,8 @@
  */
 package org.b3log.solo.bolo.waf;
 
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <h3>bolo-solo</h3>
@@ -34,33 +34,33 @@ public class WAFlogger {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(WAFlogger.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WAFlogger.class);
 
     public static void log(String log) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(prefix);
         stringBuilder.append(log);
-        LOGGER.log(Level.INFO, stringBuilder.toString());
+        LOGGER.info(stringBuilder.toString());
     }
 
     public static void logTrace(String requestIP, String requestURL) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(prefix);
         stringBuilder.append(requestIP + " accessed " + requestURL);
-        LOGGER.log(Level.INFO, stringBuilder.toString());
+        LOGGER.info(stringBuilder.toString());
     }
 
     public static void logError(String log) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(prefix);
         stringBuilder.append(log);
-        LOGGER.log(Level.ERROR, stringBuilder.toString());
+        LOGGER.error(stringBuilder.toString());
     }
 
     public static void logWarn(String log) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(prefix);
         stringBuilder.append(log);
-        LOGGER.log(Level.WARN, stringBuilder.toString());
+        LOGGER.warn(stringBuilder.toString());
     }
 }

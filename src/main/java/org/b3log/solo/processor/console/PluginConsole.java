@@ -20,14 +20,14 @@ package org.b3log.solo.processor.console;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Plugin;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.processor.KanBanNiangProcessor;
 import org.b3log.solo.service.PluginMgmtService;
 import org.b3log.solo.service.PluginQueryService;
@@ -51,7 +51,7 @@ public class PluginConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PluginConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginConsole.class);
 
     /**
      * Plugin query service.
@@ -146,7 +146,7 @@ public class PluginConsole {
             renderer.setJSONObject(result);
             result.put(Keys.STATUS_CODE, true);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -171,7 +171,7 @@ public class PluginConsole {
             dataModel.put(Plugin.PLUGIN_SETTING, setting);
             dataModel.put(Keys.OBJECT_ID, pluginId);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             final JsonRenderer JsonRenderer = new JsonRenderer();

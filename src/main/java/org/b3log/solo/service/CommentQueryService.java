@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
@@ -60,7 +60,7 @@ public class CommentQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CommentQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentQueryService.class);
 
     /**
      * User service.
@@ -209,7 +209,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets comments failed", e);
+            LOGGER.error("Gets comments failed", e);
 
             throw new ServiceException(e);
         }
@@ -257,7 +257,7 @@ public class CommentQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets comments failed", e);
+            LOGGER.error("Gets comments failed", e);
             throw new ServiceException(e);
         }
     }

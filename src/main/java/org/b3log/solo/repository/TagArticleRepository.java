@@ -17,12 +17,12 @@
  */
 package org.b3log.solo.repository;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.repository.annotation.Repository;
 import org.b3log.solo.model.Article;
@@ -45,7 +45,7 @@ public class TagArticleRepository extends AbstractRepository {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(TagArticleRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagArticleRepository.class);
 
     /**
      * Public constructor.
@@ -97,7 +97,7 @@ public class TagArticleRepository extends AbstractRepository {
         try {
             return (int) count(query);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets tag [" + tagId + "]'s article count failed", e);
+            LOGGER.error("Gets tag [" + tagId + "]'s article count failed", e);
 
             return -1;
         }
@@ -125,7 +125,7 @@ public class TagArticleRepository extends AbstractRepository {
                     "AND t.tag_oId = ?", Article.ARTICLE_STATUS_C_PUBLISHED, tagId);
             return result.get(0).optInt("C");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets tag [" + tagId + "]'s published article count failed", e);
+            LOGGER.error("Gets tag [" + tagId + "]'s published article count failed", e);
 
             return -1;
         }

@@ -20,20 +20,18 @@ package org.b3log.solo.processor;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
 import org.b3log.latke.util.Paginator;
 import org.b3log.latke.util.URLs;
 import org.b3log.solo.model.Article;
@@ -56,13 +54,13 @@ import org.json.JSONObject;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 0.3.1
  */
-@RequestProcessor
+@Singleton
 public class TagProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(TagProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagProcessor.class);
 
     /**
      * DataModelService.
@@ -111,7 +109,6 @@ public class TagProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/tags/{tagTitle}", method = HttpMethod.GET)
     public void showTagArticles(final RequestContext context) {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "tag-articles.ftl");
         final Map<String, Object> dataModel = renderer.getDataModel();
@@ -121,7 +118,7 @@ public class TagProcessor {
         try {
             String tagTitle = context.pathVar("tagTitle");
             final int currentPageNum = Paginator.getPage(request);
-            LOGGER.log(Level.DEBUG, "Tag [title={0}, currentPageNum={1}]", tagTitle, currentPageNum);
+            LOGGER.debug("Tag [title={0}, currentPageNum={1}]", tagTitle, currentPageNum);
             final JSONObject result = tagQueryService.getTagByTitle(tagTitle);
             if (null == result) {
                 context.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -161,7 +158,7 @@ public class TagProcessor {
             dataModelService.fillUsite(dataModel);
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

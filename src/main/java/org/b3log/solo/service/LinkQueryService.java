@@ -19,8 +19,8 @@ package org.b3log.solo.service;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.repository.Query;
 import org.b3log.latke.repository.SortDirection;
@@ -47,7 +47,7 @@ public class LinkQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(LinkQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LinkQueryService.class);
 
     /**
      * Link repository.
@@ -106,7 +106,7 @@ public class LinkQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets links failed", e);
+            LOGGER.error("Gets links failed", e);
             throw new ServiceException(e);
         }
     }
@@ -142,7 +142,7 @@ public class LinkQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets a link failed", e);
+            LOGGER.error("Gets a link failed", e);
 
             throw new ServiceException(e);
         }

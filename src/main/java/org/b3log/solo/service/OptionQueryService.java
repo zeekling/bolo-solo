@@ -18,8 +18,8 @@
 package org.b3log.solo.service;
 
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.service.annotation.Service;
 import org.b3log.solo.model.Option;
@@ -39,7 +39,7 @@ public class OptionQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(OptionQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OptionQueryService.class);
 
     /**
      * Option repository.
@@ -56,7 +56,7 @@ public class OptionQueryService {
         try {
             return getOptions(Option.CATEGORY_C_SKIN);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets skin failed", e);
+            LOGGER.error("Gets skin failed", e);
 
             return null;
         }
@@ -71,7 +71,7 @@ public class OptionQueryService {
         try {
             return getOptions(Option.CATEGORY_C_PREFERENCE);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets preference failed", e);
+            LOGGER.error("Gets preference failed", e);
 
             return null;
         }
@@ -88,7 +88,7 @@ public class OptionQueryService {
 
             return opt.optBoolean(Option.OPTION_VALUE);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Checks allow comment failed", e);
+            LOGGER.error("Checks allow comment failed", e);
 
             return false;
         }

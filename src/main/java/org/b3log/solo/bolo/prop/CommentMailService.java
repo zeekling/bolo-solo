@@ -17,7 +17,8 @@
  */
 package org.b3log.solo.bolo.prop;
 
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 
 import java.text.SimpleDateFormat;
@@ -35,7 +36,7 @@ public class CommentMailService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CommentMailService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentMailService.class);
 
     public static void remindCommentedGuy(String originalId, String URL, String whoCommentHim, String blogTitle) {
         String emailAdd = MailService.getEmailAddressByCommentId(originalId);

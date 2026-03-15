@@ -19,13 +19,13 @@ package org.b3log.solo.processor.console;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.advice.ProcessAdvice;
 import org.b3log.latke.servlet.advice.RequestProcessAdviceException;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * The common auth check before advice for admin console.

@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
 import org.b3log.latke.plugin.PluginManager;
@@ -78,7 +78,7 @@ public class InitService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(InitService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(InitService.class);
 
     /**
      * Option repository.
@@ -175,13 +175,13 @@ public class InitService {
         try {
             inited = null != optionRepository.get(Option.ID_C_VERSION);
             if (!inited && !printedInitMsg) {
-                LOGGER.log(Level.WARN, "Bolo has not been initialized, please open your browser to init Bolo");
+                LOGGER.warn("Bolo has not been initialized, please open your browser to init Bolo");
                 printedInitMsg = true;
             }
 
             return inited;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Check init failed", e);
+            LOGGER.error("Check init failed", e);
 
             System.exit(-1);
             return false;
@@ -190,7 +190,7 @@ public class InitService {
 
     public void initSpecificTables(final List<String> modelNames) {
         if (null == modelNames || modelNames.isEmpty()) {
-            LOGGER.log(Level.WARN, "No table to create: " + modelNames);
+            LOGGER.warn("No table to create: " + modelNames);
             return;
         }
         final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
@@ -209,22 +209,21 @@ public class InitService {
                 try {
                     isSuccess = JdbcFactory.getInstance().createTable(repositoryDef);
                 } catch (final SQLException e) {
-                    LOGGER.log(Level.ERROR, "Creates table [" + repositoryDef.getName() + "] error", e);
+                    LOGGER.error("Creates table [" + repositoryDef.getName() + "] error", e);
                 }
                 ret.add(new CreateTableResult(repositoryDef.getName(), isSuccess));
             }
             if (ret.isEmpty()) {
-                LOGGER.log(Level.WARN, "No table to create: " + tableNames);
+                LOGGER.warn("No table to create: " + tableNames);
                 return;
             }
             for (final CreateTableResult createTableResult : ret) {
-                LOGGER.log(Level.INFO, "Creates table result [tableName={0}, isSuccess={1}]",
+                LOGGER.info("Creates table result [tableName={0}, isSuccess={1}]",
                         createTableResult.getName(), createTableResult.isSuccess());
             }
             transaction.commit();
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR,
-                    "Init tables failed, please make sure database existed and database configuration [jdbc.*] in local.props is correct [msg="
+            LOGGER.error("Init tables failed, please make sure database existed and database configuration [jdbc.*] in local.props is correct [msg="
                             + e.getMessage() + "]");
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -246,8 +245,7 @@ public class InitService {
                 return;
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR,
-                    "Check tables failed, please make sure database existed and database configuration [jdbc.*] in local.props is correct [msg="
+            LOGGER.error("Check tables failed, please make sure database existed and database configuration [jdbc.*] in local.props is correct [msg="
                             + e.getMessage() + "]");
 
             System.exit(-1);
@@ -259,13 +257,13 @@ public class InitService {
         if (Latkes.RuntimeDatabase.H2 == Latkes.getRuntimeDatabase()) {
             String dataDir = Latkes.getLocalProperty("jdbc.URL");
             dataDir = dataDir.replace("~", System.getProperty("user.home"));
-            LOGGER.log(Level.INFO, "Your DATA will be stored in directory [" + dataDir + "], "
+            LOGGER.info("Your DATA will be stored in directory [" + dataDir + "], "
                     + "please pay more attention on it!");
         }
 
         final List<CreateTableResult> createTableResults = JdbcRepositories.initAllTables();
         for (final CreateTableResult createTableResult : createTableResults) {
-            LOGGER.log(Level.DEBUG, "Creates table result [tableName={0}, isSuccess={1}]",
+            LOGGER.debug("Creates table result [tableName={0}, isSuccess={1}]",
                     createTableResult.getName(), createTableResult.isSuccess());
         }
     }
@@ -296,7 +294,7 @@ public class InitService {
 
             transaction.commit();
         } catch (final Throwable e) {
-            LOGGER.log(Level.ERROR, "Initializes Solo failed", e);
+            LOGGER.error("Initializes Solo failed", e);
 
             System.exit(-1);
         } finally {
@@ -388,7 +386,7 @@ public class InitService {
             archiveDate(article);
             articleRepository.add(article);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Adds an article failed", e);
+            LOGGER.error("Adds an article failed", e);
 
             throw new RepositoryException(e);
         }
@@ -438,7 +436,7 @@ public class InitService {
                     DateUtils.parseDate(createDateString, new String[] { "yyyy/MM" }).getTime());
             archiveDateRepository.add(archiveDate);
         } catch (final ParseException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new RepositoryException(e);
         }
 
@@ -481,7 +479,7 @@ public class InitService {
             final String tagTitle = tagTitle1.trim();
             final JSONObject tag = new JSONObject();
 
-            LOGGER.log(Level.TRACE, "Found a new tag[title={0}] in article[title={1}]", tagTitle,
+            LOGGER.trace("Found a new tag[title={0}] in article[title={1}]", tagTitle,
                     article.optString(Article.ARTICLE_TITLE));
             tag.put(Tag.TAG_TITLE, tagTitle);
             final String tagId = tagRepository.add(tag);

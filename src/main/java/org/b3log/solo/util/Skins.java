@@ -20,24 +20,24 @@ package org.b3log.solo.util;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.util.Locales;
 import org.b3log.latke.util.Stopwatchs;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Option;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -60,7 +60,7 @@ public final class Skins {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(Skins.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Skins.class);
     /**
      * Properties map.
      */
@@ -91,7 +91,7 @@ public final class Skins {
         try {
             return Skins.TEMPLATE_CFG.getTemplate(templateName);
         } catch (final IOException e) {
-            LOGGER.log(Level.ERROR, "Gets console template [" + templateName + "] failed", e);
+            LOGGER.error("Gets console template [" + templateName + "] failed", e);
 
             return null;
         }
@@ -151,7 +151,7 @@ public final class Skins {
                 final InputStream inputStream = servletContext.getResourceAsStream(
                         "/skins/" + currentSkinDirName + "/lang/lang_" + language + '_' + country + ".properties");
                 if (null != inputStream) {
-                    LOGGER.log(Level.DEBUG, "Loading skin [dirName={0}, locale={1}]", currentSkinDirName, localeString);
+                    LOGGER.debug("Loading skin [dirName={0}, locale={1}]", currentSkinDirName, localeString);
                     final Properties props = new Properties();
                     props.load(inputStream);
                     inputStream.close();
@@ -163,13 +163,13 @@ public final class Skins {
                     }
 
                     LANG_MAP.put(langName, langs);
-                    LOGGER.log(Level.DEBUG, "Loaded skin [dirName={0}, locale={1}, keyCount={2}]", currentSkinDirName, localeString, langs.size());
+                    LOGGER.debug("Loaded skin [dirName={0}, locale={1}, keyCount={2}]", currentSkinDirName, localeString, langs.size());
                 }
             }
 
             dataModel.putAll(langs); // Fills the current skin's language configurations
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills skin langs failed", e);
+            LOGGER.error("Fills skin langs failed", e);
 
             throw new ServiceException(e);
         } finally {

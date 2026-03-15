@@ -20,14 +20,14 @@ package org.b3log.solo.processor.console;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.service.OptionQueryService;
@@ -36,8 +36,8 @@ import org.b3log.solo.util.Skins;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Set;
 
 /**
@@ -54,7 +54,7 @@ public class SkinConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(SkinConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SkinConsole.class);
 
     /**
      * Skin management service.
@@ -112,7 +112,7 @@ public class SkinConsole {
                 final JSONObject s = new JSONObject();
                 final String name = Latkes.getSkinName(dirName);
                 if (null == name) {
-                    LOGGER.log(Level.WARN, "The directory [{0}] does not contain any skin, ignored it", dirName);
+                    LOGGER.warn("The directory [{0}] does not contain any skin, ignored it", dirName);
 
                     continue;
                 }
@@ -129,7 +129,7 @@ public class SkinConsole {
             ret.put(Option.CATEGORY_C_SKIN, skin);
             ret.put(Keys.STATUS_CODE, true);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -178,7 +178,7 @@ public class SkinConsole {
             ret.put(Keys.STATUS_CODE, true);
             ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);

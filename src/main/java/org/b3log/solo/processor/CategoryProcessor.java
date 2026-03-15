@@ -20,22 +20,20 @@ package org.b3log.solo.processor;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AbstractFreeMarkerRenderer;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.latke.util.Paginator;
 import org.b3log.latke.util.Stopwatchs;
 import org.b3log.latke.util.URLs;
@@ -60,13 +58,13 @@ import org.json.JSONObject;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 2.0.0
  */
-@RequestProcessor
+@Singleton
 public class CategoryProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CategoryProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryProcessor.class);
 
     /**
      * DataModelService.
@@ -115,7 +113,6 @@ public class CategoryProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/articles/category/{categoryURI}", method = HttpMethod.GET)
     public void getCategoryArticlesByPage(final RequestContext context) {
         final JSONObject jsonObject = new JSONObject();
 
@@ -152,7 +149,7 @@ public class CategoryProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -167,7 +164,6 @@ public class CategoryProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/category/{categoryURI}", method = HttpMethod.GET)
     public void showCategoryArticles(final RequestContext context) {
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "category-articles.ftl");
         final Map<String, Object> dataModel = renderer.getDataModel();
@@ -179,7 +175,7 @@ public class CategoryProcessor {
             String categoryURI = context.pathVar("categoryURI");
             categoryURI = URLs.encode(categoryURI);
             final int currentPageNum = Paginator.getPage(request);
-            LOGGER.log(Level.DEBUG, "Category [URI={0}, currentPageNum={1}]", categoryURI, currentPageNum);
+            LOGGER.debug("Category [URI={0}, currentPageNum={1}]", categoryURI, currentPageNum);
             // 读取category表，无关键操作
             final JSONObject category = categoryQueryService.getByURI(categoryURI);
             if (null == category) {
@@ -220,7 +216,7 @@ public class CategoryProcessor {
 
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final ServiceException | JSONException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -257,7 +253,7 @@ public class CategoryProcessor {
             dataModel.put(Pagination.PAGINATION_FIRST_PAGE_NUM, 1);
             dataModel.put(Pagination.PAGINATION_LAST_PAGE_NUM, 1);
 
-            LOGGER.log(Level.WARN, "No category of \"" + categoryURI + "\" has found. Showing blank.");
+            LOGGER.warn("No category of \"" + categoryURI + "\" has found. Showing blank.");
         }
         dataModel.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);

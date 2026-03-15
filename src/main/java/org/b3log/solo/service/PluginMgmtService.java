@@ -17,12 +17,12 @@
  */
 package org.b3log.solo.service;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Plugin;
 import org.b3log.latke.plugin.AbstractPlugin;
 import org.b3log.latke.plugin.PluginManager;
@@ -51,7 +51,7 @@ public class PluginMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PluginMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PluginMgmtService.class);
 
     /**
      * Plugin repository.
@@ -107,7 +107,7 @@ public class PluginMgmtService {
                             plugin.setSetting(new JSONObject(setting));
                         }
                     } catch (final JSONException e) {
-                        LOGGER.log(Level.WARN, "the formatter of the old config failed to convert to json", e);
+                        LOGGER.warn("the formatter of the old config failed to convert to json", e);
                     }
                 }
             }
@@ -118,11 +118,11 @@ public class PluginMgmtService {
 
                 pluginRepository.add(pluginDesc);
 
-                LOGGER.log(Level.TRACE, "Refreshed plugin[{0}]", pluginDesc);
+                LOGGER.trace("Refreshed plugin[{0}]", pluginDesc);
             }
 
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Refresh plugins failed", e);
+            LOGGER.error("Refresh plugins failed", e);
         }
     }
 
@@ -188,7 +188,7 @@ public class PluginMgmtService {
                         transaction.rollback();
                     }
 
-                    LOGGER.log(Level.ERROR, "Set plugin status error", e);
+                    LOGGER.error("Set plugin status error", e);
 
                     ret.put(Keys.STATUS_CODE, false);
                     ret.put(Keys.MSG, langs.get("setFailLabel"));
@@ -235,7 +235,7 @@ public class PluginMgmtService {
                     if (transaction.isActive()) {
                         transaction.rollback();
                     }
-                    LOGGER.log(Level.ERROR, "Set plugin status error", e);
+                    LOGGER.error("Set plugin status error", e);
                     ret.put(Keys.STATUS_CODE, false);
                     ret.put(Keys.MSG, langs.get("setFailLabel"));
 

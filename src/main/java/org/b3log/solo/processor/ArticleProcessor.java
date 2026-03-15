@@ -27,31 +27,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.User;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AbstractFreeMarkerRenderer;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
-import org.b3log.latke.servlet.renderer.TextHtmlRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.renderer.JsonRenderer;
+import org.b3log.latke.http.renderer.TextHtmlRenderer;
 import org.b3log.latke.util.CollectionUtils;
 import org.b3log.latke.util.Dates;
 import org.b3log.latke.util.Locales;
@@ -96,13 +94,13 @@ import org.jsoup.Jsoup;
  * @author <a href="http://zephyr.b3log.org">Zephyr</a>
  * @since 0.3.1
  */
-@RequestProcessor
+@Singleton
 public class ArticleProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleProcessor.class);
 
     /**
      * Article query service.
@@ -202,7 +200,6 @@ public class ArticleProcessor {
      *
      * @param context the specified request context
      */
-    @RequestProcessing(value = "/console/markdown/2html", method = HttpMethod.POST)
     public void markdown2HTML(final RequestContext context) {
         final JSONObject result = Solos.newSucc();
         context.renderJSON(result);
@@ -227,7 +224,7 @@ public class ArticleProcessor {
             final String html = Markdowns.toHTML(markdownText);
             result.put(Common.DATA, html);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             result.put(Keys.CODE, -1);
             result.put(Keys.MSG, langPropsService.get("getFailLabel"));
         }
@@ -238,7 +235,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/console/article-pwd", method = HttpMethod.GET)
     public void showArticlePwdForm(final RequestContext context) {
         final String articleId = context.param("articleId");
         if (StringUtils.isBlank(articleId)) {
@@ -287,7 +283,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/console/article-pwd", method = HttpMethod.POST)
     public void onArticlePwdForm(final RequestContext context) {
         try {
             final HttpServletRequest request = context.getRequest();
@@ -316,7 +311,7 @@ public class ArticleProcessor {
             context.sendRedirect(Latkes.getServePath() + "/console/article-pwd?articleId="
                     + article.optString(Keys.OBJECT_ID) + "&msg=1");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Processes article view password form submits failed", e);
+            LOGGER.error("Processes article view password form submits failed", e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -327,7 +322,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/articles/random", method = HttpMethod.POST)
     public void getRandomArticles(final RequestContext context) {
         final JSONObject jsonObject = new JSONObject();
 
@@ -360,7 +354,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/article/id/{id}/relevant/articles", method = HttpMethod.GET)
     public void getRelevantArticles(final RequestContext context) {
         final JSONObject jsonObject = new JSONObject();
 
@@ -408,7 +401,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/get-article-content", method = HttpMethod.GET)
     public void getArticleContent(final RequestContext context) {
         final HttpServletRequest request = context.getRequest();
         final String articleId = context.param("id");
@@ -423,7 +415,7 @@ public class ArticleProcessor {
         try {
             content = articleQueryService.getArticleContent(context, articleId);
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, "Can not get article content", e);
+            LOGGER.error("Can not get article content", e);
             return;
         }
 
@@ -439,7 +431,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/articles", method = HttpMethod.GET)
     public void getArticlesByPage(final RequestContext context) {
         final JSONObject jsonObject = new JSONObject();
         final HttpServletRequest request = context.getRequest();
@@ -467,7 +458,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -482,7 +473,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/articles/tags/{tagTitle}", method = HttpMethod.GET)
     public void getTagArticlesByPage(final RequestContext context) {
         final JSONObject jsonObject = new JSONObject();
 
@@ -521,7 +511,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -536,7 +526,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/articles/archives/{yyyy}/{MM}", method = HttpMethod.GET)
     public void getArchivesArticlesByPage(final RequestContext context) {
         final JSONObject jsonObject = new JSONObject();
 
@@ -575,7 +564,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -590,7 +579,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/articles/authors/{author}", method = HttpMethod.GET)
     public void getAuthorsArticlesByPage(final RequestContext context) {
         final JSONObject jsonObject = new JSONObject();
 
@@ -628,7 +616,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -643,7 +631,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/authors/{author}", method = HttpMethod.GET)
     public void showAuthorArticles(final RequestContext context) {
         final HttpServletRequest request = context.getRequest();
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "author-articles.ftl");
@@ -651,7 +638,7 @@ public class ArticleProcessor {
         try {
             final String authorId = context.pathVar("author");
             final int currentPageNum = Paginator.getPage(request);
-            LOGGER.log(Level.DEBUG, "Request author articles [authorId={0}, currentPageNum={1}]", authorId,
+            LOGGER.debug("Request author articles [authorId={0}, currentPageNum={1}]", authorId,
                     currentPageNum);
 
             final JSONObject preference = optionQueryService.getPreference();
@@ -699,7 +686,7 @@ public class ArticleProcessor {
 
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -710,7 +697,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/archives/{yyyy}/{MM}", method = HttpMethod.GET)
     public void showArchiveArticles(final RequestContext context) {
         final HttpServletRequest request = context.getRequest();
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "archive-articles.ftl");
@@ -718,11 +704,11 @@ public class ArticleProcessor {
         try {
             final int currentPageNum = Paginator.getPage(request);
             final String archiveDateString = context.pathVar("yyyy") + "/" + context.pathVar("MM");
-            LOGGER.log(Level.DEBUG, "Request archive date [string={0}, currentPageNum={1}]", archiveDateString,
+            LOGGER.debug("Request archive date [string={0}, currentPageNum={1}]", archiveDateString,
                     currentPageNum);
             final JSONObject result = archiveDateQueryService.getByArchiveDateString(archiveDateString);
             if (null == result) {
-                LOGGER.log(Level.DEBUG, "Can not find articles for the specified archive date[string={0}]",
+                LOGGER.debug("Can not find articles for the specified archive date[string={0}]",
                         archiveDateString);
                 context.sendError(HttpServletResponse.SC_NOT_FOUND);
 
@@ -760,12 +746,10 @@ public class ArticleProcessor {
 
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
-
-    @RequestProcessing(value = "/follow/articles/{followName}", method = HttpMethod.GET)
     public void showFollowUserArticles(final RequestContext context) {
         final String followName = (String) context.pathVar("followName");
         final HttpServletRequest request = context.getRequest();
@@ -827,7 +811,7 @@ public class ArticleProcessor {
             dataModel.put(Common.PATH, "");
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -838,7 +822,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/follow/{followName}/article/{articleTitle}", method = HttpMethod.GET)
     public void showRssArticle(final RequestContext context) {
         // See PermalinkHandler#dispatchToArticleProcessor()
         final String followName = (String) context.pathVar("followName");
@@ -849,7 +832,7 @@ public class ArticleProcessor {
             return;
         }
 
-        LOGGER.log(Level.DEBUG, "Rss Article Feed [author=[{0}], id={1}]", followName, articleTitle);
+        LOGGER.debug("Rss Article Feed [author=[{0}], id={1}]", followName, articleTitle);
 
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "rss-article.ftl");
 
@@ -880,7 +863,7 @@ public class ArticleProcessor {
             dataModel.put(Option.ID_C_RANDOM_ARTICLES_DISPLAY_CNT, 0);
             dataModel.put(Option.ID_C_RELEVANT_ARTICLES_DISPLAY_CNT, 0);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -891,7 +874,6 @@ public class ArticleProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/article", method = HttpMethod.GET)
     public void showArticle(final RequestContext context) {
         // See PermalinkHandler#dispatchToArticleProcessor()
         final JSONObject article = (JSONObject) context.attr(Article.ARTICLE);
@@ -902,12 +884,12 @@ public class ArticleProcessor {
         }
 
         final String articleId = article.optString(Keys.OBJECT_ID);
-        LOGGER.log(Level.DEBUG, "Article [id={0}]", articleId);
+        LOGGER.debug("Article [id={0}]", articleId);
 
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "article.ftl");
 
         try {
-            LOGGER.log(Level.TRACE, "Article [title={0}]", article.getString(Article.ARTICLE_TITLE));
+            LOGGER.trace("Article [title={0}]", article.getString(Article.ARTICLE_TITLE));
             articleQueryService.markdown(article);
 
             article.put(Article.ARTICLE_T_CREATE_DATE, new Date(article.optLong(Article.ARTICLE_CREATED)));
@@ -975,7 +957,7 @@ public class ArticleProcessor {
             eventData.put(Article.ARTICLE, article);
             eventManager.fireEventSynchronously(new Event<>(EventTypes.BEFORE_RENDER_ARTICLE, eventData));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -994,7 +976,7 @@ public class ArticleProcessor {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             return Collections.emptyList();
         }

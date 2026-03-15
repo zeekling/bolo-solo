@@ -17,17 +17,15 @@
  */
 package org.b3log.solo.processor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.solo.model.*;
 import org.b3log.solo.repository.ArticleRepository;
 import org.b3log.solo.repository.CommentRepository;
@@ -45,13 +43,13 @@ import java.util.Date;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 0.5.5
  */
-@RequestProcessor
+@Singleton
 public class B3Receiver {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(B3Receiver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(B3Receiver.class);
 
     /**
      * User repository.
@@ -134,13 +132,12 @@ public class B3Receiver {
      *
      * @param context the specified request context
      */
-    @RequestProcessing(value = "/apis/symphony/article", method = {HttpMethod.POST, HttpMethod.PUT})
     public void postArticle(final RequestContext context) {
         final JSONObject ret = new JSONObject().put(Keys.CODE, 0);
         context.renderJSON(ret);
 
         final JSONObject requestJSONObject = context.requestJSON();
-        LOGGER.log(Level.INFO, "Adds an article from Sym [" + requestJSONObject.toString() + "]");
+        LOGGER.info("Adds an article from Sym [" + requestJSONObject.toString() + "]");
 
         try {
             final JSONObject client = requestJSONObject.optJSONObject("client");
@@ -150,7 +147,7 @@ public class B3Receiver {
                 ret.put(Keys.CODE, 1);
                 final String msg = "Not found user [" + articleAuthorName + "]";
                 ret.put(Keys.MSG, msg);
-                LOGGER.log(Level.WARN, msg);
+                LOGGER.warn(msg);
 
                 return;
             }
@@ -166,7 +163,7 @@ public class B3Receiver {
                 ret.put(Keys.CODE, 1);
                 final String msg = "Wrong key";
                 ret.put(Keys.MSG, msg);
-                LOGGER.log(Level.WARN, msg);
+                LOGGER.warn(msg);
 
                 return;
             }
@@ -192,7 +189,7 @@ public class B3Receiver {
                 article.put(Article.ARTICLE_CONTENT, content);
                 final JSONObject addRequest = new JSONObject().put(Article.ARTICLE, article);
                 articleMgmtService.addArticle(addRequest);
-                LOGGER.log(Level.INFO, "Added an article [" + title + "] via Sym");
+                LOGGER.info("Added an article [" + title + "] via Sym");
 
                 return;
             }
@@ -205,9 +202,9 @@ public class B3Receiver {
             oldArticle.put(Common.POST_TO_COMMUNITY, false); // Do not send to rhythm
             final JSONObject updateRequest = new JSONObject().put(Article.ARTICLE, oldArticle);
             articleMgmtService.updateArticle(updateRequest);
-            LOGGER.log(Level.INFO, "Updated an article [" + title + "] via Sym");
+            LOGGER.info("Updated an article [" + title + "] via Sym");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             ret.put(Keys.CODE, 1).put(Keys.MSG, e.getMessage());
         }
     }

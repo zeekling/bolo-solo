@@ -19,8 +19,8 @@ package org.b3log.solo.repository;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.repository.annotation.Repository;
 import org.b3log.solo.cache.CommentCache;
@@ -43,7 +43,7 @@ public class CommentRepository extends AbstractRepository {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CommentRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentRepository.class);
 
     /**
      * Article repository.
@@ -147,7 +147,7 @@ public class CommentRepository extends AbstractRepository {
             remove(commentId);
         }
 
-        LOGGER.log(Level.DEBUG, "Removed comments[onId={0}, removedCnt={1}]", onId, comments.size());
+        LOGGER.debug("Removed comments[onId={0}, removedCnt={1}]", onId, comments.size());
 
         return comments.size();
     }

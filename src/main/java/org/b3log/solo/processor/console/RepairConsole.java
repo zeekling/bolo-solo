@@ -18,12 +18,12 @@
 package org.b3log.solo.processor.console;
 
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
-import org.b3log.latke.servlet.RequestContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.TextHtmlRenderer;
+import org.b3log.latke.http.renderer.TextHtmlRenderer;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.repository.ArticleRepository;
 import org.b3log.solo.repository.TagArticleRepository;
@@ -48,7 +48,7 @@ public class RepairConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(RepairConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RepairConsole.class);
 
     /**
      * Option query service.
@@ -108,7 +108,7 @@ public class RepairConsole {
 
             renderer.setContent("Restore signs succeeded.");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             renderer.setContent("Restores signs failed, error msg [" + e.getMessage() + "]");
         }

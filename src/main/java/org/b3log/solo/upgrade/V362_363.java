@@ -17,11 +17,11 @@
  */
 package org.b3log.solo.upgrade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.Query;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.solo.model.Article;
@@ -45,7 +45,7 @@ public final class V362_363 {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(V362_363.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(V362_363.class);
 
     /**
      * Performs upgrade from v3.6.2 to v3.6.3.
@@ -56,7 +56,7 @@ public final class V362_363 {
         final String fromVer = "3.6.2";
         final String toVer = "3.6.3";
 
-        LOGGER.log(Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
+        LOGGER.info("Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
 
         final BeanManager beanManager = BeanManager.getInstance();
         final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
@@ -85,9 +85,9 @@ public final class V362_363 {
 
             transaction.commit();
 
-            LOGGER.log(Level.INFO, "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
+            LOGGER.info("Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+            LOGGER.error("Upgrade failed!", e);
 
             throw new Exception("Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
         }

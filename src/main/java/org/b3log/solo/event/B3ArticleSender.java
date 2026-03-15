@@ -19,15 +19,15 @@ package org.b3log.solo.event;
 
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.event.AbstractEventListener;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.util.Strings;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.model.Article;
@@ -56,7 +56,7 @@ public class B3ArticleSender extends AbstractEventListener<JSONObject> {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(B3ArticleSender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(B3ArticleSender.class);
 
     /**
      * Pushes the specified article data to B3log Rhythm.
@@ -68,13 +68,13 @@ public class B3ArticleSender extends AbstractEventListener<JSONObject> {
             final JSONObject originalArticle = data.getJSONObject(Article.ARTICLE);
             final String title = originalArticle.getString(Article.ARTICLE_TITLE);
             if (Article.ARTICLE_STATUS_C_PUBLISHED != originalArticle.optInt(Article.ARTICLE_STATUS)) {
-                LOGGER.log(Level.INFO, "Ignored push a draft [title={0}] to Rhy", title);
+                LOGGER.info("Ignored push a draft [title={0}] to Rhy", title);
 
                 return;
             }
 
             if (StringUtils.isNotBlank(originalArticle.optString(Article.ARTICLE_VIEW_PWD))) {
-                LOGGER.log(Level.INFO, "Article [title={0}] is a password article, ignored push to Rhy", title);
+                LOGGER.info("Article [title={0}] is a password article, ignored push to Rhy", title);
 
                 return;
             }
@@ -86,7 +86,7 @@ public class B3ArticleSender extends AbstractEventListener<JSONObject> {
 
             // 注释本地关闭推送功能
             /* if (isLocalServer()) {
-                LOGGER.log(Level.INFO, "Solo is running on a local server [servePath=" + Latkes.getServePath() +
+                LOGGER.info("Solo is running on a local server [servePath=" + Latkes.getServePath() +
                         ", serverHost=" + Latkes.getServerHost() + ", serverPort=" + Latkes.getServerPort() + "], ignored push article [title=" + title + "] to Rhy");
                 return;
             } */
@@ -109,7 +109,7 @@ public class B3ArticleSender extends AbstractEventListener<JSONObject> {
             String userB3Key = userQueryService.getB3password();
 
             if (Option.DefaultPreference.DEFAULT_B3LOG_USERNAME.equals(userName)) {
-                LOGGER.log(Level.INFO, "Article [title={0}] Is using the B3log default account, skipped push to Rhy", title);
+                LOGGER.info("Article [title={0}] Is using the B3log default account, skipped push to Rhy", title);
 
                 return;
             }
@@ -128,9 +128,9 @@ public class B3ArticleSender extends AbstractEventListener<JSONObject> {
                     connectionTimeout(3000).timeout(7000).followRedirects(true).
                     contentTypeJson().header("User-Agent", Solos.USER_AGENT).send();
 
-            LOGGER.log(Level.INFO, "Pushed an article [title={0}] to Rhy, response [{1}]", title, response.toString());
+            LOGGER.info("Pushed an article [title={0}] to Rhy, response [{1}]", title, response.toString());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Pushes an article to Rhy failed: " + e.getMessage());
+            LOGGER.error("Pushes an article to Rhy failed: " + e.getMessage());
         }
     }
 
@@ -142,7 +142,7 @@ public class B3ArticleSender extends AbstractEventListener<JSONObject> {
     @Override
     public void action(final Event<JSONObject> event) {
         final JSONObject data = event.getData();
-        LOGGER.log(Level.DEBUG, "Processing an event [type={0}, data={1}] in listener [className={2}]",
+        LOGGER.debug("Processing an event [type={0}, data={1}] in listener [className={2}]",
                 event.getType(), data, B3ArticleSender.class.getName());
 
         pushArticleToRhy(data);

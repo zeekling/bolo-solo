@@ -17,13 +17,13 @@
  */
 package org.b3log.solo.event;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.event.AbstractEventListener;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.solo.service.OptionMgmtService;
 
@@ -38,7 +38,7 @@ public class DeleteArticleListener extends AbstractEventListener<String> {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(DeleteArticleListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeleteArticleListener.class);
 
     @Override
     public String getEventType() {
@@ -56,7 +56,7 @@ public class DeleteArticleListener extends AbstractEventListener<String> {
         try {
             optionMgmtService.removeOption("article_" + articleId);
         } catch (ServiceException e) {
-            LOGGER.log(Level.ERROR, "及联删除帖子[{0}]关联的option失败" + e.getMessage(), articleId);
+            LOGGER.error("及联删除帖子[{0}]关联的option失败" + e.getMessage(), articleId);
         }
     }
 }

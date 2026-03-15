@@ -18,11 +18,11 @@
 package org.b3log.solo.util;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.solo.bolo.pic.util.UploadUtil;
 import org.b3log.solo.bolo.prop.Options;
 import org.b3log.solo.model.Option;
@@ -50,7 +50,7 @@ public final class Images {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(Images.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Images.class);
 
     /**
      * Community file service URL.
@@ -120,7 +120,7 @@ public final class Images {
         ios.close();
         jpgWriter.dispose();
 
-        LOGGER.log(Level.INFO, "Temp Image " + inputFile.getName() + " Delete [" + inputFile.delete() + "]");
+        LOGGER.info("Temp Image " + inputFile.getName() + " Delete [" + inputFile.delete() + "]");
         return compressedFile;
     }
 
@@ -152,10 +152,10 @@ public final class Images {
             return B3logImageURL;
 
         } catch (final FileNotFoundException e) {
-            LOGGER.log(Level.ERROR, "Remote image resource lost", e);
+            LOGGER.error("Remote image resource lost", e);
             return COMMUNITY_FILE_URL + "/bing/20171104.jpg";
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Generates random image URL failed", e);
+            LOGGER.error("Generates random image URL failed", e);
             return COMMUNITY_FILE_URL + "/bing/20171104.jpg";
         }
 

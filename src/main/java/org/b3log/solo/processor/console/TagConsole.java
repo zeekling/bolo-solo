@@ -19,13 +19,13 @@ package org.b3log.solo.processor.console;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.servlet.annotation.Before;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Tag;
 import org.b3log.solo.service.TagMgmtService;
@@ -48,7 +48,7 @@ public class TagConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(TagConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagConsole.class);
 
     /**
      * Tag query service.
@@ -84,7 +84,7 @@ public class TagConsole {
             jsonObject.put(Tag.TAGS, tagQueryService.getTags());
             jsonObject.put(Keys.STATUS_CODE, true);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets tags failed", e);
+            LOGGER.error("Gets tags failed", e);
 
             jsonObject.put(Keys.STATUS_CODE, false);
         }
@@ -131,7 +131,7 @@ public class TagConsole {
 
             jsonObject.put(Keys.STATUS_CODE, true);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets unused tags failed", e);
+            LOGGER.error("Gets unused tags failed", e);
 
             jsonObject.put(Keys.STATUS_CODE, false);
         }

@@ -20,8 +20,8 @@ package org.b3log.solo.bolo.prop;
 import jodd.http.HttpRequest;
 import jodd.http.HttpResponse;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.service.OptionQueryService;
 import org.b3log.solo.util.Solos;
@@ -34,7 +34,7 @@ public class ServerJiangService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ServerJiangService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerJiangService.class);
 
     public static boolean send(String title, String desp, String sendKey) {
         final HttpResponse response = HttpRequest.
@@ -59,9 +59,9 @@ public class ServerJiangService {
                     "评论链接：" + blogSite + "  \n" +
                     "评论内容：  \n" + comment;
             if (!send(title, desp, sendKey)) {
-                LOGGER.log(Level.ERROR, "Server Jiang Remind send failed, please check your \"sendKey\" option. Free accounts can only send 5 times a day, maybe the limit is reached?");
+                LOGGER.error("Server Jiang Remind send failed, please check your \"sendKey\" option. Free accounts can only send 5 times a day, maybe the limit is reached?");
             } else {
-                LOGGER.log(Level.INFO, "Server Jiang Remind sent. [title=" + title + ", desp=" + desp + "]");
+                LOGGER.info("Server Jiang Remind sent. [title=" + title + ", desp=" + desp + "]");
             }
         }
     }

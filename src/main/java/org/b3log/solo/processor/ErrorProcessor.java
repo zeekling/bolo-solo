@@ -17,18 +17,16 @@
  */
 package org.b3log.solo.processor;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
 import org.b3log.latke.util.Locales;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.service.DataModelService;
@@ -37,8 +35,8 @@ import org.b3log.solo.service.UserQueryService;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**
@@ -48,13 +46,13 @@ import java.util.Map;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 0.4.5
  */
-@RequestProcessor
+@Singleton
 public class ErrorProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleProcessor.class);
 
     /**
      * DataModelService.
@@ -86,13 +84,12 @@ public class ErrorProcessor {
      * @param context the specified context
      * @throws Exception exception
      */
-    @RequestProcessing(value = "/error/{statusCode}", method = {HttpMethod.GET, HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE})
     public void showErrorPage(final RequestContext context) {
         final String statusCode = context.pathVar("statusCode");
         if (StringUtils.equals("GET", context.method())) {
             final String requestURI = context.requestURI();
             final String templateName = statusCode + ".ftl";
-            LOGGER.log(Level.TRACE, "Shows error page [requestURI={0}, templateName={1}]", requestURI, templateName);
+            LOGGER.trace("Shows error page [requestURI={0}, templateName={1}]", requestURI, templateName);
 
             final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "error/" + templateName);
             final Map<String, Object> dataModel = renderer.getDataModel();
@@ -107,7 +104,7 @@ public class ErrorProcessor {
                 dataModel.put(Keys.MSG, msg);
                 dataModel.put(Common.LOGIN_URL, userQueryService.getLoginURL(Common.ADMIN_INDEX_URI));
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Shows error page failed", e);
+                LOGGER.error("Shows error page failed", e);
 
                 context.sendError(HttpServletResponse.SC_NOT_FOUND);
             }

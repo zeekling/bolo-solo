@@ -29,16 +29,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.Plugin;
 import org.b3log.latke.model.Role;
@@ -52,7 +52,7 @@ import org.b3log.latke.repository.SortDirection;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.service.annotation.Service;
-import org.b3log.latke.servlet.RequestContext;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.util.CollectionUtils;
 import org.b3log.latke.util.Dates;
 import org.b3log.latke.util.Locales;
@@ -106,7 +106,7 @@ public class DataModelService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(DataModelService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataModelService.class);
 
     /**
      * Article repository.
@@ -285,7 +285,7 @@ public class DataModelService {
                 dataModel.put(Article.ARTICLES + "1", articles);
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills index articles failed", e);
+            LOGGER.error("Fills index articles failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -310,7 +310,7 @@ public class DataModelService {
 
             dataModel.put(Link.LINKS, links);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Fills links failed", e);
+            LOGGER.error("Fills links failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -336,7 +336,7 @@ public class DataModelService {
 
             dataModel.put(Follow.FOLLOWS, follows);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Fills follows failed", e);
+            LOGGER.error("Fills follows failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -357,7 +357,7 @@ public class DataModelService {
             final List<JSONObject> tags = tagQueryService.getTagsOfPublishedArticles();
             dataModel.put(Tag.TAGS, tags);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills tags failed", e);
+            LOGGER.error("Fills tags failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -381,7 +381,7 @@ public class DataModelService {
             final List<JSONObject> categories = categoryRepository.getMostUsedCategories(Integer.MAX_VALUE);
             dataModel.put(Category.CATEGORIES, categories);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Fills categories failed", e);
+            LOGGER.error("Fills categories failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -406,7 +406,7 @@ public class DataModelService {
             final List<JSONObject> categories = categoryRepository.getMostUsedCategories(mostUsedCategoryDisplayCnt);
             dataModel.put(Common.MOST_USED_CATEGORIES, categories);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Fills most used categories failed", e);
+            LOGGER.error("Fills most used categories failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -431,7 +431,7 @@ public class DataModelService {
             final List<JSONObject> tags = tagArticleRepository.getMostUsedTags(mostUsedTagDisplayCnt);
             dataModel.put(Common.MOST_USED_TAGS, tags);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills most used tags failed", e);
+            LOGGER.error("Fills most used tags failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -496,7 +496,7 @@ public class DataModelService {
                         if (!dateString.equals(lastDateString)) {
                             archiveDates2.add(archiveDate);
                         } else {
-                            LOGGER.log(Level.DEBUG, "Found a duplicated archive date [{0}]", dateString);
+                            LOGGER.debug("Found a duplicated archive date [{0}]", dateString);
                         }
                     }
                 }
@@ -524,7 +524,7 @@ public class DataModelService {
 
             dataModel.put(ArchiveDate.ARCHIVE_DATES, archiveDates2);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills archive dates failed", e);
+            LOGGER.error("Fills archive dates failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -551,7 +551,7 @@ public class DataModelService {
             dataModel.put(Common.MOST_VIEW_COUNT_ARTICLES, mostViewCountArticles);
 
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills most view count articles failed", e);
+            LOGGER.error("Fills most view count articles failed", e);
             throw new ServiceException(e);
         } finally {
             Stopwatchs.end();
@@ -577,7 +577,7 @@ public class DataModelService {
 
             dataModel.put(Common.MOST_COMMENT_ARTICLES, mostCommentArticles);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills most comment articles failed", e);
+            LOGGER.error("Fills most comment articles failed", e);
             throw new ServiceException(e);
         } finally {
             Stopwatchs.end();
@@ -600,7 +600,7 @@ public class DataModelService {
             final List<JSONObject> recentArticles = articleRepository.getRecentArticles(recentArticleDisplayCnt);
             dataModel.put(Common.RECENT_ARTICLES, recentArticles);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills recent articles failed", e);
+            LOGGER.error("Fills recent articles failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -636,7 +636,7 @@ public class DataModelService {
 
             dataModel.put(Common.RECENT_COMMENTS, recentComments);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills recent comments failed", e);
+            LOGGER.error("Fills recent comments failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -673,7 +673,7 @@ public class DataModelService {
 
             dataModel.put(Option.ID_C_USITE, new JSONObject(usiteOpt.optString(Option.OPTION_VALUE)));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills usite failed", e);
+            LOGGER.error("Fills usite failed", e);
         }
     }
 
@@ -779,7 +779,7 @@ public class DataModelService {
                         if (!dateString.equals(lastDateString)) {
                             archiveDates2.add(archiveDate);
                         } else {
-                            LOGGER.log(Level.DEBUG, "Found a duplicated archive date [{0}]", dateString);
+                            LOGGER.debug("Found a duplicated archive date [{0}]", dateString);
                         }
                     }
                 }
@@ -938,7 +938,7 @@ public class DataModelService {
                 dataModel.put(Plugin.PLUGINS, "");
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills blog footer failed", e);
+            LOGGER.error("Fills blog footer failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -1033,7 +1033,7 @@ public class DataModelService {
             fillArchiveDates(dataModel, preference);
             fillMostUsedCategories(dataModel, preference);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills blog header failed", e);
+            LOGGER.error("Fills blog header failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -1111,7 +1111,7 @@ public class DataModelService {
                 fillMostViewCountArticles(dataModel, preference);
             }
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, "Fills side failed", e);
+            LOGGER.error("Fills side failed", e);
             throw new ServiceException(e);
         } finally {
             Stopwatchs.end();
@@ -1131,7 +1131,7 @@ public class DataModelService {
             final Map<String, Object> dataModel, final JSONObject preference) throws ServiceException {
         Stopwatchs.start("Fill User Template[name=" + template.getName() + "]");
         try {
-            LOGGER.log(Level.DEBUG, "Filling user template[name{0}]", template.getName());
+            LOGGER.debug("Filling user template[name{0}]", template.getName());
 
             if (Templates.hasExpression(template, "<#list links as link>")) {
                 fillLinks(dataModel);
@@ -1169,7 +1169,7 @@ public class DataModelService {
 
             dataModel.put(Option.ID_C_NOTICE_BOARD, noticeBoard);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Fills user template failed", e);
+            LOGGER.error("Fills user template failed", e);
 
             throw new ServiceException(e);
         } finally {
@@ -1190,7 +1190,7 @@ public class DataModelService {
             final List<JSONObject> pages = pageRepository.getPages();
             dataModel.put(Common.PAGE_NAVIGATIONS, pages);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Fills page navigations failed", e);
+            LOGGER.error("Fills page navigations failed", e);
             throw new ServiceException(e);
         } finally {
             Stopwatchs.end();
@@ -1283,7 +1283,7 @@ public class DataModelService {
                 article.put("articleCategory", "");
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Sets article extra properties failed", e);
+            LOGGER.error("Sets article extra properties failed", e);
             throw new ServiceException(e);
         }
     }
@@ -1333,7 +1333,7 @@ public class DataModelService {
 
             return categoryRepository.get(categoryId);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets category of tag [" + tagTitle + "] failed", e);
+            LOGGER.error("Gets category of tag [" + tagTitle + "] failed", e);
 
             return null;
         }
@@ -1448,7 +1448,7 @@ public class DataModelService {
 
             return stringWriter.toString();
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gens top bar HTML failed", e);
+            LOGGER.error("Gens top bar HTML failed", e);
 
             throw new ServiceException(e);
         } finally {

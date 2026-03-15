@@ -20,8 +20,8 @@ package org.b3log.solo.service;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
@@ -51,7 +51,7 @@ public class PreferenceMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PreferenceMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PreferenceMgmtService.class);
 
     /**
      * Option query service.
@@ -88,7 +88,7 @@ public class PreferenceMgmtService {
         while (keys.hasNext()) {
             final String key = keys.next();
             if (preference.isNull(key)) {
-                LOGGER.log(Level.ERROR, "A value is null of preference [key=" + key + "]");
+                LOGGER.error("A value is null of preference [key=" + key + "]");
             }
         }
 
@@ -115,7 +115,7 @@ public class PreferenceMgmtService {
             final String showCodeBlockLnVal = preference.optString(Option.ID_C_SHOW_CODE_BLOCK_LN);
             Markdowns.SHOW_CODE_BLOCK_LN = "true".equalsIgnoreCase(showCodeBlockLnVal);
 
-            LOGGER.log(Level.INFO, "Reloading settings ...");
+            LOGGER.info("Reloading settings ...");
             Markdowns.clearCache();
             WAF.set();
             MailService.loadMailSettings();
@@ -126,11 +126,11 @@ public class PreferenceMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Updates preference failed", e);
+            LOGGER.error("Updates preference failed", e);
             throw new ServiceException(langPropsService.get("updateFailLabel"));
         }
 
-        LOGGER.log(Level.DEBUG, "Updates preference successfully");
+        LOGGER.debug("Updates preference successfully");
     }
 
     private void emptyPreferenceOptSave(final String optID, final String val) throws Exception {

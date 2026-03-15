@@ -19,8 +19,8 @@ package org.b3log.solo.repository;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.repository.annotation.Repository;
 import org.b3log.solo.model.ArchiveDate;
@@ -43,7 +43,7 @@ public class ArchiveDateArticleRepository extends AbstractRepository {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArchiveDateArticleRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveDateArticleRepository.class);
 
     /**
      * Public constructor.
@@ -73,7 +73,7 @@ public class ArchiveDateArticleRepository extends AbstractRepository {
             final List<JSONObject> articlesCountResult = select(queryCount.append(queryStr.toString()).toString());
             return articlesCountResult == null ? 0 : articlesCountResult.get(0).optInt("C");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets archivedate [" + archiveDateId + "]'s published article count failed", e);
+            LOGGER.error("Gets archivedate [" + archiveDateId + "]'s published article count failed", e);
 
             return -1;
         }

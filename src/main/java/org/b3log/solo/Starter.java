@@ -19,8 +19,8 @@ package org.b3log.solo;
 
 import org.apache.commons.cli.*;
 import org.b3log.latke.Latkes;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.util.Strings;
 import org.b3log.solo.bolo.Global;
 import org.b3log.solo.util.Markdowns;
@@ -59,7 +59,7 @@ public final class Starter {
      * @throws java.lang.Exception if start failed
      */
     public static void main(final String[] args) throws Exception {
-        final Logger logger = Logger.getLogger(Starter.class);
+        final Logger logger = LoggerFactory.getLogger(Starter.class);
 
         final Options options = new Options();
         final Option listenPortOpt = Option.builder("lp").longOpt("listen_port").argName("LISTEN_PORT").
@@ -132,7 +132,7 @@ public final class Starter {
         try {
             Latkes.init();
         } catch (final Exception e) {
-            logger.log(Level.ERROR, "Latke init failed, please configure latke.props or run with args, visit https://" + Global.HACPAI_DOMAIN + "/article/1492881378588 for more details");
+            logger.error("Latke init failed, please configure latke.props or run with args, visit https://" + Global.HACPAI_DOMAIN + "/article/1492881378588 for more details");
 
             System.exit(-1);
         }
@@ -188,7 +188,7 @@ public final class Starter {
         try {
             server.start();
         } catch (final Exception e) {
-            logger.log(Level.ERROR, "Server start failed", e);
+            logger.error("Server start failed", e);
 
             System.exit(-1);
         }
@@ -197,7 +197,7 @@ public final class Starter {
             try {
                 server.stop();
             } catch (final Exception e) {
-                logger.log(Level.ERROR, "Server stop failed", e);
+                logger.error("Server stop failed", e);
 
                 System.exit(-1);
             }

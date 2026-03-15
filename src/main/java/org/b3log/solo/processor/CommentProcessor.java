@@ -24,14 +24,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.CompositeFilterOperator;
 import org.b3log.latke.repository.FilterOperator;
@@ -41,11 +42,8 @@ import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.SortDirection;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.JsonRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.JsonRenderer;
 import org.b3log.solo.bolo.Global;
 import org.b3log.solo.bolo.prop.CommentMailService;
 import org.b3log.solo.bolo.prop.MailService;
@@ -88,13 +86,13 @@ import pers.adlered.simplecurrentlimiter.main.SimpleCurrentLimiter;
  * @author <a href="https://ld246.com/member/armstrong">ArmstrongCN</a>
  * @since 0.3.1
  */
-@RequestProcessor
+@Singleton
 public class CommentProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CommentProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentProcessor.class);
     SimpleCurrentLimiter simpleCurrentLimiter = new SimpleCurrentLimiter(60, 2);
     /**
      * Language service.
@@ -201,7 +199,6 @@ public class CommentProcessor {
      *
      * @param context the specified context, including a request json object
      */
-    @RequestProcessing(value = "/article/comments", method = HttpMethod.POST)
     public void addArticleComment(final RequestContext context) {
         // 为 false 时不发送提醒邮件至管理员邮箱
         boolean sendEmailToAdmin = true;
@@ -268,7 +265,7 @@ public class CommentProcessor {
 
         String ip = context.remoteAddr();
         if (!simpleCurrentLimiter.access(ip)) {
-            LOGGER.log(Level.ERROR, "Can not add comment on article");
+            LOGGER.error("Can not add comment on article");
             jsonObject.put(Keys.STATUS_CODE, false);
             jsonObject.put(Keys.MSG, langPropsService.get("addTimeoutLabel"));
 
@@ -293,7 +290,7 @@ public class CommentProcessor {
         for (String i : filterCommentList) {
             if (!i.isEmpty()) {
                 if (filterComment.contains(i)) {
-                    LOGGER.log(Level.ERROR, "Can not add comment on article because it has spam words");
+                    LOGGER.error("Can not add comment on article because it has spam words");
                     jsonObject.put(Keys.STATUS_CODE, false);
                     jsonObject.put(Keys.MSG, "系统维护中，请 00:00 后再试！");
 
@@ -324,8 +321,7 @@ public class CommentProcessor {
                         username,
                         blogTitle);
             } catch (JSONException jsonException) {
-                LOGGER.log(Level.DEBUG,
-                        "No originalCommentId for [from=" + commentId + ", to=" + originalCommentId + "]");
+                LOGGER.debug("No originalCommentId for [from=" + commentId + ", to=" + originalCommentId + "]");
             }
 
             // 提醒博主
@@ -347,7 +343,7 @@ public class CommentProcessor {
                             comment,
                             blogTitle);
                 } catch (JSONException jsonException) {
-                    LOGGER.log(Level.DEBUG, "Send admin mail remind failed [replyRemindMailBoxAddress="
+                    LOGGER.debug("Send admin mail remind failed [replyRemindMailBoxAddress="
                             + replyRemindMailBoxAddress + "]");
                 }
                 // Server酱提醒
@@ -387,7 +383,7 @@ public class CommentProcessor {
             renderer.setJSONObject(addResult);
         } catch (final Exception e) {
 
-            LOGGER.log(Level.ERROR, "Can not add comment on article", e);
+            LOGGER.error("Can not add comment on article", e);
             jsonObject.put(Keys.STATUS_CODE, false);
             jsonObject.put(Keys.MSG, langPropsService.get("addFailLabel"));
         }
@@ -408,8 +404,6 @@ public class CommentProcessor {
         requestJSONObject.put(Comment.COMMENT_NAME, currentUser.optString(User.USER_NAME));
         requestJSONObject.put(Comment.COMMENT_URL, currentUser.optString(User.USER_URL));
     }
-
-    @RequestProcessing(value = "/article/commentSync/getList", method = HttpMethod.GET)
     public void commentGetArticleList(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -444,7 +438,6 @@ public class CommentProcessor {
      *
      * @param context
      */
-    @RequestProcessing(value = "/article/commentSync/{localaid}/{remoteaid}/{symphony}", method = HttpMethod.GET)
     public void commentSync(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
@@ -488,7 +481,6 @@ public class CommentProcessor {
      *
      * @param context
      */
-    @RequestProcessing(value = "/article/fishpi/commentSync/{localaid}/{remoteaid}", method = HttpMethod.GET)
     public void commentSyncFromFishPI(final RequestContext context) {
         if (!Solos.isAdminLoggedIn(context)) {
             context.sendError(HttpServletResponse.SC_UNAUTHORIZED);

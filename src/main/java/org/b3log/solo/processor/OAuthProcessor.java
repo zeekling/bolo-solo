@@ -21,18 +21,16 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.repository.jdbc.util.Connections;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
+import org.b3log.latke.http.RequestContext;
 import org.b3log.latke.util.Requests;
 import org.b3log.solo.bolo.tool.MD5Utils;
 import org.b3log.solo.model.Option;
@@ -42,8 +40,8 @@ import org.b3log.solo.service.*;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -64,13 +62,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
  * @since 2.9.5
  */
-@RequestProcessor
+@Singleton
 public class OAuthProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(OAuthProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuthProcessor.class);
 
     /**
      * OAuth parameters - state.
@@ -118,7 +116,6 @@ public class OAuthProcessor {
      *
      * @param context
      */
-    @RequestProcessing(value = "/oauth/bolo/login", method = HttpMethod.POST)
     public void adminLogin(final RequestContext context) {
         HttpServletResponse response = context.getResponse();
         HttpServletRequest request = context.getRequest();
@@ -138,7 +135,7 @@ public class OAuthProcessor {
                 }
                 context.sendRedirect(Latkes.getServePath() + "/");
             } else if (!initService.isInited()) {
-                LOGGER.log(Level.INFO, "Bolo initializing...");
+                LOGGER.info("Bolo initializing...");
                 final JSONObject initReq = new JSONObject();
                 initReq.put(User.USER_NAME, username);
                 initReq.put(UserExt.USER_B3_KEY, password);
@@ -158,7 +155,7 @@ public class OAuthProcessor {
                     // 用户名密码校验
                     if (username.equals(cUser) && password.equals(cPass)) {
                         Solos.login(user, context.getResponse());
-                        LOGGER.log(Level.INFO, "Logged in [name={0}, remoteAddr={1}] with Bolo auth", username, Requests.getRemoteAddr(request));
+                        LOGGER.info("Logged in [name={0}, remoteAddr={1}] with Bolo auth", username, Requests.getRemoteAddr(request));
                         context.sendRedirect(Latkes.getServePath() + "/admin-index.do#main");
                     } else {
                         context.sendRedirect(Latkes.getServePath() + "/start?status=error");
@@ -168,7 +165,7 @@ public class OAuthProcessor {
                 }
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.WARN, "Can not write cookie", e);
+            LOGGER.warn("Can not write cookie", e);
         }
     }
 

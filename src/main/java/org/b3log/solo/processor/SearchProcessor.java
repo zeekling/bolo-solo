@@ -18,19 +18,17 @@
 package org.b3log.solo.processor;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.b3log.latke.ioc.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.service.LangPropsService;
-import org.b3log.latke.servlet.HttpMethod;
-import org.b3log.latke.servlet.RequestContext;
-import org.b3log.latke.servlet.annotation.RequestProcessing;
-import org.b3log.latke.servlet.annotation.RequestProcessor;
-import org.b3log.latke.servlet.renderer.AbstractFreeMarkerRenderer;
-import org.b3log.latke.servlet.renderer.TextXmlRenderer;
+import org.b3log.latke.http.RequestContext;
+import org.b3log.latke.http.renderer.AbstractFreeMarkerRenderer;
+import org.b3log.latke.http.renderer.TextXmlRenderer;
 import org.b3log.latke.util.Paginator;
 import org.b3log.solo.SoloServletListener;
 import org.b3log.solo.model.Article;
@@ -45,7 +43,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.owasp.encoder.Encode;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
@@ -59,13 +57,13 @@ import java.util.Map;
  * @author <a href="http://vanessa.b3log.org">Liyuan Li</a>
  * @since 2.4.0
  */
-@RequestProcessor
+@Singleton
 public class SearchProcessor {
 
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(SearchProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchProcessor.class);
 
     /**
      * Article query service.
@@ -102,7 +100,6 @@ public class SearchProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/opensearch.xml", method = HttpMethod.GET)
     public void showOpensearchXML(final RequestContext context) {
         final TextXmlRenderer renderer = new TextXmlRenderer();
         context.setRenderer(renderer);
@@ -117,7 +114,7 @@ public class SearchProcessor {
 
             renderer.setContent(content);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Shows opensearch.xml failed", e);
+            LOGGER.error("Shows opensearch.xml failed", e);
         }
     }
 
@@ -126,7 +123,6 @@ public class SearchProcessor {
      *
      * @param context the specified context
      */
-    @RequestProcessing(value = "/search", method = HttpMethod.GET)
     public void search(final RequestContext context) {
         final HttpServletRequest request = context.getRequest();
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "common-template/search.ftl");
@@ -158,7 +154,7 @@ public class SearchProcessor {
             pagination.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, pageNum);
             dataModel.put(Pagination.PAGINATION, pagination);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Search articles failed");
+            LOGGER.error("Search articles failed");
 
             dataModel.put(Article.ARTICLES, Collections.emptyList());
         } finally {
