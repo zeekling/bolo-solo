@@ -27,8 +27,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.b3log.latke.Keys;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.solo.model.Article;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Option;
@@ -47,7 +47,7 @@ public class RssParser {
     private String userIcon;
     private String userName;
 
-    private static final Logger LOGGER = Logger.getLogger(RssParser.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RssParser.class);
 
     public RssParser(String rssUrl, String userIcon, String userName) {
         this.rssUrl = rssUrl;
@@ -150,7 +150,7 @@ public class RssParser {
                 articles.add(article);
             }
         } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Error parsing RSS feed: {0}", e.getMessage());
+            LOGGER.error("Error parsing RSS feed: {0}", e.getMessage());
         }
         return articles;
     }

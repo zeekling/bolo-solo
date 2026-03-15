@@ -23,8 +23,8 @@ import org.b3log.latke.event.AbstractEventListener;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.solo.model.Article;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Option;
@@ -52,7 +52,7 @@ public class FishPiArticleSender extends AbstractEventListener<JSONObject> {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(FishPiArticleSender.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FishPiArticleSender.class);
 
     /**
      * Pushes the specified article data to FishPi Rhythm.
@@ -73,12 +73,12 @@ public class FishPiArticleSender extends AbstractEventListener<JSONObject> {
 
             final String title = originalArticle.getString(Article.ARTICLE_TITLE);
             if (Article.ARTICLE_STATUS_C_PUBLISHED != originalArticle.optInt(Article.ARTICLE_STATUS)) {
-                LOGGER.log(Level.INFO, "Ignored push a draft [title={0}] to fishpi", title);
+                LOGGER.info("Ignored push a draft [title={0}] to fishpi", title);
                 return;
             }
 
             if (StringUtils.isNotBlank(originalArticle.optString(Article.ARTICLE_VIEW_PWD))) {
-                LOGGER.log(Level.INFO, "Article [title={0}] is a password article, ignored push to fishpi", title);
+                LOGGER.info("Article [title={0}] is a password article, ignored push to fishpi", title);
                 return;
             }
 
@@ -96,7 +96,7 @@ public class FishPiArticleSender extends AbstractEventListener<JSONObject> {
                     .put("articleContent", originalArticle.getString(Article.ARTICLE_CONTENT));
 
             if (Option.DefaultPreference.DEFAULT_B3LOG_USERNAME.equals(userName)) {
-                LOGGER.log(Level.INFO, "Article [title={0}] Is using the B3log default account, skipped push to Rhy",
+                LOGGER.info("Article [title={0}] Is using the B3log default account, skipped push to Rhy",
                         title);
                 return;
             }
@@ -107,7 +107,7 @@ public class FishPiArticleSender extends AbstractEventListener<JSONObject> {
                     .header("User-Agent", Solos.BOLO_USER_AGENT).send();
 
             if (response.statusCode() != HttpStatus.HTTP_OK) {
-                LOGGER.log(Level.ERROR, "Pushes an article to FishPi failed: " + response.bodyText());
+                LOGGER.error("Pushes an article to FishPi failed: " + response.bodyText());
                 return;
             }
             final JSONObject respJson = new JSONObject(response.bodyText());
@@ -120,17 +120,17 @@ public class FishPiArticleSender extends AbstractEventListener<JSONObject> {
                 option.put(Option.OPTION_VALUE, articleId);
                 optionMgmtService.addOrUpdateOption(option);
             }
-            LOGGER.log(Level.INFO, "Pushed an article [title={0}] to FishPi, response [{1}]", title,
+            LOGGER.info("Pushed an article [title={0}] to FishPi, response [{1}]", title,
                     response.toString());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Pushes an article to FishPi failed: " + e.getMessage());
+            LOGGER.error("Pushes an article to FishPi failed: " + e.getMessage());
         }
     }
 
     @Override
     public void action(final Event<JSONObject> event) {
         final JSONObject data = event.getData();
-        LOGGER.log(Level.DEBUG, "Processing an event [type={0}, data={1}] in listener [className={2}]",
+        LOGGER.debug("Processing an event [type={0}, data={1}] in listener [className={2}]",
                 event.getType(), data, FishPiArticleSender.class.getName());
 
         pushArticleToFishPi(data);

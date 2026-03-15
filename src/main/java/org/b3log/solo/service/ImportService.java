@@ -22,8 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.annotation.Service;
 import org.b3log.latke.util.Strings;
 import org.b3log.solo.SoloServletListener;
@@ -48,7 +48,7 @@ public class ImportService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ImportService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ImportService.class);
 
     /**
      * Default tag.
@@ -111,7 +111,7 @@ public class ImportService {
                     LOGGER.info("Imported article [" + article.optString(Article.ARTICLE_TITLE) + "]");
                     succCnt++;
                 } catch (final Exception e) {
-                    LOGGER.log(Level.ERROR, "Import file [" + fileName + "] failed", e);
+                    LOGGER.error("Import file [" + fileName + "] failed", e);
 
                     failCnt++;
                     failSet.add(fileName);
@@ -178,7 +178,7 @@ public class ImportService {
                 LOGGER.info("Imported article [" + article.optString(Article.ARTICLE_TITLE) + "]");
                 succCnt++;
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Import file [" + fileName + "] failed", e);
+                LOGGER.error("Import file [" + fileName + "] failed", e);
 
                 failCnt++;
                 failSet.add(fileName);
@@ -304,7 +304,7 @@ public class ImportService {
                         "yyyy/MM/dd HH:mm", "yyyy-MM-dd HH:mm", "dd/MM/yyyy HH:mm",
                         "dd-MM-yyyy HH:mm", "yyyyMMdd HH:mm"});
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Parse date [" + date + "] failed", e);
+                LOGGER.error("Parse date [" + date + "] failed", e);
 
                 throw new RuntimeException(e);
             }

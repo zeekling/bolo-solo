@@ -18,8 +18,8 @@
 package org.b3log.solo.bolo.tool;
 
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.Query;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.solo.bolo.SslUtils;
@@ -45,7 +45,7 @@ public class PBThread implements Runnable {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PBThread.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PBThread.class);
 
     final private String STATUS_SPARE = "<span style='color: green; font-weight: bold'>空闲</span>";
     final private String STATUS_RUNNING = "<span style='color: red; font-weight: bold'>运行中</span>";
@@ -69,7 +69,7 @@ public class PBThread implements Runnable {
             status = STATUS_RUNNING;
 
             // 开始处理图片
-            LOGGER.log(Level.INFO, "Converting images...");
+            LOGGER.info("Converting images...");
 
             try {
                 final BeanManager beanManager = BeanManager.getInstance();
@@ -89,7 +89,7 @@ public class PBThread implements Runnable {
                     String articleTitle = article.optString("articleTitle");
                     String articleContent = article.optString("articleContent");
 
-                    LOGGER.log(Level.INFO, "Processing article [oId=" + oId + ", articleTitle=" + articleTitle + "]");
+                    LOGGER.info("Processing article [oId=" + oId + ", articleTitle=" + articleTitle + "]");
 
                     Pattern pattern_1 = Pattern.compile(suffix_1);
                     Pattern pattern_2 = Pattern.compile(suffix_2);
@@ -174,8 +174,8 @@ public class PBThread implements Runnable {
 
                         // 保存
                         newUrlList.add(newUrl);
-                        LOGGER.log(Level.INFO, oldUrl + " >>> " + newUrl);
-                        LOGGER.log(Level.INFO, "Avoid HacPai download limiting, will sleep for 60s/image.");
+                        LOGGER.info(oldUrl + " >>> " + newUrl);
+                        LOGGER.info("Avoid HacPai download limiting, will sleep for 60s/image.");
                         try {
                             Thread.sleep(1000 * 60);
                         } catch (InterruptedException ignored) {
@@ -201,7 +201,7 @@ public class PBThread implements Runnable {
 
             } catch (Exception e) {
                 e.printStackTrace();
-                LOGGER.log(Level.ERROR, "Cannot get articles.");
+                LOGGER.error("Cannot get articles.");
                 lock = false;
                 status = STATUS_ERROR;
                 try {
@@ -213,7 +213,7 @@ public class PBThread implements Runnable {
             // 关闭线程
             lock = false;
             status = STATUS_SPARE;
-            LOGGER.log(Level.INFO, "Image convert completed.");
+            LOGGER.info("Image convert completed.");
         }
     }
 }

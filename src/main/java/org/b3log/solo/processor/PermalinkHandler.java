@@ -21,8 +21,8 @@ import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.servlet.DispatcherServlet;
 import org.b3log.latke.servlet.HttpMethod;
@@ -51,7 +51,7 @@ public class PermalinkHandler implements Handler {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PermalinkHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PermalinkHandler.class);
 
     /**
      * Whether initialization info reported.
@@ -75,7 +75,7 @@ public class PermalinkHandler implements Handler {
             final String contextPath = Latkes.getContextPath();
             final String permalink = StringUtils.substringAfter(requestURI, contextPath);
             if (PermalinkQueryService.invalidPermalinkFormat(permalink)) {
-                LOGGER.log(Level.DEBUG, "Skip permalink handling request [URI={0}]", permalink);
+                LOGGER.debug("Skip permalink handling request [URI={0}]", permalink);
                 context.handle();
 
                 return;
@@ -84,13 +84,13 @@ public class PermalinkHandler implements Handler {
             final ArticleRepository articleRepository = beanManager.getReference(ArticleRepository.class);
             article = articleRepository.getByPermalink(permalink);
             if (null == article) {
-                LOGGER.log(Level.DEBUG, "Not found article with permalink [{0}]", permalink);
+                LOGGER.debug("Not found article with permalink [{0}]", permalink);
                 context.handle();
 
                 return;
             }
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Processes article permalink handler failed", e);
+            LOGGER.error("Processes article permalink handler failed", e);
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
 
             return;

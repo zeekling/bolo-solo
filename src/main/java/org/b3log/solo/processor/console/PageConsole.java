@@ -21,8 +21,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
 import org.b3log.latke.servlet.RequestContext;
@@ -52,7 +52,7 @@ public class PageConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PageConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageConsole.class);
 
     /**
      * User query service.
@@ -120,7 +120,7 @@ public class PageConsole {
             ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
             renderer.setJSONObject(ret);
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -155,7 +155,7 @@ public class PageConsole {
             jsonObject.put(Keys.STATUS_CODE, true);
             jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             jsonObject.put(Keys.STATUS_CODE, false);
             jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
@@ -205,7 +205,7 @@ public class PageConsole {
             ret.put(Keys.STATUS_CODE, true);
             renderer.setJSONObject(ret);
         } catch (final ServiceException e) { // May be permalink check exception
-            LOGGER.log(Level.WARN, e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -253,7 +253,7 @@ public class PageConsole {
 
             renderer.setJSONObject(ret);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -298,7 +298,7 @@ public class PageConsole {
             result.put(Keys.STATUS_CODE, true);
             result.put(Keys.MSG, langPropsService.get("getSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -351,7 +351,7 @@ public class PageConsole {
             result.put(Keys.STATUS_CODE, true);
             renderer.setJSONObject(result);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);

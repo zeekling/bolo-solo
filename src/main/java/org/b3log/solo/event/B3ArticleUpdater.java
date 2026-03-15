@@ -20,8 +20,8 @@ package org.b3log.solo.event;
 import org.b3log.latke.event.AbstractEventListener;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.json.JSONObject;
 
 /**
@@ -40,11 +40,11 @@ public class B3ArticleUpdater extends AbstractEventListener<JSONObject> {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(B3ArticleUpdater.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(B3ArticleUpdater.class);
 
     public void action(final Event<JSONObject> event) {
         final JSONObject data = event.getData();
-        LOGGER.log(Level.DEBUG, "Processing an event [type={0}, data={1}] in listener [className={2}]",
+        LOGGER.debug("Processing an event [type={0}, data={1}] in listener [className={2}]",
                 event.getType(), data, B3ArticleUpdater.class.getName());
 
         B3ArticleSender.pushArticleToRhy(data);

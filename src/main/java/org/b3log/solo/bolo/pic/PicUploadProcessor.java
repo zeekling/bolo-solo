@@ -21,7 +21,8 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.servlet.HttpMethod;
 import org.b3log.latke.servlet.RequestContext;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
@@ -60,7 +61,7 @@ public class PicUploadProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PicUploadProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PicUploadProcessor.class);
 
     /**
      * Option repository.

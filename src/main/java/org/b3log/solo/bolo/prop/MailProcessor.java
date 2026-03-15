@@ -19,8 +19,8 @@ package org.b3log.solo.bolo.prop;
 
 import io.github.biezhi.ome.OhMyEmail;
 import io.github.biezhi.ome.SendMailException;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.servlet.HttpMethod;
 import org.b3log.latke.servlet.RequestContext;
 import org.b3log.latke.servlet.annotation.RequestProcessing;
@@ -39,7 +39,7 @@ import javax.servlet.http.HttpServletResponse;
  **/
 @RequestProcessor
 public class MailProcessor {
-    private static final Logger LOGGER = Logger.getLogger(MailProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailProcessor.class);
 
     /**
      * 发送普通邮件
@@ -60,9 +60,9 @@ public class MailProcessor {
                             .to(to)
                             .html(html)
                             .send();
-                    LOGGER.log(Level.INFO, "Mail has sent [subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
+                    LOGGER.info("Mail has sent [subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
                 } catch (SendMailException SME) {
-                    LOGGER.log(Level.INFO, "Mail sent failed [cause=" + SME.getCause() + ", subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
+                    LOGGER.info("Mail sent failed [cause=" + SME.getCause() + ", subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
                 }
             }
         }).start();
@@ -95,11 +95,11 @@ public class MailProcessor {
 
             context.renderJSON().renderCode(200);
             context.renderJSON().renderMsg("Mail has sent.");
-            LOGGER.log(Level.INFO, "Mail has sent [subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
+            LOGGER.info("Mail has sent [subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
 
             return;
         } catch (SendMailException SME) {
-            LOGGER.log(Level.ERROR, "Send mail failed! Please check your MailBox Settings.");
+            LOGGER.error("Send mail failed! Please check your MailBox Settings.");
 
             context.renderJSON().renderCode(500);
             context.renderJSON().renderMsg("Send mail failed! Please check your MailBox Settings.");

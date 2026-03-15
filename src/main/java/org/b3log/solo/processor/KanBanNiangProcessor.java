@@ -21,8 +21,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.servlet.HttpMethod;
@@ -61,7 +61,7 @@ public class KanBanNiangProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(KanBanNiangProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(KanBanNiangProcessor.class);
 
     /**
      * Option repository.
@@ -86,7 +86,7 @@ public class KanBanNiangProcessor {
             String path = "";
             File file = null;
             try {
-                LOGGER.log(Level.INFO, "KanBanNiang downloading ...");
+                LOGGER.info("KanBanNiang downloading ...");
                 final ServletContext servletContext = SoloServletListener.getServletContext();
                 final String assets = "/plugins/kanbanniang/assets/";
                 path = servletContext.getResource(assets).getPath();
@@ -121,15 +121,15 @@ public class KanBanNiangProcessor {
                         System.out.println(" OK");
                     }
                 }
-                LOGGER.log(Level.INFO, "Unpacking KanBanNiang ...");
+                LOGGER.info("Unpacking KanBanNiang ...");
                 fileOutputStream.close();
                 inputStream.close();
                 ZipUtil.unpack(file, new File(path));
                 file.delete();
-                LOGGER.log(Level.INFO, "KanBanNiang is ready.");
+                LOGGER.info("KanBanNiang is ready.");
             } catch (Exception e) {
                 file.delete();
-                LOGGER.log(Level.ERROR, "KanBanNiang resources download failed. Reason: " + e.toString());
+                LOGGER.error("KanBanNiang resources download failed. Reason: " + e.toString());
             }
         }
     }
@@ -177,7 +177,7 @@ public class KanBanNiangProcessor {
                 renderer.setJSONObject(index);
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Returns a random KanBanNiang model failed.", e);
+            LOGGER.error("Returns a random KanBanNiang model failed.", e);
         }
     }
 
@@ -217,7 +217,7 @@ public class KanBanNiangProcessor {
                 renderer.setJSONObject(index);
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Returns a random KanBanNiang model failed.");
+            LOGGER.error("Returns a random KanBanNiang model failed.");
         }
     }
 

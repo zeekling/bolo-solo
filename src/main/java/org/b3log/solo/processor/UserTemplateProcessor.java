@@ -27,8 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.servlet.HttpMethod;
 import org.b3log.latke.servlet.RequestContext;
@@ -67,7 +67,7 @@ public class UserTemplateProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleProcessor.class);
 
     /**
      * DataModelService.
@@ -114,7 +114,7 @@ public class UserTemplateProcessor {
     public void showPage(final RequestContext context) {
         final String requestURI = context.requestURI();
         final String templateName = context.pathVar("name") + ".ftl";
-        LOGGER.log(Level.DEBUG, "Shows page [requestURI={0}, templateName={1}]", requestURI, templateName);
+        LOGGER.debug("Shows page [requestURI={0}, templateName={1}]", requestURI, templateName);
 
         final HttpServletRequest request = context.getRequest();
         final HttpServletResponse response = context.getResponse();
@@ -140,7 +140,7 @@ public class UserTemplateProcessor {
                     (String) context.attr(Keys.TEMAPLTE_DIR_NAME), dataModel);
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -191,14 +191,14 @@ public class UserTemplateProcessor {
                     "usiteWeChat", "usiteZhiHu", "usiteBehance", "usiteTelegram", "usiteFacebook");
             for (String i : usiteList) {
                 if (!usiteObject.has(i)) {
-                    LOGGER.log(Level.ERROR, "Updates usite option failed: Invalid JSON Object.");
+                    LOGGER.error("Updates usite option failed: Invalid JSON Object.");
                     context.renderJSON().renderCode(500);
 
                     return;
                 }
             }
         } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Updates usite option failed", e);
+            LOGGER.error("Updates usite option failed", e);
             context.renderJSON().renderCode(500);
 
             return;
@@ -207,12 +207,12 @@ public class UserTemplateProcessor {
         usiteOpt.put(Option.OPTION_VALUE, usite);
         try {
             optionMgmtService.addOrUpdateOption(usiteOpt);
-            LOGGER.log(Level.INFO, "Usite refresh from Local successful: " + usite);
+            LOGGER.info("Usite refresh from Local successful: " + usite);
             context.renderJSON().renderCode(200);
 
             return;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Updates usite option failed", e);
+            LOGGER.error("Updates usite option failed", e);
             context.renderJSON().renderCode(500);
 
             return;

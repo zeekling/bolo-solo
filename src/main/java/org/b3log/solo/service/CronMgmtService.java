@@ -22,8 +22,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.annotation.Service;
 import org.b3log.latke.util.Stopwatchs;
 import org.b3log.solo.model.Option;
@@ -43,7 +43,7 @@ public class CronMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CronMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CronMgmtService.class);
 
     /**
      * Cron thread pool.
@@ -97,7 +97,7 @@ public class CronMgmtService {
             try {
                 StatisticMgmtService.removeExpiredOnlineVisitor();
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Executes cron failed", e);
+                LOGGER.error("Executes cron failed", e);
             } finally {
                 Stopwatchs.release();
             }
@@ -129,7 +129,7 @@ public class CronMgmtService {
                 }
                 exportService.exportGitHub(enableAutoFlushGitHubProfile);
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Executes cron failed", e);
+                LOGGER.error("Executes cron failed", e);
             } finally {
                 Stopwatchs.release();
             }
@@ -144,7 +144,7 @@ public class CronMgmtService {
                 }
                 commentMgmtService.syncAllArticleCommentFromFishPI();
             } catch (final Throwable e) {
-                LOGGER.log(Level.ERROR, "Executes cron failed", e);
+                LOGGER.error("Executes cron failed", e);
             } finally {
                 Stopwatchs.release();
             }
@@ -155,7 +155,7 @@ public class CronMgmtService {
             try {
                 followService.syncAllFollowArticles();
             } catch (final Throwable e) {
-                LOGGER.log(Level.ERROR, "Executes cron failed", e);
+                LOGGER.error("Executes cron failed", e);
             } finally {
                 Stopwatchs.release();
             }
@@ -166,7 +166,7 @@ public class CronMgmtService {
             try {
                 exportService.exportHacPai(false);
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Executes cron failed", e);
+                LOGGER.error("Executes cron failed", e);
             } finally {
                 Stopwatchs.release();
             }

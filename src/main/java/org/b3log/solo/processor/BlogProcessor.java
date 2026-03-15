@@ -37,8 +37,8 @@ import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.User;
 import org.b3log.latke.servlet.HttpMethod;
@@ -74,7 +74,7 @@ public class BlogProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(BlogProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BlogProcessor.class);
 
     /**
      * Article query service.
@@ -120,7 +120,7 @@ public class BlogProcessor {
         try (final InputStream tplStream = BlogProcessor.class.getResourceAsStream("/manifest.json.tpl")) {
             PWA_MANIFESTO_JSON = IOUtils.toString(tplStream, "UTF-8");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Loads PWA manifest.json template failed", e);
+            LOGGER.error("Loads PWA manifest.json template failed", e);
         }
     }
 
@@ -240,7 +240,7 @@ public class BlogProcessor {
                         faviconCache.put(resolution, new FaviconCache(contentType, data));
                         outputStream.close();
                     } catch (Exception e) {
-                        LOGGER.log(Level.ERROR, "Unable to resolve favicon");
+                        LOGGER.error("Unable to resolve favicon");
                         context.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
                         return;
@@ -251,7 +251,7 @@ public class BlogProcessor {
                     }
                 }
             } catch (Exception e) {
-                LOGGER.log(Level.ERROR, "Unable to resolve favicon");
+                LOGGER.error("Unable to resolve favicon");
                 context.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
                 return;

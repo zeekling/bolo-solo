@@ -19,8 +19,8 @@ package org.b3log.solo.processor.console;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.servlet.RequestContext;
 import org.b3log.latke.servlet.annotation.Before;
@@ -43,7 +43,7 @@ public class OtherConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(OtherConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OtherConsole.class);
 
     /**
      * Tag management service.
@@ -89,7 +89,7 @@ public class OtherConsole {
             jsonObject.put(Keys.STATUS_CODE, true);
             jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Removes unused archives failed", e);
+            LOGGER.error("Removes unused archives failed", e);
 
             jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
         }
@@ -121,7 +121,7 @@ public class OtherConsole {
             jsonObject.put(Keys.STATUS_CODE, true);
             jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Removes unused tags failed", e);
+            LOGGER.error("Removes unused tags failed", e);
 
             jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
         }

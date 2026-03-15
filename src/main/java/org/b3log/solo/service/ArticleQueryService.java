@@ -29,8 +29,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
@@ -82,7 +82,7 @@ public class ArticleQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleQueryService.class);
 
     /**
      * User repository.
@@ -192,7 +192,7 @@ public class ArticleQueryService {
             final List<JSONObject> articles = CollectionUtils.jsonArrayToList(result.optJSONArray(Keys.RESULTS));
             ret.put(Article.ARTICLES, (Object) articles);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Searches articles error", e);
+            LOGGER.error("Searches articles error", e);
         }
 
         return ret;
@@ -319,7 +319,7 @@ public class ArticleQueryService {
 
             return ret;
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets category articles error", e);
+            LOGGER.error("Gets category articles error", e);
 
             throw new ServiceException(e);
         }
@@ -373,7 +373,7 @@ public class ArticleQueryService {
 
             return recentArticle.getLong(Article.ARTICLE_UPDATED);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets recent article time failed", e);
+            LOGGER.error("Gets recent article time failed", e);
 
             return 0;
         }
@@ -411,7 +411,7 @@ public class ArticleQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets author of article [id={0}] failed", article.optString(Keys.OBJECT_ID));
+            LOGGER.error("Gets author of article [id={0}] failed", article.optString(Keys.OBJECT_ID));
 
             throw new ServiceException(e);
         }
@@ -441,7 +441,7 @@ public class ArticleQueryService {
             }
         }
 
-        LOGGER.log(Level.WARN, "Can not find the sign [id={0}], returns a default sign [id=1]", signId);
+        LOGGER.warn("Can not find the sign [id={0}], returns a default sign [id=1]", signId);
 
         return defaultSign;
     }
@@ -471,7 +471,7 @@ public class ArticleQueryService {
         try {
             return articleRepository.getRecentArticles(fetchSize);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets recent articles failed", e);
+            LOGGER.error("Gets recent articles failed", e);
 
             return Collections.emptyList();
         }
@@ -545,11 +545,11 @@ public class ArticleQueryService {
             article.remove(Article.ARTICLE_VIEW_COUNT);
             article.remove(Article.ARTICLE_RANDOM_DOUBLE);
 
-            LOGGER.log(Level.DEBUG, "Got an article [id={0}]", articleId);
+            LOGGER.debug("Got an article [id={0}]", articleId);
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets an article failed", e);
+            LOGGER.error("Gets an article failed", e);
             throw new ServiceException(e);
         }
     }
@@ -665,7 +665,7 @@ public class ArticleQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets articles failed", e);
+            LOGGER.error("Gets articles failed", e);
 
             return null;
         }
@@ -721,7 +721,7 @@ public class ArticleQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets articles by tag [id=" + tagId + "] failed", e);
+            LOGGER.error("Gets articles by tag [id=" + tagId + "] failed", e);
             throw new ServiceException(e);
         }
     }
@@ -771,7 +771,7 @@ public class ArticleQueryService {
         } catch (final Exception e) {
             pairs = new HashMap<>();
 
-            LOGGER.log(Level.ERROR, "Gets articles by archive date [id=" + archiveDateId + "] failed", e);
+            LOGGER.error("Gets articles by archive date [id=" + archiveDateId + "] failed", e);
             throw new ServiceException(e);
         }
     }
@@ -811,7 +811,7 @@ public class ArticleQueryService {
 
             return ret;
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets articles randomly failed[fetchSize=" + fetchSize + "]", e);
+            LOGGER.error("Gets articles randomly failed[fetchSize=" + fetchSize + "]", e);
             throw new ServiceException(e);
         }
     }
@@ -889,7 +889,7 @@ public class ArticleQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets relevant articles failed", e);
+            LOGGER.error("Gets relevant articles failed", e);
 
             return Collections.emptyList();
         }
@@ -920,7 +920,7 @@ public class ArticleQueryService {
         try {
             return articleRepository.getNextArticle(articleId);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets the next article failed[articleId=" + articleId + "]", e);
+            LOGGER.error("Gets the next article failed[articleId=" + articleId + "]", e);
             throw new ServiceException(e);
         }
     }
@@ -950,7 +950,7 @@ public class ArticleQueryService {
         try {
             return articleRepository.getPreviousArticle(articleId);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets the previous article failed[articleId=" + articleId + "]", e);
+            LOGGER.error("Gets the previous article failed[articleId=" + articleId + "]", e);
             throw new ServiceException(e);
         }
     }
@@ -969,7 +969,7 @@ public class ArticleQueryService {
         try {
             return articleRepository.get(articleId);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets an article [id=" + articleId + "] failed", e);
+            LOGGER.error("Gets an article [id=" + articleId + "] failed", e);
 
             return null;
         }
@@ -999,7 +999,7 @@ public class ArticleQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets articles by author id failed [authorId=" + authorId + ", currentPageNum="
+            LOGGER.error("Gets articles by author id failed [authorId=" + authorId + ", currentPageNum="
                     + currentPageNum + ", pageSize=" + pageSize + "]", e);
 
             throw new ServiceException(e);
@@ -1042,7 +1042,7 @@ public class ArticleQueryService {
 
             return article.getString(Article.ARTICLE_CONTENT);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets article content failed[articleId=" + articleId + "]", e);
+            LOGGER.error("Gets article content failed[articleId=" + articleId + "]", e);
 
             throw new ServiceException(e);
         }

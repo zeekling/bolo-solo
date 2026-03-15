@@ -23,8 +23,8 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.LangPropsService;
@@ -61,7 +61,7 @@ public class ArticleConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleConsole.class);
 
     /**
      * Article management service.
@@ -216,7 +216,7 @@ public class ArticleConsole {
 
             renderer.setJSONObject(result);
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -292,7 +292,7 @@ public class ArticleConsole {
                 article.put(Article.ARTICLE_TITLE, title);
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
             renderer.setJSONObject(jsonObject);
@@ -342,7 +342,7 @@ public class ArticleConsole {
             ret.put(Keys.STATUS_CODE, true);
             ret.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject();
             renderer.setJSONObject(jsonObject);
@@ -386,7 +386,7 @@ public class ArticleConsole {
             ret.put(Keys.STATUS_CODE, true);
             ret.put(Keys.MSG, langPropsService.get("unPulbishSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject();
             renderer.setJSONObject(jsonObject);
@@ -427,7 +427,7 @@ public class ArticleConsole {
             ret.put(Keys.STATUS_CODE, true);
             ret.put(Keys.MSG, langPropsService.get("cancelTopSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject();
             renderer.setJSONObject(jsonObject);
@@ -468,7 +468,7 @@ public class ArticleConsole {
             ret.put(Keys.STATUS_CODE, true);
             ret.put(Keys.MSG, langPropsService.get("putTopSuccLabel"));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             final JSONObject jsonObject = new JSONObject();
             renderer.setJSONObject(jsonObject);
@@ -530,7 +530,7 @@ public class ArticleConsole {
             }
 
             // 打印请求日志，如果发生特殊情况丢失数据，至少还可以根据日志寻回内容
-            LOGGER.log(Level.INFO, "Updates an article request [" + requestJSONObject.toString() + "]");
+            LOGGER.info("Updates an article request [" + requestJSONObject.toString() + "]");
 
             articleMgmtService.updateArticle(requestJSONObject);
 
@@ -587,7 +587,7 @@ public class ArticleConsole {
             requestJSONObject.getJSONObject(Article.ARTICLE).put(Article.ARTICLE_AUTHOR_ID, currentUser.getString(Keys.OBJECT_ID));
 
             // 打印请求日志，如果发生特殊情况丢失数据，至少还可以根据日志寻回内容
-            LOGGER.log(Level.INFO, "Adds an article request [" + requestJSONObject.toString() + "]");
+            LOGGER.info("Adds an article request [" + requestJSONObject.toString() + "]");
 
             final String articleId = articleMgmtService.addArticle(requestJSONObject);
             ret.put(Keys.OBJECT_ID, articleId);

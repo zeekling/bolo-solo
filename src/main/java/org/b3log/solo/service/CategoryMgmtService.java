@@ -19,8 +19,8 @@ package org.b3log.solo.service;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.repository.annotation.Transactional;
 import org.b3log.latke.service.ServiceException;
@@ -45,7 +45,7 @@ public class CategoryMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CategoryMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryMgmtService.class);
 
     /**
      * Category repository.
@@ -87,7 +87,7 @@ public class CategoryMgmtService {
                     transaction.rollback();
                 }
 
-                LOGGER.log(Level.WARN, "Cant not find the target category of source category [order={0}]", srcCategoryOrder);
+                LOGGER.warn("Cant not find the target category of source category [order={0}]", srcCategoryOrder);
 
                 return;
             }
@@ -105,7 +105,7 @@ public class CategoryMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Changes category's order failed", e);
+            LOGGER.error("Changes category's order failed", e);
 
             throw new ServiceException(e);
         }
@@ -139,7 +139,7 @@ public class CategoryMgmtService {
             final JSONObject relation = relations.optJSONObject(0);
             categoryTagRepository.remove(relation.optString(Keys.OBJECT_ID));
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Adds a category-tag relation failed", e);
+            LOGGER.error("Adds a category-tag relation failed", e);
 
             throw new ServiceException(e);
         }
@@ -165,11 +165,11 @@ public class CategoryMgmtService {
 
             categoryRepository.update(categoryId, category);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.INFO, "Adds a category-tag relation failed", e);
+            LOGGER.info("Adds a category-tag relation failed", e);
 
             throw new ServiceException(e);
         } catch (NullPointerException NPE) {
-            LOGGER.log(Level.INFO, "Category not set.");
+            LOGGER.info("Category not set.");
         }
     }
 
@@ -198,7 +198,7 @@ public class CategoryMgmtService {
 
             return ret;
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Adds a category failed", e);
+            LOGGER.error("Adds a category failed", e);
 
             throw new ServiceException(e);
         }
@@ -220,7 +220,7 @@ public class CategoryMgmtService {
 
             categoryRepository.update(categoryId, category);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Updates a category [id=" + categoryId + "] failed", e);
+            LOGGER.error("Updates a category [id=" + categoryId + "] failed", e);
 
             throw new ServiceException(e);
         }
@@ -238,7 +238,7 @@ public class CategoryMgmtService {
             categoryTagRepository.removeByCategoryId(categoryId);
             categoryRepository.remove(categoryId);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Remove a category [id=" + categoryId + "] failed", e);
+            LOGGER.error("Remove a category [id=" + categoryId + "] failed", e);
 
             throw new ServiceException(e);
         }
@@ -255,7 +255,7 @@ public class CategoryMgmtService {
         try {
             categoryTagRepository.removeByCategoryId(categoryId);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Remove category-tag [categoryId=" + categoryId + "] failed", e);
+            LOGGER.error("Remove category-tag [categoryId=" + categoryId + "] failed", e);
 
             throw new ServiceException(e);
         }

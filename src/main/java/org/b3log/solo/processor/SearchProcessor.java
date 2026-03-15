@@ -21,8 +21,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.servlet.HttpMethod;
@@ -65,7 +65,7 @@ public class SearchProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(SearchProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SearchProcessor.class);
 
     /**
      * Article query service.
@@ -117,7 +117,7 @@ public class SearchProcessor {
 
             renderer.setContent(content);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Shows opensearch.xml failed", e);
+            LOGGER.error("Shows opensearch.xml failed", e);
         }
     }
 
@@ -158,7 +158,7 @@ public class SearchProcessor {
             pagination.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, pageNum);
             dataModel.put(Pagination.PAGINATION, pagination);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Search articles failed");
+            LOGGER.error("Search articles failed");
 
             dataModel.put(Article.ARTICLES, Collections.emptyList());
         } finally {

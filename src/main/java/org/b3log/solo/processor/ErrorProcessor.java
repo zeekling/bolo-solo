@@ -21,8 +21,8 @@ import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.servlet.HttpMethod;
 import org.b3log.latke.servlet.RequestContext;
@@ -54,7 +54,7 @@ public class ErrorProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleProcessor.class);
 
     /**
      * DataModelService.
@@ -92,7 +92,7 @@ public class ErrorProcessor {
         if (StringUtils.equals("GET", context.method())) {
             final String requestURI = context.requestURI();
             final String templateName = statusCode + ".ftl";
-            LOGGER.log(Level.TRACE, "Shows error page [requestURI={0}, templateName={1}]", requestURI, templateName);
+            LOGGER.trace("Shows error page [requestURI={0}, templateName={1}]", requestURI, templateName);
 
             final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "error/" + templateName);
             final Map<String, Object> dataModel = renderer.getDataModel();
@@ -107,7 +107,7 @@ public class ErrorProcessor {
                 dataModel.put(Keys.MSG, msg);
                 dataModel.put(Common.LOGIN_URL, userQueryService.getLoginURL(Common.ADMIN_INDEX_URI));
             } catch (final Exception e) {
-                LOGGER.log(Level.ERROR, "Shows error page failed", e);
+                LOGGER.error("Shows error page failed", e);
 
                 context.sendError(HttpServletResponse.SC_NOT_FOUND);
             }

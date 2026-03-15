@@ -41,8 +41,8 @@ import org.b3log.latke.event.Event;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Plugin;
 import org.b3log.latke.model.User;
 import org.b3log.latke.plugin.ViewLoadEventData;
@@ -84,7 +84,7 @@ public class AdminConsole {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(AdminConsole.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AdminConsole.class);
 
     /**
      * Language service.
@@ -196,7 +196,7 @@ public class AdminConsole {
             dataModelService.fillUsite(dataModel);
             dataModelService.fillCommon(context, dataModel, preference);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Admin index render failed", e);
+            LOGGER.error("Admin index render failed", e);
         }
 
         fireFreeMarkerActionEvent(templateName, dataModel);
@@ -371,7 +371,7 @@ public class AdminConsole {
                 outputStream.flush();
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Export failed", e);
+            LOGGER.error("Export failed", e);
             context.renderJSON().renderMsg("Export failed, please check log");
 
             return;
@@ -440,7 +440,7 @@ public class AdminConsole {
                 outputStream.flush();
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Export failed", e);
+            LOGGER.error("Export failed", e);
             context.renderJSON().renderMsg("Export failed, please check log");
 
             return;

@@ -29,8 +29,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.util.Callstacks;
 import org.b3log.latke.util.Stopwatchs;
@@ -67,7 +67,7 @@ public final class Markdowns {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(Markdowns.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Markdowns.class);
 
     /**
      * Markdown cache.
@@ -187,13 +187,13 @@ public final class Markdowns {
                 try {
                     html = toHtmlByLute(markdownText);
                     if (!LUTE_OK) {
-                        LOGGER.log(Level.INFO, "Lute-HTTP To HTML successful.");
+                        LOGGER.info("Lute-HTTP To HTML successful.");
                         LUTE_OK = true;
                     } else {
-                        LOGGER.log(Level.DEBUG, "Lute-HTTP To HTML successful.");
+                        LOGGER.debug("Lute-HTTP To HTML successful.");
                     }
                 } catch (final Exception e) {
-                    LOGGER.log(Level.WARN, "Failed to use [Lute] for markdown, Using FlexMark Instead [md=" + StringUtils.substring(markdownText, 0, 256) + "]: " + e.getMessage());
+                    LOGGER.warn("Failed to use [Lute] for markdown, Using FlexMark Instead [md=" + StringUtils.substring(markdownText, 0, 256) + "]: " + e.getMessage());
                 }
             }
 
@@ -272,7 +272,7 @@ public final class Markdowns {
 
             return future.get(MD_TIMEOUT, TimeUnit.MILLISECONDS);
         } catch (final TimeoutException e) {
-            LOGGER.log(Level.ERROR, "Markdown timeout [md=" + markdownText + "]");
+            LOGGER.error("Markdown timeout [md=" + markdownText + "]");
             Callstacks.printCallstack(Level.ERROR, new String[]{"org.b3log"}, null);
 
             final Set<Thread> threads = Thread.getAllStackTraces().keySet();
@@ -284,7 +284,7 @@ public final class Markdowns {
                 }
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Markdown failed [md=" + markdownText + "]", e);
+            LOGGER.error("Markdown failed [md=" + markdownText + "]", e);
         } finally {
             pool.shutdownNow();
 

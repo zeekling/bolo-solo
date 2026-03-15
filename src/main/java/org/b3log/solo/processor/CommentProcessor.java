@@ -30,8 +30,8 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.CompositeFilterOperator;
 import org.b3log.latke.repository.FilterOperator;
@@ -94,7 +94,7 @@ public class CommentProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CommentProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommentProcessor.class);
     SimpleCurrentLimiter simpleCurrentLimiter = new SimpleCurrentLimiter(60, 2);
     /**
      * Language service.
@@ -268,7 +268,7 @@ public class CommentProcessor {
 
         String ip = context.remoteAddr();
         if (!simpleCurrentLimiter.access(ip)) {
-            LOGGER.log(Level.ERROR, "Can not add comment on article");
+            LOGGER.error("Can not add comment on article");
             jsonObject.put(Keys.STATUS_CODE, false);
             jsonObject.put(Keys.MSG, langPropsService.get("addTimeoutLabel"));
 
@@ -293,7 +293,7 @@ public class CommentProcessor {
         for (String i : filterCommentList) {
             if (!i.isEmpty()) {
                 if (filterComment.contains(i)) {
-                    LOGGER.log(Level.ERROR, "Can not add comment on article because it has spam words");
+                    LOGGER.error("Can not add comment on article because it has spam words");
                     jsonObject.put(Keys.STATUS_CODE, false);
                     jsonObject.put(Keys.MSG, "系统维护中，请 00:00 后再试！");
 
@@ -324,8 +324,7 @@ public class CommentProcessor {
                         username,
                         blogTitle);
             } catch (JSONException jsonException) {
-                LOGGER.log(Level.DEBUG,
-                        "No originalCommentId for [from=" + commentId + ", to=" + originalCommentId + "]");
+                LOGGER.debug("No originalCommentId for [from=" + commentId + ", to=" + originalCommentId + "]");
             }
 
             // 提醒博主
@@ -347,7 +346,7 @@ public class CommentProcessor {
                             comment,
                             blogTitle);
                 } catch (JSONException jsonException) {
-                    LOGGER.log(Level.DEBUG, "Send admin mail remind failed [replyRemindMailBoxAddress="
+                    LOGGER.debug("Send admin mail remind failed [replyRemindMailBoxAddress="
                             + replyRemindMailBoxAddress + "]");
                 }
                 // Server酱提醒
@@ -387,7 +386,7 @@ public class CommentProcessor {
             renderer.setJSONObject(addResult);
         } catch (final Exception e) {
 
-            LOGGER.log(Level.ERROR, "Can not add comment on article", e);
+            LOGGER.error("Can not add comment on article", e);
             jsonObject.put(Keys.STATUS_CODE, false);
             jsonObject.put(Keys.MSG, langPropsService.get("addFailLabel"));
         }

@@ -25,8 +25,8 @@ import org.b3log.latke.Latkes;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
@@ -66,7 +66,7 @@ public class ArticleMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleMgmtService.class);
 
     /**
      * Category service.
@@ -240,7 +240,7 @@ public class ArticleMgmtService {
         try {
             optionMgmtService.addOrUpdateOption(githubReposOpt);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Updates github repos option failed", e);
+            LOGGER.error("Updates github repos option failed", e);
             return;
         }
 
@@ -322,9 +322,9 @@ public class ArticleMgmtService {
                 pageRepository.update(page.optString(Keys.OBJECT_ID), page);
             }
             transaction.commit();
-            LOGGER.log(Level.INFO, "My github repos page has been generated.");
+            LOGGER.info("My github repos page has been generated.");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Updates github repos page failed", e);
+            LOGGER.error("Updates github repos page failed", e);
         }
     }
 
@@ -353,7 +353,7 @@ public class ArticleMgmtService {
             }).start();
 
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Pushes an article [id=" + articleId + "] to community failed", e);
+            LOGGER.error("Pushes an article [id=" + articleId + "] to community failed", e);
         }
     }
 
@@ -392,7 +392,7 @@ public class ArticleMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Cancels publish article failed", e);
+            LOGGER.error("Cancels publish article failed", e);
 
             throw new ServiceException(e);
         }
@@ -420,7 +420,7 @@ public class ArticleMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Can't put the article[oId{0}] to top", articleId);
+            LOGGER.error("Can't put the article[oId{0}] to top", articleId);
             throw new ServiceException(e);
         }
     }
@@ -529,7 +529,7 @@ public class ArticleMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Updates an article failed", e);
+            LOGGER.error("Updates an article failed", e);
 
             throw e;
         } catch (final Exception e) {
@@ -537,7 +537,7 @@ public class ArticleMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Updates an article failed", e);
+            LOGGER.error("Updates an article failed", e);
 
             throw new ServiceException(e.getMessage());
         }
@@ -667,7 +667,7 @@ public class ArticleMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Removes an article[id=" + articleId + "] failed", e);
+            LOGGER.error("Removes an article[id=" + articleId + "] failed", e);
             throw new ServiceException(e);
         }
     }
@@ -697,7 +697,7 @@ public class ArticleMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.WARN, "Updates article random value failed");
+            LOGGER.warn("Updates article random value failed");
 
             throw new ServiceException(e);
         }
@@ -719,7 +719,7 @@ public class ArticleMgmtService {
                 return;
             }
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets article [id=" + articleId + "] failed", e);
+            LOGGER.error("Gets article [id=" + articleId + "] failed", e);
 
             return;
         }
@@ -736,7 +736,7 @@ public class ArticleMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.WARN, "Updates article view count failed");
+            LOGGER.warn("Updates article view count failed");
 
             throw new ServiceException(e);
         }
@@ -764,7 +764,7 @@ public class ArticleMgmtService {
 
             archiveDateArticleRepository.remove(archiveDateArticleRelation.getString(Keys.OBJECT_ID));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Unarchive date for article[id=" + articleId + "] failed", e);
+            LOGGER.error("Unarchive date for article[id=" + articleId + "] failed", e);
 
             throw new ServiceException(e);
         }
@@ -834,7 +834,7 @@ public class ArticleMgmtService {
             final String newTagTitle = newTag.getString(Tag.TAG_TITLE);
 
             if (!tagExists(newTagTitle, oldTags)) {
-                LOGGER.log(Level.DEBUG, "Tag need to add[title={0}]", newTagTitle);
+                LOGGER.debug("Tag need to add[title={0}]", newTagTitle);
                 tagsNeedToAdd.add(newTag);
             } else {
                 tagsUnchanged.add(newTag);
@@ -844,14 +844,14 @@ public class ArticleMgmtService {
             final String oldTagTitle = oldTag.getString(Tag.TAG_TITLE);
 
             if (!tagExists(oldTagTitle, newTags)) {
-                LOGGER.log(Level.DEBUG, "Tag dropped[title={0}]", oldTag);
+                LOGGER.debug("Tag dropped[title={0}]", oldTag);
                 tagsDropped.add(oldTag);
             } else {
                 tagsUnchanged.remove(oldTag);
             }
         }
 
-        LOGGER.log(Level.DEBUG, "Tags unchanged [{0}]", tagsUnchanged);
+        LOGGER.debug("Tags unchanged [{0}]", tagsUnchanged);
 
         final String[] tagIdsDropped = new String[tagsDropped.size()];
         for (int i = 0; i < tagIdsDropped.length; i++) {
@@ -947,7 +947,7 @@ public class ArticleMgmtService {
             String tagId;
 
             if (null == tag) {
-                LOGGER.log(Level.TRACE, "Found a new tag[title={0}] in article[title={1}]",
+                LOGGER.trace("Found a new tag[title={0}] in article[title={1}]",
                         tagTitle, article.optString(Article.ARTICLE_TITLE));
                 tag = new JSONObject();
                 tag.put(Tag.TAG_TITLE, tagTitle);
@@ -955,7 +955,7 @@ public class ArticleMgmtService {
                 tag.put(Keys.OBJECT_ID, tagId);
             } else {
                 tagId = tag.optString(Keys.OBJECT_ID);
-                LOGGER.log(Level.TRACE, "Found a existing tag[title={0}, id={1}] in article[title={2}]",
+                LOGGER.trace("Found a existing tag[title={0}, id={1}] in article[title={2}]",
                         tag.optString(Tag.TAG_TITLE), tag.optString(Keys.OBJECT_ID), article.optString(Article.ARTICLE_TITLE));
                 final JSONObject tagTmp = new JSONObject();
                 tagTmp.put(Keys.OBJECT_ID, tagId);
@@ -994,7 +994,7 @@ public class ArticleMgmtService {
                 archiveDate.put(ArchiveDate.ARCHIVE_TIME, DateUtils.parseDate(createDateString, new String[]{"yyyy/MM"}).getTime());
                 archiveDateRepository.add(archiveDate);
             } catch (final ParseException e) {
-                LOGGER.log(Level.ERROR, e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 throw new RepositoryException(e);
             }
         }
@@ -1030,10 +1030,10 @@ public class ArticleMgmtService {
             // 测试时间戳是否合法
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String newDate = simpleDateFormat.format(new Date(newCreated));
-            LOGGER.log(Level.INFO, "New article date: " + newDate);
+            LOGGER.info("New article date: " + newDate);
             article.put(ARTICLE_CREATED, newCreated);
         } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Customize article create time: timestamp syntax error, using earlier...");
+            LOGGER.error("Customize article create time: timestamp syntax error, using earlier...");
             article.put(ARTICLE_CREATED, created);
         }
         article.put(ARTICLE_COMMENT_COUNT, oldArticle.getInt(ARTICLE_COMMENT_COUNT));

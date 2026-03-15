@@ -21,8 +21,8 @@ import com.vdurmont.emoji.EmojiParser;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.service.ServiceException;
@@ -69,7 +69,7 @@ public class FeedProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(FeedProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedProcessor.class);
 
     /**
      * Article query service.
@@ -128,7 +128,7 @@ public class FeedProcessor {
 
             renderer.setContent(feed.toString());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Get blog article feed error", e);
+            LOGGER.error("Get blog article feed error", e);
 
             context.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }
@@ -213,7 +213,7 @@ public class FeedProcessor {
 
             renderer.setContent(channel.toString());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Get blog article rss error", e);
+            LOGGER.error("Get blog article rss error", e);
 
             context.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }

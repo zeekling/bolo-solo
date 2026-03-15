@@ -22,8 +22,8 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.FilterOperator;
 import org.b3log.latke.repository.PropertyFilter;
 import org.b3log.latke.repository.Query;
@@ -63,7 +63,7 @@ public class SitemapProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(SitemapProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SitemapProcessor.class);
 
     /**
      * Article repository.
@@ -108,10 +108,10 @@ public class SitemapProcessor {
 
             String content = sitemap.toString();
             content = XMLs.format(content);
-            LOGGER.log(Level.INFO, "Generated sitemap");
+            LOGGER.info("Generated sitemap");
             renderer.setContent(content);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Generates sitemap failed", e);
+            LOGGER.error("Generates sitemap failed", e);
 
             context.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
         }

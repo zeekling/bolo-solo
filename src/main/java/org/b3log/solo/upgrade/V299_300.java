@@ -20,8 +20,8 @@ package org.b3log.solo.upgrade;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.repository.jdbc.util.Connections;
 import org.b3log.latke.util.CollectionUtils;
@@ -48,7 +48,7 @@ public final class V299_300 {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(V299_300.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(V299_300.class);
 
     /**
      * Performs upgrade from v2.9.9 to v3.0.0.
@@ -56,7 +56,7 @@ public final class V299_300 {
      * @throws Exception upgrade fails
      */
     public static void perform() throws Exception {
-        LOGGER.log(Level.INFO, "Upgrading from version [2.9.9] to version [3.0.0]....");
+        LOGGER.info("Upgrading from version [2.9.9] to version [3.0.0]....");
 
         final BeanManager beanManager = BeanManager.getInstance();
         final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
@@ -121,9 +121,9 @@ public final class V299_300 {
             connection.commit();
             connection.close();
 
-            LOGGER.log(Level.INFO, "Upgraded from version [2.9.9] to version [3.0.0] successfully");
+            LOGGER.info("Upgraded from version [2.9.9] to version [3.0.0] successfully");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+            LOGGER.error("Upgrade failed!", e);
 
             throw new Exception("Upgrade failed from version [2.9.9] to version [3.0.0]");
         }

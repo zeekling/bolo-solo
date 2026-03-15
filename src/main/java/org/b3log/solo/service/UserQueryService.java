@@ -22,8 +22,8 @@ import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.FilterOperator;
@@ -54,7 +54,7 @@ public class UserQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(UserQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserQueryService.class);
 
     /**
      * User repository.
@@ -85,7 +85,7 @@ public class UserQueryService {
             return userRepository.getFirst(
                     new Query().setFilter(new PropertyFilter(UserExt.USER_GITHUB_ID, FilterOperator.EQUAL, githubId)));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets a user by GitHub id [" + githubId + "] failed", e);
+            LOGGER.error("Gets a user by GitHub id [" + githubId + "] failed", e);
 
             return null;
         }
@@ -100,7 +100,7 @@ public class UserQueryService {
         try {
             return userRepository.getAdmin();
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets admin failed", e);
+            LOGGER.error("Gets admin failed", e);
             return null;
         }
     }
@@ -115,7 +115,7 @@ public class UserQueryService {
         try {
             return userRepository.getByUserName(userName);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets a user by username [" + userName + "] failed", e);
+            LOGGER.error("Gets a user by username [" + userName + "] failed", e);
 
             return null;
         }
@@ -159,7 +159,7 @@ public class UserQueryService {
         try {
             result = userRepository.get(query);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets users failed", e);
+            LOGGER.error("Gets users failed", e);
 
             throw new ServiceException(e);
         }
@@ -200,7 +200,7 @@ public class UserQueryService {
         try {
             user = userRepository.get(userId);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Gets a user failed", e);
+            LOGGER.error("Gets a user failed", e);
 
             return null;
         }

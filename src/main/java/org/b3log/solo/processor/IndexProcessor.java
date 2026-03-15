@@ -22,8 +22,8 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
@@ -66,7 +66,7 @@ public class IndexProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(IndexProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexProcessor.class);
 
     /**
      * DataModelService.
@@ -152,7 +152,7 @@ public class IndexProcessor {
 
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -259,7 +259,7 @@ public class IndexProcessor {
             Keys.fillRuntime(dataModel);
             dataModelService.fillMinified(dataModel);
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.service.ServiceException;
@@ -66,7 +66,7 @@ public class CategoryProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(CategoryProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CategoryProcessor.class);
 
     /**
      * DataModelService.
@@ -152,7 +152,7 @@ public class CategoryProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -179,7 +179,7 @@ public class CategoryProcessor {
             String categoryURI = context.pathVar("categoryURI");
             categoryURI = URLs.encode(categoryURI);
             final int currentPageNum = Paginator.getPage(request);
-            LOGGER.log(Level.DEBUG, "Category [URI={0}, currentPageNum={1}]", categoryURI, currentPageNum);
+            LOGGER.debug("Category [URI={0}, currentPageNum={1}]", categoryURI, currentPageNum);
             // 读取category表，无关键操作
             final JSONObject category = categoryQueryService.getByURI(categoryURI);
             if (null == category) {
@@ -220,7 +220,7 @@ public class CategoryProcessor {
 
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final ServiceException | JSONException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -257,7 +257,7 @@ public class CategoryProcessor {
             dataModel.put(Pagination.PAGINATION_FIRST_PAGE_NUM, 1);
             dataModel.put(Pagination.PAGINATION_LAST_PAGE_NUM, 1);
 
-            LOGGER.log(Level.WARN, "No category of \"" + categoryURI + "\" has found. Showing blank.");
+            LOGGER.warn("No category of \"" + categoryURI + "\" has found. Showing blank.");
         }
         dataModel.put(Pagination.PAGINATION_PAGE_COUNT, pageCount);
         dataModel.put(Pagination.PAGINATION_PAGE_NUMS, pageNums);

@@ -19,7 +19,8 @@ package org.b3log.solo.model.atom;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.util.XMLs;
 import org.b3log.solo.processor.FeedProcessor;
 
@@ -50,7 +51,7 @@ public final class Feed {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(FeedProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FeedProcessor.class);
 
     /**
      * Link variable.

@@ -21,8 +21,8 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
 import org.b3log.latke.repository.RepositoryException;
@@ -70,7 +70,7 @@ public class OAuthProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(OAuthProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OAuthProcessor.class);
 
     /**
      * OAuth parameters - state.
@@ -138,7 +138,7 @@ public class OAuthProcessor {
                 }
                 context.sendRedirect(Latkes.getServePath() + "/");
             } else if (!initService.isInited()) {
-                LOGGER.log(Level.INFO, "Bolo initializing...");
+                LOGGER.info("Bolo initializing...");
                 final JSONObject initReq = new JSONObject();
                 initReq.put(User.USER_NAME, username);
                 initReq.put(UserExt.USER_B3_KEY, password);
@@ -158,7 +158,7 @@ public class OAuthProcessor {
                     // 用户名密码校验
                     if (username.equals(cUser) && password.equals(cPass)) {
                         Solos.login(user, context.getResponse());
-                        LOGGER.log(Level.INFO, "Logged in [name={0}, remoteAddr={1}] with Bolo auth", username, Requests.getRemoteAddr(request));
+                        LOGGER.info("Logged in [name={0}, remoteAddr={1}] with Bolo auth", username, Requests.getRemoteAddr(request));
                         context.sendRedirect(Latkes.getServePath() + "/admin-index.do#main");
                     } else {
                         context.sendRedirect(Latkes.getServePath() + "/start?status=error");
@@ -168,7 +168,7 @@ public class OAuthProcessor {
                 }
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.WARN, "Can not write cookie", e);
+            LOGGER.warn("Can not write cookie", e);
         }
     }
 

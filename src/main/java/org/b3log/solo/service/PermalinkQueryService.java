@@ -23,8 +23,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.service.annotation.Service;
 import org.b3log.latke.util.Strings;
@@ -44,7 +44,7 @@ public class PermalinkQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PermalinkQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PermalinkQueryService.class);
 
     /**
      * Page repository.
@@ -207,7 +207,7 @@ public class PermalinkQueryService {
             return isReservedLink(permalink) || null != articleRepository.getByPermalink(permalink)
                     || null != pageRepository.getByPermalink(permalink) || permalink.endsWith(".ftl");
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Determines whether the permalink[" + permalink + "] exists failed, returns true",
+            LOGGER.error("Determines whether the permalink[" + permalink + "] exists failed, returns true",
                     e);
 
             return true;

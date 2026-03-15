@@ -25,8 +25,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.service.LangPropsService;
 import org.b3log.latke.servlet.HttpMethod;
@@ -62,7 +62,7 @@ public class TagProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(TagProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TagProcessor.class);
 
     /**
      * DataModelService.
@@ -121,7 +121,7 @@ public class TagProcessor {
         try {
             String tagTitle = context.pathVar("tagTitle");
             final int currentPageNum = Paginator.getPage(request);
-            LOGGER.log(Level.DEBUG, "Tag [title={0}, currentPageNum={1}]", tagTitle, currentPageNum);
+            LOGGER.debug("Tag [title={0}, currentPageNum={1}]", tagTitle, currentPageNum);
             final JSONObject result = tagQueryService.getTagByTitle(tagTitle);
             if (null == result) {
                 context.sendError(HttpServletResponse.SC_NOT_FOUND);
@@ -161,7 +161,7 @@ public class TagProcessor {
             dataModelService.fillUsite(dataModel);
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }

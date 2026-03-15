@@ -19,8 +19,8 @@ package org.b3log.solo.service;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.annotation.Service;
@@ -44,7 +44,7 @@ public class ArchiveDateMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArchiveDateMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveDateMgmtService.class);
 
     /**
      * Archive date repository.
@@ -80,7 +80,7 @@ public class ArchiveDateMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Gets archive dates failed", e);
+            LOGGER.error("Gets archive dates failed", e);
         }
     }
 }

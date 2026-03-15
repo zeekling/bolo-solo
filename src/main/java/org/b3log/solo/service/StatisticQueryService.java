@@ -18,8 +18,8 @@
 package org.b3log.solo.service;
 
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.FilterOperator;
 import org.b3log.latke.repository.PropertyFilter;
 import org.b3log.latke.repository.Query;
@@ -43,7 +43,7 @@ public class StatisticQueryService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(StatisticQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatisticQueryService.class);
 
     /**
      * Option query service.
@@ -87,7 +87,7 @@ public class StatisticQueryService {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets statistic failed", e);
+            LOGGER.error("Gets statistic failed", e);
 
             return null;
         }

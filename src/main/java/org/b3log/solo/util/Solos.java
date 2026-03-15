@@ -33,8 +33,8 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.Role;
 import org.b3log.latke.model.User;
@@ -95,7 +95,7 @@ public final class Solos {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(Solos.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Solos.class);
     /**
      * Cookie expiry in 30 days.
      */
@@ -135,7 +135,7 @@ public final class Solos {
                     throw new Exception("No Lute-Http Service at local.");
                 }
                 if (Markdowns.LUTE_AVAILABLE) {
-                    LOGGER.log(Level.INFO, "lute_http configure detected [url=" + Markdowns.LUTE_ENGINE_URL + "]");
+                    LOGGER.info("lute_http configure detected [url=" + Markdowns.LUTE_ENGINE_URL + "]");
                 }
             } catch (final Exception e) {
                 enableWelfareLuteService();
@@ -193,13 +193,13 @@ public final class Solos {
             testErrorMsg = "The connection to the private welfare Lute service failed. Lute rendering will be disabled and the built-in renderer will be used.";
         } else {
             Markdowns.LUTE_AVAILABLE = status;
-            LOGGER.log(Level.INFO, "Welfare Lute Service has disabled.");
+            LOGGER.info("Welfare Lute Service has disabled.");
         }
         if (needTest) {
             try {
                 Markdowns.toHtmlByLute("#test");
             } catch (Exception exception) {
-                LOGGER.log(Level.INFO, testErrorMsg);
+                LOGGER.info(testErrorMsg);
                 Markdowns.LUTE_AVAILABLE = false;
             }
         }
@@ -266,7 +266,7 @@ public final class Solos {
             if (0 != result.optInt(Keys.CODE)) {
                 uploadMsg = result.optString(Keys.MSG);
                 // 去除后台 B3 Key 提示
-                // LOGGER.log(Level.ERROR, uploadMsg);
+                // LOGGER.error(uploadMsg);
 
                 // return null;
             }
@@ -298,8 +298,8 @@ public final class Solos {
             return new JSONObject().put(Common.UPLOAD_TOKEN, uploadToken).put(Common.UPLOAD_URL, uploadURL)
                     .put(Common.UPLOAD_MSG, uploadMsg);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage());
-            LOGGER.log(Level.ERROR, "Gets Hacpai upload token failed, Wrong Hacpai Username / B3log key.");
+            LOGGER.error(e.getMessage());
+            LOGGER.error("Gets Hacpai upload token failed, Wrong Hacpai Username / B3log key.");
 
             return null;
         }
@@ -374,7 +374,7 @@ public final class Solos {
                 }
             }
         } catch (final Exception e) {
-            LOGGER.log(Level.TRACE, "Parses cookie failed, clears the cookie [name=" + COOKIE_NAME + "]");
+            LOGGER.trace("Parses cookie failed, clears the cookie [name=" + COOKIE_NAME + "]");
 
             final Cookie cookie = new Cookie(COOKIE_NAME, null);
             cookie.setMaxAge(0);
@@ -406,7 +406,7 @@ public final class Solos {
             cookie.setHttpOnly(COOKIE_HTTP_ONLY);
             response.addCookie(cookie);
         } catch (final Exception e) {
-            LOGGER.log(Level.WARN, "Can not write cookie", e);
+            LOGGER.warn("Can not write cookie", e);
         }
     }
 

@@ -25,8 +25,8 @@ import org.b3log.latke.event.AbstractEventListener;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.ioc.Singleton;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.solo.model.Article;
 import org.b3log.solo.model.Common;
 import org.b3log.solo.model.Option;
@@ -50,7 +50,7 @@ public class FishPiArticleUpdater extends AbstractEventListener<JSONObject> {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(FishPiArticleUpdater.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FishPiArticleUpdater.class);
 
     /**
      * Puts the specified article data to FishPi Rhythm.
@@ -71,12 +71,12 @@ public class FishPiArticleUpdater extends AbstractEventListener<JSONObject> {
 
             final String title = originalArticle.getString(Article.ARTICLE_TITLE);
             if (Article.ARTICLE_STATUS_C_PUBLISHED != originalArticle.optInt(Article.ARTICLE_STATUS)) {
-                LOGGER.log(Level.INFO, "Ignored put a draft [title={0}] to fishpi", title);
+                LOGGER.info("Ignored put a draft [title={0}] to fishpi", title);
                 return;
             }
 
             if (StringUtils.isNotBlank(originalArticle.optString(Article.ARTICLE_VIEW_PWD))) {
-                LOGGER.log(Level.INFO, "Article [title={0}] is a password article, ignored put to fishpi", title);
+                LOGGER.info("Article [title={0}] is a password article, ignored put to fishpi", title);
                 return;
             }
 
@@ -94,14 +94,14 @@ public class FishPiArticleUpdater extends AbstractEventListener<JSONObject> {
                     put("articleContent", originalArticle.getString(Article.ARTICLE_CONTENT));
 
             if (Option.DefaultPreference.DEFAULT_B3LOG_USERNAME.equals(userName)) {
-                LOGGER.log(Level.INFO, "Article [title={0}] Is using the B3log default account, skipped put to Rhy", title);
+                LOGGER.info("Article [title={0}] Is using the B3log default account, skipped put to Rhy", title);
                 return;
             }
             final OptionQueryService optionQueryService = beanManager.getReference(OptionQueryService.class);
             final JSONObject option = optionQueryService.getOptionById("article_" + originalArticle.getString(Keys.OBJECT_ID));
             final String fishPiArticleId = option.optString(Option.OPTION_VALUE);
             if (Objects.isNull(option) || "".equals(fishPiArticleId)) {
-                LOGGER.log(Level.WARN, "Put an article to FishPi failed,Cannot find the reference between this article and fishpi article");
+                LOGGER.warn("Put an article to FishPi failed,Cannot find the reference between this article and fishpi article");
                 return;
             }
 
@@ -111,16 +111,16 @@ public class FishPiArticleUpdater extends AbstractEventListener<JSONObject> {
                     connectionTimeout(3000).timeout(7000).followRedirects(true).
                     contentTypeJson().header("User-Agent", Solos.BOLO_USER_AGENT).send();
 
-            LOGGER.log(Level.INFO, "Put an article [title={0}] to FishPi, response [{1}]", title, response.toString());
+            LOGGER.info("Put an article [title={0}] to FishPi, response [{1}]", title, response.toString());
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Put an article to FishPi failed: " + e.getMessage());
+            LOGGER.error("Put an article to FishPi failed: " + e.getMessage());
         }
     }
 
     @Override
     public void action(final Event<JSONObject> event) {
         final JSONObject data = event.getData();
-        LOGGER.log(Level.DEBUG, "Processing an event [type={0}, data={1}] in listener [className={2}]",
+        LOGGER.debug("Processing an event [type={0}, data={1}] in listener [className={2}]",
                 event.getType(), data, FishPiArticleUpdater.class.getName());
 
         putArticleToFishPi(data);

@@ -39,8 +39,8 @@ import org.b3log.latke.Latkes;
 import org.b3log.latke.event.Event;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.model.Pagination;
 import org.b3log.latke.model.User;
 import org.b3log.latke.service.LangPropsService;
@@ -102,7 +102,7 @@ public class ArticleProcessor {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArticleProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArticleProcessor.class);
 
     /**
      * Article query service.
@@ -227,7 +227,7 @@ public class ArticleProcessor {
             final String html = Markdowns.toHTML(markdownText);
             result.put(Common.DATA, html);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             result.put(Keys.CODE, -1);
             result.put(Keys.MSG, langPropsService.get("getFailLabel"));
         }
@@ -316,7 +316,7 @@ public class ArticleProcessor {
             context.sendRedirect(Latkes.getServePath() + "/console/article-pwd?articleId="
                     + article.optString(Keys.OBJECT_ID) + "&msg=1");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Processes article view password form submits failed", e);
+            LOGGER.error("Processes article view password form submits failed", e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -423,7 +423,7 @@ public class ArticleProcessor {
         try {
             content = articleQueryService.getArticleContent(context, articleId);
         } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, "Can not get article content", e);
+            LOGGER.error("Can not get article content", e);
             return;
         }
 
@@ -467,7 +467,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -521,7 +521,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -575,7 +575,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -628,7 +628,7 @@ public class ArticleProcessor {
             jsonObject.put(Keys.RESULTS, result);
         } catch (final Exception e) {
             jsonObject.put(Keys.STATUS_CODE, false);
-            LOGGER.log(Level.ERROR, "Gets article paged failed", e);
+            LOGGER.error("Gets article paged failed", e);
         } finally {
             Stopwatchs.end();
         }
@@ -651,7 +651,7 @@ public class ArticleProcessor {
         try {
             final String authorId = context.pathVar("author");
             final int currentPageNum = Paginator.getPage(request);
-            LOGGER.log(Level.DEBUG, "Request author articles [authorId={0}, currentPageNum={1}]", authorId,
+            LOGGER.debug("Request author articles [authorId={0}, currentPageNum={1}]", authorId,
                     currentPageNum);
 
             final JSONObject preference = optionQueryService.getPreference();
@@ -699,7 +699,7 @@ public class ArticleProcessor {
 
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -718,11 +718,11 @@ public class ArticleProcessor {
         try {
             final int currentPageNum = Paginator.getPage(request);
             final String archiveDateString = context.pathVar("yyyy") + "/" + context.pathVar("MM");
-            LOGGER.log(Level.DEBUG, "Request archive date [string={0}, currentPageNum={1}]", archiveDateString,
+            LOGGER.debug("Request archive date [string={0}, currentPageNum={1}]", archiveDateString,
                     currentPageNum);
             final JSONObject result = archiveDateQueryService.getByArchiveDateString(archiveDateString);
             if (null == result) {
-                LOGGER.log(Level.DEBUG, "Can not find articles for the specified archive date[string={0}]",
+                LOGGER.debug("Can not find articles for the specified archive date[string={0}]",
                         archiveDateString);
                 context.sendError(HttpServletResponse.SC_NOT_FOUND);
 
@@ -760,7 +760,7 @@ public class ArticleProcessor {
 
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
     }
@@ -827,7 +827,7 @@ public class ArticleProcessor {
             dataModel.put(Common.PATH, "");
             statisticMgmtService.incBlogViewCount(context, response);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -849,7 +849,7 @@ public class ArticleProcessor {
             return;
         }
 
-        LOGGER.log(Level.DEBUG, "Rss Article Feed [author=[{0}], id={1}]", followName, articleTitle);
+        LOGGER.debug("Rss Article Feed [author=[{0}], id={1}]", followName, articleTitle);
 
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "rss-article.ftl");
 
@@ -880,7 +880,7 @@ public class ArticleProcessor {
             dataModel.put(Option.ID_C_RANDOM_ARTICLES_DISPLAY_CNT, 0);
             dataModel.put(Option.ID_C_RELEVANT_ARTICLES_DISPLAY_CNT, 0);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -902,12 +902,12 @@ public class ArticleProcessor {
         }
 
         final String articleId = article.optString(Keys.OBJECT_ID);
-        LOGGER.log(Level.DEBUG, "Article [id={0}]", articleId);
+        LOGGER.debug("Article [id={0}]", articleId);
 
         final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "article.ftl");
 
         try {
-            LOGGER.log(Level.TRACE, "Article [title={0}]", article.getString(Article.ARTICLE_TITLE));
+            LOGGER.trace("Article [title={0}]", article.getString(Article.ARTICLE_TITLE));
             articleQueryService.markdown(article);
 
             article.put(Article.ARTICLE_T_CREATE_DATE, new Date(article.optLong(Article.ARTICLE_CREATED)));
@@ -975,7 +975,7 @@ public class ArticleProcessor {
             eventData.put(Article.ARTICLE, article);
             eventManager.fireEventSynchronously(new Event<>(EventTypes.BEFORE_RENDER_ARTICLE, eventData));
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             context.sendError(HttpServletResponse.SC_NOT_FOUND);
         }
@@ -994,7 +994,7 @@ public class ArticleProcessor {
 
             return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             return Collections.emptyList();
         }

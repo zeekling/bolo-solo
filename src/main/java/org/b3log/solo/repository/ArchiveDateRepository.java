@@ -20,8 +20,8 @@ package org.b3log.solo.repository;
 import org.apache.commons.lang.time.DateUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.repository.annotation.Repository;
 import org.b3log.solo.model.ArchiveDate;
@@ -44,7 +44,7 @@ public class ArchiveDateRepository extends AbstractRepository {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(ArchiveDateRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArchiveDateRepository.class);
 
     /**
      * Archive date-Article repository.
@@ -74,7 +74,7 @@ public class ArchiveDateRepository extends AbstractRepository {
             return null;
         }
 
-        LOGGER.log(Level.TRACE, "Archive date [{0}] parsed to time [{1}]", archiveDate, time);
+        LOGGER.trace("Archive date [{0}] parsed to time [{1}]", archiveDate, time);
 
         Query query = new Query().setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time)).setPageCount(1);
         JSONObject result = get(query);
@@ -88,7 +88,7 @@ public class ArchiveDateRepository extends AbstractRepository {
                 return null;
             }
 
-            LOGGER.log(Level.TRACE, "Fix archive date [{0}] parsed to time [{1}]", archiveDate, time);
+            LOGGER.trace("Fix archive date [{0}] parsed to time [{1}]", archiveDate, time);
 
             query = new Query().setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time)).setPageCount(1);
             result = get(query);

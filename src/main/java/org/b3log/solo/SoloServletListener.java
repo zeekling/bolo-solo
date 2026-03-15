@@ -29,8 +29,8 @@ import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.event.EventManager;
 import org.b3log.latke.ioc.BeanManager;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.plugin.PluginManager;
 import org.b3log.latke.plugin.ViewLoadEventHandler;
 import org.b3log.latke.repository.Transaction;
@@ -98,7 +98,7 @@ public final class SoloServletListener extends AbstractServletListener {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(SoloServletListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SoloServletListener.class);
 
     /**
      * Bolo version.
@@ -207,7 +207,7 @@ public final class SoloServletListener extends AbstractServletListener {
         System.out.println("");
 
         Stopwatchs.end();
-        LOGGER.log(Level.DEBUG, "Stopwatch: {0}{1}", Strings.LINE_SEPARATOR, Stopwatchs.getTimingStat());
+        LOGGER.debug("Stopwatch: {0}{1}", Strings.LINE_SEPARATOR, Stopwatchs.getTimingStat());
 
         final CronMgmtService cronMgmtService = beanManager.getReference(CronMgmtService.class);
         cronMgmtService.start();
@@ -264,7 +264,7 @@ public final class SoloServletListener extends AbstractServletListener {
     public void requestDestroyed(final ServletRequestEvent servletRequestEvent) {
         Stopwatchs.end();
 
-        LOGGER.log(Level.DEBUG, "Stopwatch: {0}{1}", Strings.LINE_SEPARATOR, Stopwatchs.getTimingStat());
+        LOGGER.debug("Stopwatch: {0}{1}", Strings.LINE_SEPARATOR, Stopwatchs.getTimingStat());
         Stopwatchs.release();
 
         super.requestDestroyed(servletRequestEvent);
@@ -301,7 +301,7 @@ public final class SoloServletListener extends AbstractServletListener {
             final String showClodeBlockLn = preference.optString(org.b3log.solo.model.Option.ID_C_SHOW_CODE_BLOCK_LN);
             Markdowns.SHOW_CODE_BLOCK_LN = StringUtils.equalsIgnoreCase(showClodeBlockLn, "true");
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             System.exit(-1);
         }
@@ -338,7 +338,7 @@ public final class SoloServletListener extends AbstractServletListener {
                     .getReference(DeleteFollowListener.class);
             eventManager.registerListener(deleteFollowListener);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Register event handlers failed", e);
+            LOGGER.error("Register event handlers failed", e);
 
             System.exit(-1);
         }
@@ -411,7 +411,7 @@ public final class SoloServletListener extends AbstractServletListener {
         final String skinDirName = Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME;
         final String skinName = Latkes.getSkinName(skinDirName);
         if (StringUtils.isBlank(skinName)) {
-            LOGGER.log(Level.ERROR, "Can't load the default skins, please make sure skin [" + skinDirName
+            LOGGER.error("Can't load the default skins, please make sure skin [" + skinDirName
                     + "] is under skins directory and structure correctly");
 
             System.exit(-1);

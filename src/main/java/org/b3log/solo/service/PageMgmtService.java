@@ -19,8 +19,8 @@ package org.b3log.solo.service;
 
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
-import org.b3log.latke.logging.Level;
-import org.b3log.latke.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.b3log.latke.repository.RepositoryException;
 import org.b3log.latke.repository.Transaction;
 import org.b3log.latke.service.LangPropsService;
@@ -46,7 +46,7 @@ public class PageMgmtService {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(PageMgmtService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PageMgmtService.class);
 
     /**
      * Page repository.
@@ -133,9 +133,9 @@ public class PageMgmtService {
             pageRepository.update(pageId, newPage);
             transaction.commit();
 
-            LOGGER.log(Level.DEBUG, "Updated a page[id={0}]", pageId);
+            LOGGER.debug("Updated a page[id={0}]", pageId);
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
@@ -161,7 +161,7 @@ public class PageMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Removes a page[id=" + pageId + "] failed", e);
+            LOGGER.error("Removes a page[id=" + pageId + "] failed", e);
 
             throw new ServiceException(e);
         }
@@ -199,14 +199,14 @@ public class PageMgmtService {
 
             return ret;
         } catch (final JSONException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
 
             throw new ServiceException(e);
         } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             if (transaction.isActive()) {
                 transaction.rollback();
             }
@@ -240,7 +240,7 @@ public class PageMgmtService {
                     transaction.rollback();
                 }
 
-                LOGGER.log(Level.WARN, "Cant not find the target page of source page[order={0}]", srcPageOrder);
+                LOGGER.warn("Cant not find the target page of source page[order={0}]", srcPageOrder);
                 return;
             }
 
@@ -255,7 +255,7 @@ public class PageMgmtService {
                 transaction.rollback();
             }
 
-            LOGGER.log(Level.ERROR, "Changes page's order failed", e);
+            LOGGER.error("Changes page's order failed", e);
 
             throw new ServiceException(e);
         }
