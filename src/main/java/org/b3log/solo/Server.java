@@ -37,6 +37,8 @@ import org.b3log.solo.event.*;
 import org.b3log.solo.handler.AfterRequestHandler;
 import org.b3log.solo.handler.BeforeRequestHandler;
 import org.b3log.solo.handler.SkinHandler;
+import org.b3log.solo.middleware.ConsoleAuthMidware;
+import org.b3log.solo.middleware.ConsoleAdminAuthMidware;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.processor.ArticleProcessor;
 import org.b3log.solo.processor.B3Receiver;
@@ -165,11 +167,13 @@ public final class Server {
 
     public static void routeProcessors() {
         final BeanManager beanManager = BeanManager.getInstance();
-        
+
         Dispatcher.startRequestHandler = new BeforeRequestHandler();
         Dispatcher.HANDLERS.add(1, new SkinHandler());
         Dispatcher.HANDLERS.add(2, new InitCheckHandler());
         Dispatcher.HANDLERS.add(3, new PermalinkHandler());
+        Dispatcher.HANDLERS.add(4, new ConsoleAdminAuthMidware());
+        Dispatcher.HANDLERS.add(5, new ConsoleAuthMidware());
         Dispatcher.endRequestHandler = new AfterRequestHandler();
 
         routeFrontendProcessors(beanManager);
