@@ -34,111 +34,123 @@ import org.json.JSONObject;
 @Repository
 public class LinkRepository extends AbstractRepository {
 
-    /**
-     * Public constructor.
-     */
-    public LinkRepository() {
-        super(Link.LINK);
+  /** Public constructor. */
+  public LinkRepository() {
+    super(Link.LINK);
+  }
+
+  /**
+   * Gets a link by the specified address.
+   *
+   * @param address the specified address
+   * @return link, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByAddress(final String address) throws RepositoryException {
+    final Query query =
+        new Query()
+            .setFilter(new PropertyFilter(Link.LINK_ADDRESS, FilterOperator.EQUAL, address))
+            .setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return null;
     }
 
-    /**
-     * Gets a link by the specified address.
-     *
-     * @param address the specified address
-     * @return link, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByAddress(final String address) throws RepositoryException {
-        final Query query = new Query().setFilter(new PropertyFilter(Link.LINK_ADDRESS, FilterOperator.EQUAL, address)).setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return null;
-        }
+    return array.optJSONObject(0);
+  }
 
-        return array.optJSONObject(0);
+  /**
+   * Gets the maximum order.
+   *
+   * @return order number, returns {@code -1} if not found
+   * @throws RepositoryException repository exception
+   */
+  public int getMaxOrder() throws RepositoryException {
+    final Query query = new Query().addSort(Link.LINK_ORDER, SortDirection.DESCENDING);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return -1;
     }
 
-    /**
-     * Gets the maximum order.
-     *
-     * @return order number, returns {@code -1} if not found
-     * @throws RepositoryException repository exception
-     */
-    public int getMaxOrder() throws RepositoryException {
-        final Query query = new Query().addSort(Link.LINK_ORDER, SortDirection.DESCENDING);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return -1;
-        }
+    return array.optJSONObject(0).optInt(Link.LINK_ORDER);
+  }
 
-        return array.optJSONObject(0).optInt(Link.LINK_ORDER);
+  /**
+   * Gets the upper link of the link specified by the given id.
+   *
+   * @param id the given id
+   * @return upper link, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getUpper(final String id) throws RepositoryException {
+    final JSONObject link = get(id);
+    if (null == link) {
+      return null;
     }
 
-    /**
-     * Gets the upper link of the link specified by the given id.
-     *
-     * @param id the given id
-     * @return upper link, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getUpper(final String id) throws RepositoryException {
-        final JSONObject link = get(id);
-        if (null == link) {
-            return null;
-        }
-
-        final Query query = new Query().setFilter(new PropertyFilter(Link.LINK_ORDER, FilterOperator.LESS_THAN, link.optInt(Link.LINK_ORDER))).
-                addSort(Link.LINK_ORDER, SortDirection.DESCENDING).setPage(1, 1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (1 != array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+    final Query query =
+        new Query()
+            .setFilter(
+                new PropertyFilter(
+                    Link.LINK_ORDER, FilterOperator.LESS_THAN, link.optInt(Link.LINK_ORDER)))
+            .addSort(Link.LINK_ORDER, SortDirection.DESCENDING)
+            .setPage(1, 1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (1 != array.length()) {
+      return null;
     }
 
-    /**
-     * Gets the under link of the link specified by the given id.
-     *
-     * @param id the given id
-     * @return under link, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getUnder(final String id) throws RepositoryException {
-        final JSONObject link = get(id);
-        if (null == link) {
-            return null;
-        }
+    return array.optJSONObject(0);
+  }
 
-        final Query query = new Query().setFilter(new PropertyFilter(Link.LINK_ORDER, FilterOperator.GREATER_THAN, link.optInt(Link.LINK_ORDER))).
-                addSort(Link.LINK_ORDER, SortDirection.ASCENDING).setPage(1, 1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (1 != array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+  /**
+   * Gets the under link of the link specified by the given id.
+   *
+   * @param id the given id
+   * @return under link, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getUnder(final String id) throws RepositoryException {
+    final JSONObject link = get(id);
+    if (null == link) {
+      return null;
     }
 
-    /**
-     * Gets a link by the specified order.
-     *
-     * @param order the specified order
-     * @return link, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByOrder(final int order) throws RepositoryException {
-        final Query query = new Query().setFilter(new PropertyFilter(Link.LINK_ORDER, FilterOperator.EQUAL, order));
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+    final Query query =
+        new Query()
+            .setFilter(
+                new PropertyFilter(
+                    Link.LINK_ORDER, FilterOperator.GREATER_THAN, link.optInt(Link.LINK_ORDER)))
+            .addSort(Link.LINK_ORDER, SortDirection.ASCENDING)
+            .setPage(1, 1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (1 != array.length()) {
+      return null;
     }
+
+    return array.optJSONObject(0);
+  }
+
+  /**
+   * Gets a link by the specified order.
+   *
+   * @param order the specified order
+   * @return link, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByOrder(final int order) throws RepositoryException {
+    final Query query =
+        new Query().setFilter(new PropertyFilter(Link.LINK_ORDER, FilterOperator.EQUAL, order));
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return null;
+    }
+
+    return array.optJSONObject(0);
+  }
 }

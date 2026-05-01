@@ -25,44 +25,27 @@ package org.b3log.solo.model;
  */
 public final class Follow {
 
-    /**
-     * FOLLOW.
-     */
-    public static final String FOLLOW = "follow";
+  /** FOLLOW. */
+  public static final String FOLLOW = "follow";
 
-    /**
-     * FOLLOWS.
-     */
-    public static final String FOLLOWS = "follows";
+  /** FOLLOWS. */
+  public static final String FOLLOWS = "follows";
 
-    /**
-     * Key of title.
-     */
-    public static final String FOLLOW_TITLE = "followTitle";
+  /** Key of title. */
+  public static final String FOLLOW_TITLE = "followTitle";
 
-    /**
-     * Key of address.
-     */
-    public static final String FOLLOW_ADDRESS = "followAddress";
+  /** Key of address. */
+  public static final String FOLLOW_ADDRESS = "followAddress";
 
-    /**
-     * Key of description.
-     */
-    public static final String FOLLOW_DESCRIPTION = "followDescription";
+  /** Key of description. */
+  public static final String FOLLOW_DESCRIPTION = "followDescription";
 
-    /**
-     * Key of icon URL.
-     */
-    public static final String FOLLOW_ICON = "followIcon";
+  /** Key of icon URL. */
+  public static final String FOLLOW_ICON = "followIcon";
 
-    /**
-     * Key of order.
-     */
-    public static final String FOLLOW_ORDER = "followOrder";
+  /** Key of order. */
+  public static final String FOLLOW_ORDER = "followOrder";
 
-    /**
-     * Private constructor.
-     */
-    private Follow() {
-    }
+  /** Private constructor. */
+  private Follow() {}
 }

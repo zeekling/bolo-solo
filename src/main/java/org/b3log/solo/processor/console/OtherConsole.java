@@ -40,90 +40,79 @@ import org.json.JSONObject;
 @RequestProcessor
 public class OtherConsole {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(OtherConsole.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(OtherConsole.class);
 
-    /**
-     * Tag management service.
-     */
-    @Inject
-    private TagMgmtService tagMgmtService;
+  /** Tag management service. */
+  @Inject private TagMgmtService tagMgmtService;
 
-    /**
-     * ArchiveDate maangement service.
-     */
-    @Inject
-    private ArchiveDateMgmtService archiveDateMgmtService;
+  /** ArchiveDate maangement service. */
+  @Inject private ArchiveDateMgmtService archiveDateMgmtService;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Removes all unused archives.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    @Before(ConsoleAdminAuthAdvice.class)
-    public void removeUnusedArchives(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject jsonObject = new JSONObject();
-        renderer.setJSONObject(jsonObject);
+  /**
+   * Removes all unused archives.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  @Before(ConsoleAdminAuthAdvice.class)
+  public void removeUnusedArchives(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject jsonObject = new JSONObject();
+    renderer.setJSONObject(jsonObject);
 
-        try {
-            archiveDateMgmtService.removeUnusedArchiveDates();
+    try {
+      archiveDateMgmtService.removeUnusedArchiveDates();
 
-            jsonObject.put(Keys.STATUS_CODE, true);
-            jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Removes unused archives failed", e);
+      jsonObject.put(Keys.STATUS_CODE, true);
+      jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Removes unused archives failed", e);
 
-            jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
-        }
+      jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
     }
+  }
 
-    /**
-     * Removes all unused tags.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    @Before(ConsoleAdminAuthAdvice.class)
-    public void removeUnusedTags(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject jsonObject = new JSONObject();
-        renderer.setJSONObject(jsonObject);
+  /**
+   * Removes all unused tags.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  @Before(ConsoleAdminAuthAdvice.class)
+  public void removeUnusedTags(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject jsonObject = new JSONObject();
+    renderer.setJSONObject(jsonObject);
 
-        try {
-            tagMgmtService.removeUnusedTags();
+    try {
+      tagMgmtService.removeUnusedTags();
 
-            jsonObject.put(Keys.STATUS_CODE, true);
-            jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Removes unused tags failed", e);
+      jsonObject.put(Keys.STATUS_CODE, true);
+      jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Removes unused tags failed", e);
 
-            jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
-        }
+      jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
     }
+  }
 }

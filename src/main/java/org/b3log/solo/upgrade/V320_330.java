@@ -35,50 +35,52 @@ import org.json.JSONObject;
  */
 public final class V320_330 {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(V320_330.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(V320_330.class);
 
-    /**
-     * Performs upgrade from v3.2.0 to v3.3.0.
-     *
-     * @throws Exception upgrade fails
-     */
-    public static void perform() throws Exception {
-        final String fromVer = "3.2.0";
-        final String toVer = "3.3.0";
+  /**
+   * Performs upgrade from v3.2.0 to v3.3.0.
+   *
+   * @throws Exception upgrade fails
+   */
+  public static void perform() throws Exception {
+    final String fromVer = "3.2.0";
+    final String toVer = "3.3.0";
 
-        LOGGER.log(Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
+    LOGGER.log(
+        Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
 
-        final BeanManager beanManager = BeanManager.getInstance();
-        final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
+    final BeanManager beanManager = BeanManager.getInstance();
+    final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
 
-        try {
-            final Transaction transaction = optionRepository.beginTransaction();
+    try {
+      final Transaction transaction = optionRepository.beginTransaction();
 
-            optionRepository.remove("allowRegister");
+      optionRepository.remove("allowRegister");
 
-            JSONObject faviconURLOpt = optionRepository.get(Option.ID_C_FAVICON_URL);
-            if (null == faviconURLOpt) {
-                faviconURLOpt = new JSONObject();
-                faviconURLOpt.put(Keys.OBJECT_ID, Option.ID_C_FAVICON_URL);
-                faviconURLOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_PREFERENCE);
-                faviconURLOpt.put(Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_FAVICON_URL);
-                optionRepository.add(faviconURLOpt);
-            }
+      JSONObject faviconURLOpt = optionRepository.get(Option.ID_C_FAVICON_URL);
+      if (null == faviconURLOpt) {
+        faviconURLOpt = new JSONObject();
+        faviconURLOpt.put(Keys.OBJECT_ID, Option.ID_C_FAVICON_URL);
+        faviconURLOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_PREFERENCE);
+        faviconURLOpt.put(Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_FAVICON_URL);
+        optionRepository.add(faviconURLOpt);
+      }
 
-            final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
-            versionOpt.put(Option.OPTION_VALUE, toVer);
-            optionRepository.update(Option.ID_C_VERSION, versionOpt);
+      final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
+      versionOpt.put(Option.OPTION_VALUE, toVer);
+      optionRepository.update(Option.ID_C_VERSION, versionOpt);
 
-            transaction.commit();
+      transaction.commit();
 
-            LOGGER.log(Level.INFO, "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+      LOGGER.log(
+          Level.INFO,
+          "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Upgrade failed!", e);
 
-            throw new Exception("Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
-        }
+      throw new Exception(
+          "Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
     }
+  }
 }

@@ -17,6 +17,11 @@
  */
 package org.b3log.solo.rss;
 
+import com.rometools.rome.feed.synd.SyndEnclosure;
+import com.rometools.rome.feed.synd.SyndEntry;
+import com.rometools.rome.feed.synd.SyndFeed;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
 import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import org.b3log.latke.Keys;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
@@ -36,142 +40,142 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
-import com.rometools.rome.feed.synd.SyndEnclosure;
-import com.rometools.rome.feed.synd.SyndEntry;
-import com.rometools.rome.feed.synd.SyndFeed;
-import com.rometools.rome.io.SyndFeedInput;
-import com.rometools.rome.io.XmlReader;
-
 public class RssParser {
-    private String rssUrl;
-    private String userIcon;
-    private String userName;
+  private String rssUrl;
+  private String userIcon;
+  private String userName;
 
-    private static final Logger LOGGER = Logger.getLogger(RssParser.class);
+  private static final Logger LOGGER = Logger.getLogger(RssParser.class);
 
-    public RssParser(String rssUrl, String userIcon, String userName) {
-        this.rssUrl = rssUrl;
-        this.userIcon = userIcon;
-        this.userName = userName;
-    }
+  public RssParser(String rssUrl, String userIcon, String userName) {
+    this.rssUrl = rssUrl;
+    this.userIcon = userIcon;
+    this.userName = userName;
+  }
 
-    private RssParser() {
-    }
+  private RssParser() {}
 
-    public List<JSONObject> parse2Article() {
-        SyndFeedInput input = new SyndFeedInput();
-        final List<JSONObject> articles = new ArrayList<>();
-        try (XmlReader reader = new XmlReader(new URL(this.rssUrl).openStream())) {
-            SyndFeed feed = input.build(reader);
-            String feedDesc = feed.getDescription();
-            if (feedDesc == null || feedDesc.isEmpty()) {
-                feedDesc = feed.getTitle();
-            }
-            Instant now = Instant.now();
-            for (SyndEntry entry : feed.getEntries()) {
-                final JSONObject article = new JSONObject();
-                article.put(Option.ID_C_BLOG_TITLE, feed.getTitle());
-                article.put(Option.ID_C_BLOG_SUBTITLE, feedDesc);
-                article.put(Common.AUTHOR_ID, "");
-                article.put(Article.ARTICLE_T_TOC, (Object) Collections.emptyList());
-                article.put(Article.ARTICLE_AUTHOR_ID, userName);
-                article.put(Keys.OBJECT_ID, entry.getAuthor());
-                article.put(Common.AUTHOR_NAME, entry.getAuthor());
-                article.put(Article.ARTICLE_TITLE, entry.getTitle());
-                article.put(Article.ARTICLE_PUT_TOP, false);
-                article.put(Option.ID_C_COMMENTABLE, false);
-                article.put(Common.ARTICLE_SIGN, new JSONObject().put("signHTML", ""));
-                article.put(Article.ARTICLE_TAGS_REF, entry.getCategories().stream()
-                        .map(category -> category.getName())
-                        .reduce((a, b) -> a + "," + b).orElse(""));
-                article.put(Common.HAS_UPDATED, false);
-                if (Objects.nonNull(feed.getImage())) {
-                    article.put(Common.AUTHOR_THUMBNAIL_URL, feed.getImage().getUrl());
-                } else {
-                    article.put(Common.AUTHOR_THUMBNAIL_URL, this.userIcon);
-                }
-                article.put(Article.ARTICLE_PERMALINK,
-                        String.format("/follow/%s/article/%s", this.userName, entry.getTitle()));
-                article.put("isRss", false);
-                if (null == entry.getContents() || entry.getContents().isEmpty()) {
-                    article.put(Article.ARTICLE_CONTENT, entry.getDescription().getValue());
-                    article.put(Article.ARTICLE_ABSTRACT,
-                            Article.getAbstractText(entry.getDescription().getValue()));
-                    article.put(Article.ARTICLE_ABSTRACT_TEXT, article.getString(Article.ARTICLE_ABSTRACT));
-                    if (!isRichContent(entry.getDescription().getValue())) {
-                        article.put("isRss", true);
-                        article.put(Article.ARTICLE_PERMALINK, entry.getLink());
-                    }
-                } else {
-                    // Use the first content if available
-                    article.put(Article.ARTICLE_CONTENT, entry.getContents().get(0).getValue());
-                    if (entry.getDescription() == null || entry.getDescription().getValue() == null) {
-                        article.put(Article.ARTICLE_ABSTRACT,
-                                Article.getAbstractText(article.getString(Article.ARTICLE_CONTENT)));
-                        article.put(Article.ARTICLE_ABSTRACT_TEXT, article.getString(Article.ARTICLE_ABSTRACT));
-                    } else {
-                        article.put(Article.ARTICLE_ABSTRACT, Article.getAbstractText(article));
-                        article.put(Article.ARTICLE_ABSTRACT_TEXT, article.getString(Article.ARTICLE_ABSTRACT));
-                    }
-                }
-                Date time;
-                if (null == entry.getPublishedDate()) {
-                    time = entry.getUpdatedDate();
-                } else {
-                    time = entry.getPublishedDate();
-                }
-                if (time == null) {
-                    time = new Date(now.toEpochMilli());
-                    now = now.minusSeconds(600);
-                }
-                // 设置文章封面
-                Optional<SyndEnclosure> optionalEnclosure = entry.getEnclosures().stream()
-                        .filter(enclosure -> enclosure.getType().startsWith("image/"))
-                        .findFirst();
-                if (optionalEnclosure.isPresent()) {
-                    article.put(Article.ARTICLE_IMG1_URL, optionalEnclosure.get().getUrl());
-                } else {
-                    // 如果没有设置封面，则使用内容中的第一张图片, 还没有则使用用户头像
-                    final String contentFirstImageUrl = Article.getArticleImg1URLWithoutSetSize(article);
-                    final String articleCoverUrl = contentFirstImageUrl == null ? this.userIcon : contentFirstImageUrl;
-                    article.put(Article.ARTICLE_IMG1_URL, articleCoverUrl);
-                }
-                article.put(Article.ARTICLE_CREATED, time.getTime());
-                article.put(Article.ARTICLE_UPDATED, article.getLong(Article.ARTICLE_CREATED));
-                article.put(Article.ARTICLE_VIEW_PWD, "");
-                article.put(Article.ARTICLE_STATUS, Article.ARTICLE_STATUS_C_PUBLISHED);
-                article.put(Common.POST_TO_COMMUNITY, false);
-                article.put(Article.ARTICLE_COMMENTABLE, false);
-                article.put(Article.ARTICLE_VIEW_COUNT, 0);
-                article.put(Article.ARTICLE_COMMENT_COUNT, 0);
-                article.put(Article.ARTICLE_T_CREATE_DATE, new Date(article.optLong(Article.ARTICLE_CREATED)));
-                article.put(Article.ARTICLE_T_UPDATE_DATE, new Date(article.optLong(Article.ARTICLE_UPDATED)));
-                article.put("articleCategory", "");
-                articles.add(article);
-            }
-        } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Error parsing RSS feed: {0}", e.getMessage());
+  public List<JSONObject> parse2Article() {
+    SyndFeedInput input = new SyndFeedInput();
+    final List<JSONObject> articles = new ArrayList<>();
+    try (XmlReader reader = new XmlReader(new URL(this.rssUrl).openStream())) {
+      SyndFeed feed = input.build(reader);
+      String feedDesc = feed.getDescription();
+      if (feedDesc == null || feedDesc.isEmpty()) {
+        feedDesc = feed.getTitle();
+      }
+      Instant now = Instant.now();
+      for (SyndEntry entry : feed.getEntries()) {
+        final JSONObject article = new JSONObject();
+        article.put(Option.ID_C_BLOG_TITLE, feed.getTitle());
+        article.put(Option.ID_C_BLOG_SUBTITLE, feedDesc);
+        article.put(Common.AUTHOR_ID, "");
+        article.put(Article.ARTICLE_T_TOC, (Object) Collections.emptyList());
+        article.put(Article.ARTICLE_AUTHOR_ID, userName);
+        article.put(Keys.OBJECT_ID, entry.getAuthor());
+        article.put(Common.AUTHOR_NAME, entry.getAuthor());
+        article.put(Article.ARTICLE_TITLE, entry.getTitle());
+        article.put(Article.ARTICLE_PUT_TOP, false);
+        article.put(Option.ID_C_COMMENTABLE, false);
+        article.put(Common.ARTICLE_SIGN, new JSONObject().put("signHTML", ""));
+        article.put(
+            Article.ARTICLE_TAGS_REF,
+            entry.getCategories().stream()
+                .map(category -> category.getName())
+                .reduce((a, b) -> a + "," + b)
+                .orElse(""));
+        article.put(Common.HAS_UPDATED, false);
+        if (Objects.nonNull(feed.getImage())) {
+          article.put(Common.AUTHOR_THUMBNAIL_URL, feed.getImage().getUrl());
+        } else {
+          article.put(Common.AUTHOR_THUMBNAIL_URL, this.userIcon);
         }
-        return articles;
-    }
-
-    /**
-     * 判断是否是“富内容”，即内容是否像是正文而不是摘要
-     */
-    public static boolean isRichContent(String html) {
-        if (html == null || html.trim().isEmpty()) {
-            return false;
+        article.put(
+            Article.ARTICLE_PERMALINK,
+            String.format("/follow/%s/article/%s", this.userName, entry.getTitle()));
+        article.put("isRss", false);
+        if (null == entry.getContents() || entry.getContents().isEmpty()) {
+          article.put(Article.ARTICLE_CONTENT, entry.getDescription().getValue());
+          article.put(
+              Article.ARTICLE_ABSTRACT, Article.getAbstractText(entry.getDescription().getValue()));
+          article.put(Article.ARTICLE_ABSTRACT_TEXT, article.getString(Article.ARTICLE_ABSTRACT));
+          if (!isRichContent(entry.getDescription().getValue())) {
+            article.put("isRss", true);
+            article.put(Article.ARTICLE_PERMALINK, entry.getLink());
+          }
+        } else {
+          // Use the first content if available
+          article.put(Article.ARTICLE_CONTENT, entry.getContents().get(0).getValue());
+          if (entry.getDescription() == null || entry.getDescription().getValue() == null) {
+            article.put(
+                Article.ARTICLE_ABSTRACT,
+                Article.getAbstractText(article.getString(Article.ARTICLE_CONTENT)));
+            article.put(Article.ARTICLE_ABSTRACT_TEXT, article.getString(Article.ARTICLE_ABSTRACT));
+          } else {
+            article.put(Article.ARTICLE_ABSTRACT, Article.getAbstractText(article));
+            article.put(Article.ARTICLE_ABSTRACT_TEXT, article.getString(Article.ARTICLE_ABSTRACT));
+          }
         }
-
-        Document doc = Jsoup.parse(html);
-        String text = doc.text();
-        int textLength = text.length();
-
-        boolean hasLongText = textLength > 200;
-        boolean hasParagraphs = doc.select("p").size() >= 3;
-        boolean hasImages = doc.select("img").size() > 1;
-        boolean hasHeaders = doc.select("h1,h2,h3").size() > 0;
-
-        return hasLongText && (hasParagraphs || hasImages || hasHeaders);
+        Date time;
+        if (null == entry.getPublishedDate()) {
+          time = entry.getUpdatedDate();
+        } else {
+          time = entry.getPublishedDate();
+        }
+        if (time == null) {
+          time = new Date(now.toEpochMilli());
+          now = now.minusSeconds(600);
+        }
+        // 设置文章封面
+        Optional<SyndEnclosure> optionalEnclosure =
+            entry.getEnclosures().stream()
+                .filter(enclosure -> enclosure.getType().startsWith("image/"))
+                .findFirst();
+        if (optionalEnclosure.isPresent()) {
+          article.put(Article.ARTICLE_IMG1_URL, optionalEnclosure.get().getUrl());
+        } else {
+          // 如果没有设置封面，则使用内容中的第一张图片, 还没有则使用用户头像
+          final String contentFirstImageUrl = Article.getArticleImg1URLWithoutSetSize(article);
+          final String articleCoverUrl =
+              contentFirstImageUrl == null ? this.userIcon : contentFirstImageUrl;
+          article.put(Article.ARTICLE_IMG1_URL, articleCoverUrl);
+        }
+        article.put(Article.ARTICLE_CREATED, time.getTime());
+        article.put(Article.ARTICLE_UPDATED, article.getLong(Article.ARTICLE_CREATED));
+        article.put(Article.ARTICLE_VIEW_PWD, "");
+        article.put(Article.ARTICLE_STATUS, Article.ARTICLE_STATUS_C_PUBLISHED);
+        article.put(Common.POST_TO_COMMUNITY, false);
+        article.put(Article.ARTICLE_COMMENTABLE, false);
+        article.put(Article.ARTICLE_VIEW_COUNT, 0);
+        article.put(Article.ARTICLE_COMMENT_COUNT, 0);
+        article.put(
+            Article.ARTICLE_T_CREATE_DATE, new Date(article.optLong(Article.ARTICLE_CREATED)));
+        article.put(
+            Article.ARTICLE_T_UPDATE_DATE, new Date(article.optLong(Article.ARTICLE_UPDATED)));
+        article.put("articleCategory", "");
+        articles.add(article);
+      }
+    } catch (Exception e) {
+      LOGGER.log(Level.ERROR, "Error parsing RSS feed: {0}", e.getMessage());
     }
+    return articles;
+  }
+
+  /** 判断是否是“富内容”，即内容是否像是正文而不是摘要 */
+  public static boolean isRichContent(String html) {
+    if (html == null || html.trim().isEmpty()) {
+      return false;
+    }
+
+    Document doc = Jsoup.parse(html);
+    String text = doc.text();
+    int textLength = text.length();
+
+    boolean hasLongText = textLength > 200;
+    boolean hasParagraphs = doc.select("p").size() >= 3;
+    boolean hasImages = doc.select("img").size() > 1;
+    boolean hasHeaders = doc.select("h1,h2,h3").size() > 0;
+
+    return hasLongText && (hasParagraphs || hasImages || hasHeaders);
+  }
 }

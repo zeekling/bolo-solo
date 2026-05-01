@@ -28,36 +28,32 @@ import org.apache.commons.lang.StringEscapeUtils;
  */
 public final class Category {
 
-    /**
-     * Category element.
-     */
-    private static final String CATEGORY_ELEMENT = "<category>${term}</category>";
+  /** Category element. */
+  private static final String CATEGORY_ELEMENT = "<category>${term}</category>";
 
-    /**
-     * Term.
-     */
-    private String term;
+  /** Term. */
+  private String term;
 
-    /**
-     * Gets the term.
-     *
-     * @return term
-     */
-    public String getTerm() {
-        return term;
-    }
+  /**
+   * Gets the term.
+   *
+   * @return term
+   */
+  public String getTerm() {
+    return term;
+  }
 
-    /**
-     * Sets the term with the specified term.
-     *
-     * @param term the specified term
-     */
-    public void setTerm(final String term) {
-        this.term = term;
-    }
+  /**
+   * Sets the term with the specified term.
+   *
+   * @param term the specified term
+   */
+  public void setTerm(final String term) {
+    this.term = term;
+  }
 
-    @Override
-    public String toString() {
-        return CATEGORY_ELEMENT.replace("${term}", StringEscapeUtils.escapeXml(term));
-    }
+  @Override
+  public String toString() {
+    return CATEGORY_ELEMENT.replace("${term}", StringEscapeUtils.escapeXml(term));
+  }
 }

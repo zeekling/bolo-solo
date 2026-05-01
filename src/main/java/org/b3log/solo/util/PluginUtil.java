@@ -20,27 +20,25 @@ package org.b3log.solo.util;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.solo.repository.PluginRepository;
 
-/**
- * Get Bolo Plugin status.
- */
+/** Get Bolo Plugin status. */
 public class PluginUtil {
 
-    final static BeanManager beanManager = BeanManager.getInstance();
-    final static PluginRepository pluginRepository = beanManager.getReference(PluginRepository.class);
+  static final BeanManager beanManager = BeanManager.getInstance();
+  static final PluginRepository pluginRepository = beanManager.getReference(PluginRepository.class);
 
-    public static boolean b3logPluginEnabled() {
-        try {
-            return pluginRepository.get("B3log支持插件_0.0.1").optString("status").equals("ENABLED");
-        } catch (Exception e) {
-            return false;
-        }
+  public static boolean b3logPluginEnabled() {
+    try {
+      return pluginRepository.get("B3log支持插件_0.0.1").optString("status").equals("ENABLED");
+    } catch (Exception e) {
+      return false;
     }
+  }
 
-    public static boolean fishpiPluginEnabled() {
-        try {
-            return pluginRepository.get("摸鱼派支持插件_0.0.1").optString("status").equals("ENABLED");
-        } catch (Exception e) {
-            return false;
-        }
+  public static boolean fishpiPluginEnabled() {
+    try {
+      return pluginRepository.get("摸鱼派支持插件_0.0.1").optString("status").equals("ENABLED");
+    } catch (Exception e) {
+      return false;
     }
+  }
 }

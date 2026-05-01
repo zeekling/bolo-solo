@@ -35,75 +35,78 @@ import org.json.JSONObject;
  */
 public final class V340_350 {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(V340_350.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(V340_350.class);
 
-    /**
-     * Performs upgrade from v3.4.0 to v3.5.0.
-     *
-     * @throws Exception upgrade fails
-     */
-    public static void perform() throws Exception {
-        final String fromVer = "3.4.0";
-        final String toVer = "3.5.0";
+  /**
+   * Performs upgrade from v3.4.0 to v3.5.0.
+   *
+   * @throws Exception upgrade fails
+   */
+  public static void perform() throws Exception {
+    final String fromVer = "3.4.0";
+    final String toVer = "3.5.0";
 
-        LOGGER.log(Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
+    LOGGER.log(
+        Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
 
-        final BeanManager beanManager = BeanManager.getInstance();
-        final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
+    final BeanManager beanManager = BeanManager.getInstance();
+    final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
 
-        try {
-            final Transaction transaction = optionRepository.beginTransaction();
+    try {
+      final Transaction transaction = optionRepository.beginTransaction();
 
-            optionRepository.remove("skinName");
-            optionRepository.remove("skins");
+      optionRepository.remove("skinName");
+      optionRepository.remove("skins");
 
-            JSONObject skinDirNameOpt = optionRepository.get(Option.ID_C_SKIN_DIR_NAME);
-            if (null == skinDirNameOpt) {
-                skinDirNameOpt = new JSONObject();
-                skinDirNameOpt.put(Keys.OBJECT_ID, Option.ID_C_SKIN_DIR_NAME);
-                skinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
-                skinDirNameOpt.put(Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
-                optionRepository.add(skinDirNameOpt);
-            } else {
-                skinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
-                optionRepository.update(Option.ID_C_SKIN_DIR_NAME, skinDirNameOpt);
-            }
+      JSONObject skinDirNameOpt = optionRepository.get(Option.ID_C_SKIN_DIR_NAME);
+      if (null == skinDirNameOpt) {
+        skinDirNameOpt = new JSONObject();
+        skinDirNameOpt.put(Keys.OBJECT_ID, Option.ID_C_SKIN_DIR_NAME);
+        skinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
+        skinDirNameOpt.put(Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
+        optionRepository.add(skinDirNameOpt);
+      } else {
+        skinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
+        optionRepository.update(Option.ID_C_SKIN_DIR_NAME, skinDirNameOpt);
+      }
 
-            JSONObject mobileSkinDirNameOpt = optionRepository.get(Option.ID_C_MOBILE_SKIN_DIR_NAME);
-            if (null == mobileSkinDirNameOpt) {
-                mobileSkinDirNameOpt = new JSONObject();
-                mobileSkinDirNameOpt.put(Keys.OBJECT_ID, Option.ID_C_MOBILE_SKIN_DIR_NAME);
-                mobileSkinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
-                mobileSkinDirNameOpt.put(Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME);
-                optionRepository.add(mobileSkinDirNameOpt);
-            } else {
-                mobileSkinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
-                optionRepository.update(Option.ID_C_MOBILE_SKIN_DIR_NAME, mobileSkinDirNameOpt);
-            }
+      JSONObject mobileSkinDirNameOpt = optionRepository.get(Option.ID_C_MOBILE_SKIN_DIR_NAME);
+      if (null == mobileSkinDirNameOpt) {
+        mobileSkinDirNameOpt = new JSONObject();
+        mobileSkinDirNameOpt.put(Keys.OBJECT_ID, Option.ID_C_MOBILE_SKIN_DIR_NAME);
+        mobileSkinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
+        mobileSkinDirNameOpt.put(
+            Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME);
+        optionRepository.add(mobileSkinDirNameOpt);
+      } else {
+        mobileSkinDirNameOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_SKIN);
+        optionRepository.update(Option.ID_C_MOBILE_SKIN_DIR_NAME, mobileSkinDirNameOpt);
+      }
 
-            JSONObject hljsThemeOpt = optionRepository.get(Option.ID_C_HLJS_THEME);
-            if (null == hljsThemeOpt) {
-                hljsThemeOpt = new JSONObject();
-                hljsThemeOpt.put(Keys.OBJECT_ID, Option.ID_C_HLJS_THEME);
-                hljsThemeOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_PREFERENCE);
-                hljsThemeOpt.put(Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_HLJS_THEME);
-                optionRepository.add(hljsThemeOpt);
-            }
+      JSONObject hljsThemeOpt = optionRepository.get(Option.ID_C_HLJS_THEME);
+      if (null == hljsThemeOpt) {
+        hljsThemeOpt = new JSONObject();
+        hljsThemeOpt.put(Keys.OBJECT_ID, Option.ID_C_HLJS_THEME);
+        hljsThemeOpt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_PREFERENCE);
+        hljsThemeOpt.put(Option.OPTION_VALUE, Option.DefaultPreference.DEFAULT_HLJS_THEME);
+        optionRepository.add(hljsThemeOpt);
+      }
 
-            final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
-            versionOpt.put(Option.OPTION_VALUE, toVer);
-            optionRepository.update(Option.ID_C_VERSION, versionOpt);
+      final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
+      versionOpt.put(Option.OPTION_VALUE, toVer);
+      optionRepository.update(Option.ID_C_VERSION, versionOpt);
 
-            transaction.commit();
+      transaction.commit();
 
-            LOGGER.log(Level.INFO, "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+      LOGGER.log(
+          Level.INFO,
+          "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Upgrade failed!", e);
 
-            throw new Exception("Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
-        }
+      throw new Exception(
+          "Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
     }
+  }
 }

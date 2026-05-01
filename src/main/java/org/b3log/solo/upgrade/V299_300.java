@@ -17,6 +17,9 @@
  */
 package org.b3log.solo.upgrade;
 
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.Set;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.BeanManager;
@@ -32,10 +35,6 @@ import org.b3log.solo.repository.UserRepository;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.Set;
-
 /**
  * Upgrade script from v2.9.9 to v3.0.0.
  *
@@ -45,87 +44,92 @@ import java.util.Set;
  */
 public final class V299_300 {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(V299_300.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(V299_300.class);
 
-    /**
-     * Performs upgrade from v2.9.9 to v3.0.0.
-     *
-     * @throws Exception upgrade fails
-     */
-    public static void perform() throws Exception {
-        LOGGER.log(Level.INFO, "Upgrading from version [2.9.9] to version [3.0.0]....");
+  /**
+   * Performs upgrade from v2.9.9 to v3.0.0.
+   *
+   * @throws Exception upgrade fails
+   */
+  public static void perform() throws Exception {
+    LOGGER.log(Level.INFO, "Upgrading from version [2.9.9] to version [3.0.0]....");
 
-        final BeanManager beanManager = BeanManager.getInstance();
-        final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
-        final UserRepository userRepository = beanManager.getReference(UserRepository.class);
+    final BeanManager beanManager = BeanManager.getInstance();
+    final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
+    final UserRepository userRepository = beanManager.getReference(UserRepository.class);
 
-        try {
-            Connection connection = Connections.getConnection();
-            Statement statement = connection.createStatement();
+    try {
+      Connection connection = Connections.getConnection();
+      Statement statement = connection.createStatement();
 
-            final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
-            statement.executeUpdate("ALTER TABLE `" + tablePrefix + "user` ADD COLUMN `userB3Key` VARCHAR(64) DEFAULT '' NOT NULL");
-            statement.executeUpdate("ALTER TABLE `" + tablePrefix + "user` ADD COLUMN `userGitHubId` VARCHAR(32) DEFAULT '' NOT NULL");
-            statement.close();
-            connection.commit();
-            connection.close();
+      final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
+      statement.executeUpdate(
+          "ALTER TABLE `"
+              + tablePrefix
+              + "user` ADD COLUMN `userB3Key` VARCHAR(64) DEFAULT '' NOT NULL");
+      statement.executeUpdate(
+          "ALTER TABLE `"
+              + tablePrefix
+              + "user` ADD COLUMN `userGitHubId` VARCHAR(32) DEFAULT '' NOT NULL");
+      statement.close();
+      connection.commit();
+      connection.close();
 
-            final Transaction transaction = optionRepository.beginTransaction();
-            final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
-            versionOpt.put(Option.OPTION_VALUE, "3.0.0");
-            optionRepository.update(Option.ID_C_VERSION, versionOpt);
+      final Transaction transaction = optionRepository.beginTransaction();
+      final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
+      versionOpt.put(Option.OPTION_VALUE, "3.0.0");
+      optionRepository.update(Option.ID_C_VERSION, versionOpt);
 
-            final JSONObject oauthGitHubOpt = optionRepository.get("oauthGitHub");
-            if (null != oauthGitHubOpt) {
-                String value = oauthGitHubOpt.optString(Option.OPTION_VALUE);
-                final Set<String> githubs = CollectionUtils.jsonArrayToSet(new JSONArray(value));
-                for (final String pair : githubs) {
-                    final String githubId = pair.split(":@:")[0];
-                    final String userId = pair.split(":@:")[1];
-                    final JSONObject user = userRepository.get(userId);
-                    user.put(UserExt.USER_GITHUB_ID, githubId);
-                    user.put(UserExt.USER_B3_KEY, githubId);
-                    userRepository.update(userId, user);
-                }
-            }
-            optionRepository.remove("oauthGitHub");
-
-            final String b3Key = optionRepository.get("keyOfSolo").optString(Option.OPTION_VALUE);
-            final JSONObject admin = userRepository.getAdmin();
-            admin.put(UserExt.USER_B3_KEY, b3Key);
-            userRepository.update(admin.optString(Keys.OBJECT_ID), admin);
-            optionRepository.remove("keyOfSolo");
-
-            optionRepository.remove("qiniuAccessKey");
-            optionRepository.remove("qiniuBucket");
-            optionRepository.remove("qiniuDomain");
-            optionRepository.remove("qiniuSecretKey");
-            optionRepository.remove("ossServer");
-            optionRepository.remove("aliyunAccessKey");
-            optionRepository.remove("aliyunSecretKey");
-            optionRepository.remove("aliyunDomain");
-            optionRepository.remove("aliyunBucket");
-            optionRepository.remove("editorType");
-
-            transaction.commit();
-
-            connection = Connections.getConnection();
-            statement = connection.createStatement();
-            statement.executeUpdate("ALTER TABLE `" + tablePrefix + "article` DROP COLUMN `articleEditorType`");
-            statement.executeUpdate("ALTER TABLE `" + tablePrefix + "page` DROP COLUMN `pageEditorType`");
-            statement.executeUpdate("ALTER TABLE `" + tablePrefix + "user` DROP COLUMN `userPassword`");
-            statement.close();
-            connection.commit();
-            connection.close();
-
-            LOGGER.log(Level.INFO, "Upgraded from version [2.9.9] to version [3.0.0] successfully");
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
-
-            throw new Exception("Upgrade failed from version [2.9.9] to version [3.0.0]");
+      final JSONObject oauthGitHubOpt = optionRepository.get("oauthGitHub");
+      if (null != oauthGitHubOpt) {
+        String value = oauthGitHubOpt.optString(Option.OPTION_VALUE);
+        final Set<String> githubs = CollectionUtils.jsonArrayToSet(new JSONArray(value));
+        for (final String pair : githubs) {
+          final String githubId = pair.split(":@:")[0];
+          final String userId = pair.split(":@:")[1];
+          final JSONObject user = userRepository.get(userId);
+          user.put(UserExt.USER_GITHUB_ID, githubId);
+          user.put(UserExt.USER_B3_KEY, githubId);
+          userRepository.update(userId, user);
         }
+      }
+      optionRepository.remove("oauthGitHub");
+
+      final String b3Key = optionRepository.get("keyOfSolo").optString(Option.OPTION_VALUE);
+      final JSONObject admin = userRepository.getAdmin();
+      admin.put(UserExt.USER_B3_KEY, b3Key);
+      userRepository.update(admin.optString(Keys.OBJECT_ID), admin);
+      optionRepository.remove("keyOfSolo");
+
+      optionRepository.remove("qiniuAccessKey");
+      optionRepository.remove("qiniuBucket");
+      optionRepository.remove("qiniuDomain");
+      optionRepository.remove("qiniuSecretKey");
+      optionRepository.remove("ossServer");
+      optionRepository.remove("aliyunAccessKey");
+      optionRepository.remove("aliyunSecretKey");
+      optionRepository.remove("aliyunDomain");
+      optionRepository.remove("aliyunBucket");
+      optionRepository.remove("editorType");
+
+      transaction.commit();
+
+      connection = Connections.getConnection();
+      statement = connection.createStatement();
+      statement.executeUpdate(
+          "ALTER TABLE `" + tablePrefix + "article` DROP COLUMN `articleEditorType`");
+      statement.executeUpdate("ALTER TABLE `" + tablePrefix + "page` DROP COLUMN `pageEditorType`");
+      statement.executeUpdate("ALTER TABLE `" + tablePrefix + "user` DROP COLUMN `userPassword`");
+      statement.close();
+      connection.commit();
+      connection.close();
+
+      LOGGER.log(Level.INFO, "Upgraded from version [2.9.9] to version [3.0.0] successfully");
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+
+      throw new Exception("Upgrade failed from version [2.9.9] to version [3.0.0]");
     }
+  }
 }

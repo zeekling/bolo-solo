@@ -21,5 +21,5 @@ import java.util.List;
 
 public interface ModuleService {
 
-    List<TranslateResult> analyze();
+  List<TranslateResult> analyze();
 }

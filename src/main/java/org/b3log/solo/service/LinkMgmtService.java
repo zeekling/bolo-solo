@@ -38,164 +38,147 @@ import org.json.JSONObject;
 @Service
 public class LinkMgmtService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(LinkMgmtService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(LinkMgmtService.class);
 
-    /**
-     * Link repository.
-     */
-    @Inject
-    private LinkRepository linkRepository;
+  /** Link repository. */
+  @Inject private LinkRepository linkRepository;
 
-    /**
-     * Removes a link specified by the given link id.
-     *
-     * @param linkId the given link id
-     * @throws ServiceException service exception
-     */
-    public void removeLink(final String linkId) throws ServiceException {
-        final Transaction transaction = linkRepository.beginTransaction();
+  /**
+   * Removes a link specified by the given link id.
+   *
+   * @param linkId the given link id
+   * @throws ServiceException service exception
+   */
+  public void removeLink(final String linkId) throws ServiceException {
+    final Transaction transaction = linkRepository.beginTransaction();
 
-        try {
-            linkRepository.remove(linkId);
+    try {
+      linkRepository.remove(linkId);
 
-            transaction.commit();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+      transaction.commit();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
 
-            LOGGER.log(Level.ERROR, "Removes a link[id=" + linkId + "] failed", e);
-            throw new ServiceException(e);
-        }
+      LOGGER.log(Level.ERROR, "Removes a link[id=" + linkId + "] failed", e);
+      throw new ServiceException(e);
     }
+  }
 
-    /**
-     * Updates a link by the specified request json object.
-     *
-     * @param requestJSONObject the specified request json object, for example,
-     *                          "link": {
-     *                          "oId": "",
-     *                          "linkTitle": "",
-     *                          "linkAddress": "",
-     *                          "linkDescription": "",
-     *                          "linkIcon": ""
-     *                          }
-     *                          see {@link Link} for more details
-     * @throws ServiceException service exception
-     */
-    public void updateLink(final JSONObject requestJSONObject) throws ServiceException {
-        final Transaction transaction = linkRepository.beginTransaction();
+  /**
+   * Updates a link by the specified request json object.
+   *
+   * @param requestJSONObject the specified request json object, for example, "link": { "oId": "",
+   *     "linkTitle": "", "linkAddress": "", "linkDescription": "", "linkIcon": "" } see {@link
+   *     Link} for more details
+   * @throws ServiceException service exception
+   */
+  public void updateLink(final JSONObject requestJSONObject) throws ServiceException {
+    final Transaction transaction = linkRepository.beginTransaction();
 
-        try {
-            final JSONObject link = requestJSONObject.getJSONObject(Link.LINK);
-            final String linkId = link.getString(Keys.OBJECT_ID);
-            final JSONObject oldLink = linkRepository.get(linkId);
+    try {
+      final JSONObject link = requestJSONObject.getJSONObject(Link.LINK);
+      final String linkId = link.getString(Keys.OBJECT_ID);
+      final JSONObject oldLink = linkRepository.get(linkId);
 
-            link.put(Link.LINK_ORDER, oldLink.getInt(Link.LINK_ORDER));
+      link.put(Link.LINK_ORDER, oldLink.getInt(Link.LINK_ORDER));
 
-            linkRepository.update(linkId, link);
+      linkRepository.update(linkId, link);
 
-            transaction.commit();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+      transaction.commit();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
 
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            throw new ServiceException(e);
-        }
+      throw new ServiceException(e);
     }
+  }
 
-    /**
-     * Changes the order of a link specified by the given link id with the
-     * specified direction.
-     *
-     * @param linkId    the given link id
-     * @param direction the specified direction, "up"/"down"
-     * @throws ServiceException service exception
-     */
-    public void changeOrder(final String linkId, final String direction) throws ServiceException {
-        final Transaction transaction = linkRepository.beginTransaction();
+  /**
+   * Changes the order of a link specified by the given link id with the specified direction.
+   *
+   * @param linkId the given link id
+   * @param direction the specified direction, "up"/"down"
+   * @throws ServiceException service exception
+   */
+  public void changeOrder(final String linkId, final String direction) throws ServiceException {
+    final Transaction transaction = linkRepository.beginTransaction();
 
-        try {
-            final JSONObject srcLink = linkRepository.get(linkId);
-            final int srcLinkOrder = srcLink.getInt(Link.LINK_ORDER);
+    try {
+      final JSONObject srcLink = linkRepository.get(linkId);
+      final int srcLinkOrder = srcLink.getInt(Link.LINK_ORDER);
 
-            JSONObject targetLink = null;
+      JSONObject targetLink = null;
 
-            if ("up".equals(direction)) {
-                targetLink = linkRepository.getUpper(linkId);
-            } else { // Down
-                targetLink = linkRepository.getUnder(linkId);
-            }
+      if ("up".equals(direction)) {
+        targetLink = linkRepository.getUpper(linkId);
+      } else { // Down
+        targetLink = linkRepository.getUnder(linkId);
+      }
 
-            if (null == targetLink) {
-                if (transaction.isActive()) {
-                    transaction.rollback();
-                }
-
-                LOGGER.log(Level.WARN, "Cant not find the target link of source link[order={0}]", srcLinkOrder);
-                return;
-            }
-
-            // Swaps
-            srcLink.put(Link.LINK_ORDER, targetLink.getInt(Link.LINK_ORDER));
-            targetLink.put(Link.LINK_ORDER, srcLinkOrder);
-
-            linkRepository.update(srcLink.getString(Keys.OBJECT_ID), srcLink);
-            linkRepository.update(targetLink.getString(Keys.OBJECT_ID), targetLink);
-
-            transaction.commit();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            LOGGER.log(Level.ERROR, "Changes link's order failed", e);
-
-            throw new ServiceException(e);
+      if (null == targetLink) {
+        if (transaction.isActive()) {
+          transaction.rollback();
         }
+
+        LOGGER.log(
+            Level.WARN, "Cant not find the target link of source link[order={0}]", srcLinkOrder);
+        return;
+      }
+
+      // Swaps
+      srcLink.put(Link.LINK_ORDER, targetLink.getInt(Link.LINK_ORDER));
+      targetLink.put(Link.LINK_ORDER, srcLinkOrder);
+
+      linkRepository.update(srcLink.getString(Keys.OBJECT_ID), srcLink);
+      linkRepository.update(targetLink.getString(Keys.OBJECT_ID), targetLink);
+
+      transaction.commit();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+
+      LOGGER.log(Level.ERROR, "Changes link's order failed", e);
+
+      throw new ServiceException(e);
     }
+  }
 
-    /**
-     * Adds a link with the specified request json object.
-     *
-     * @param requestJSONObject the specified request json object, for example,
-     *                          {
-     *                          "link": {
-     *                          "linkTitle": "",
-     *                          "linkAddress": "",
-     *                          "linkDescription": "",
-     *                          "linkIcon": ""
-     *                          }
-     *                          }, see {@link Link} for more details
-     * @return generated link id
-     * @throws ServiceException service exception
-     */
-    public String addLink(final JSONObject requestJSONObject) throws ServiceException {
-        final Transaction transaction = linkRepository.beginTransaction();
+  /**
+   * Adds a link with the specified request json object.
+   *
+   * @param requestJSONObject the specified request json object, for example, { "link": {
+   *     "linkTitle": "", "linkAddress": "", "linkDescription": "", "linkIcon": "" } }, see {@link
+   *     Link} for more details
+   * @return generated link id
+   * @throws ServiceException service exception
+   */
+  public String addLink(final JSONObject requestJSONObject) throws ServiceException {
+    final Transaction transaction = linkRepository.beginTransaction();
 
-        try {
-            final JSONObject link = requestJSONObject.getJSONObject(Link.LINK);
-            final int maxOrder = linkRepository.getMaxOrder();
+    try {
+      final JSONObject link = requestJSONObject.getJSONObject(Link.LINK);
+      final int maxOrder = linkRepository.getMaxOrder();
 
-            link.put(Link.LINK_ORDER, maxOrder + 1);
-            final String ret = linkRepository.add(link);
+      link.put(Link.LINK_ORDER, maxOrder + 1);
+      final String ret = linkRepository.add(link);
 
-            transaction.commit();
+      transaction.commit();
 
-            return ret;
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+      return ret;
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
 
-            LOGGER.log(Level.ERROR, "Adds a link failed", e);
-            throw new ServiceException(e);
-        }
+      LOGGER.log(Level.ERROR, "Adds a link failed", e);
+      throw new ServiceException(e);
     }
+  }
 }

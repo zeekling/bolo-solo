@@ -36,98 +36,94 @@ import org.json.JSONObject;
 @Service
 public class OptionQueryService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(OptionQueryService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(OptionQueryService.class);
 
-    /**
-     * Option repository.
-     */
-    @Inject
-    private OptionRepository optionRepository;
+  /** Option repository. */
+  @Inject private OptionRepository optionRepository;
 
-    /**
-     * Gets the skin.
-     *
-     * @return skin, returns {@code null} if not found
-     */
-    public JSONObject getSkin() {
-        try {
-            return getOptions(Option.CATEGORY_C_SKIN);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets skin failed", e);
+  /**
+   * Gets the skin.
+   *
+   * @return skin, returns {@code null} if not found
+   */
+  public JSONObject getSkin() {
+    try {
+      return getOptions(Option.CATEGORY_C_SKIN);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Gets skin failed", e);
 
-            return null;
-        }
+      return null;
     }
+  }
 
-    /**
-     * Gets the user preference.
-     *
-     * @return user preference, returns {@code null} if not found
-     */
-    public JSONObject getPreference() {
-        try {
-            return getOptions(Option.CATEGORY_C_PREFERENCE);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets preference failed", e);
+  /**
+   * Gets the user preference.
+   *
+   * @return user preference, returns {@code null} if not found
+   */
+  public JSONObject getPreference() {
+    try {
+      return getOptions(Option.CATEGORY_C_PREFERENCE);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Gets preference failed", e);
 
-            return null;
-        }
+      return null;
     }
+  }
 
-    /**
-     * Checks whether allow comment globally.
-     *
-     * @return {@code true} to allow comment, returns {@code false} otherwise
-     */
-    public boolean allowComment() {
-        try {
-            final JSONObject opt = optionRepository.get(Option.ID_C_COMMENTABLE);
+  /**
+   * Checks whether allow comment globally.
+   *
+   * @return {@code true} to allow comment, returns {@code false} otherwise
+   */
+  public boolean allowComment() {
+    try {
+      final JSONObject opt = optionRepository.get(Option.ID_C_COMMENTABLE);
 
-            return opt.optBoolean(Option.OPTION_VALUE);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Checks allow comment failed", e);
+      return opt.optBoolean(Option.OPTION_VALUE);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Checks allow comment failed", e);
 
-            return false;
-        }
+      return false;
     }
+  }
 
-    /**
-     * Gets an option with the specified option id.
-     *
-     * @param optionId the specified option id
-     * @return an option, returns {@code null} if not found
-     */
-    public JSONObject getOptionById(final String optionId) {
-        try {
-            return optionRepository.get(optionId);
-        } catch (final RepositoryException e) {
-            return null;
-        }
+  /**
+   * Gets an option with the specified option id.
+   *
+   * @param optionId the specified option id
+   * @return an option, returns {@code null} if not found
+   */
+  public JSONObject getOptionById(final String optionId) {
+    try {
+      return optionRepository.get(optionId);
+    } catch (final RepositoryException e) {
+      return null;
     }
+  }
 
-    /**
-     * Gets options with the specified category.
-     * <p>
-     * All options with the specified category will be merged into one json object as the return value.
-     * </p>
-     *
-     * @param category the specified category
-     * @return all options with the specified category, for example,
-     * <pre>
-     * {
-     *     "${optionId}": "${optionValue}",
-     *     ....
-     * }
-     * </pre>, returns {@code null} if not found
-     */
-    public JSONObject getOptions(final String category) {
-        try {
-            return optionRepository.getOptions(category);
-        } catch (final Exception e) {
-            return null;
-        }
+  /**
+   * Gets options with the specified category.
+   *
+   * <p>All options with the specified category will be merged into one json object as the return
+   * value.
+   *
+   * @param category the specified category
+   * @return all options with the specified category, for example,
+   *     <pre>
+   * {
+   *     "${optionId}": "${optionValue}",
+   *     ....
+   * }
+   * </pre>
+   *     , returns {@code null} if not found
+   */
+  public JSONObject getOptions(final String category) {
+    try {
+      return optionRepository.getOptions(category);
+    } catch (final Exception e) {
+      return null;
     }
+  }
 }

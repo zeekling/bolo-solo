@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.processor;
 
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
@@ -37,10 +38,8 @@ import org.b3log.solo.service.PermalinkQueryService;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
- * Article permalink  handler.
+ * Article permalink handler.
  *
  * @author <a href="http://88250.b3log.org">Liang Ding (Solo Author)</a>
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
@@ -48,90 +47,94 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class PermalinkHandler implements Handler {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(PermalinkHandler.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(PermalinkHandler.class);
 
-    /**
-     * Whether initialization info reported.
-     */
-    private static boolean initReported;
+  /** Whether initialization info reported. */
+  private static boolean initReported;
 
-    @Override
-    public void handle(final RequestContext context) {
-        final BeanManager beanManager = BeanManager.getInstance();
+  @Override
+  public void handle(final RequestContext context) {
+    final BeanManager beanManager = BeanManager.getInstance();
 
-        JSONObject article;
-        try {
-            final InitService initService = beanManager.getReference(InitService.class);
-            if (!initService.isInited()) {
-                context.handle();
-
-                return;
-            }
-
-            final String requestURI = context.requestURI();
-            final String contextPath = Latkes.getContextPath();
-            final String permalink = StringUtils.substringAfter(requestURI, contextPath);
-            if (PermalinkQueryService.invalidPermalinkFormat(permalink)) {
-                LOGGER.log(Level.DEBUG, "Skip permalink handling request [URI={0}]", permalink);
-                context.handle();
-
-                return;
-            }
-
-            final ArticleRepository articleRepository = beanManager.getReference(ArticleRepository.class);
-            article = articleRepository.getByPermalink(permalink);
-            if (null == article) {
-                LOGGER.log(Level.DEBUG, "Not found article with permalink [{0}]", permalink);
-                context.handle();
-
-                return;
-            }
-        } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, "Processes article permalink handler failed", e);
-            context.sendError(HttpServletResponse.SC_NOT_FOUND);
-
-            return;
-        }
-
-        // If requests an article and the article need view password, sends redirect to the password form
-        if (Solos.needViewPwd(context, article)) {
-            try {
-                context.sendRedirect(Latkes.getServePath() + "/console/article-pwd?articleId=" + article.optString(Keys.OBJECT_ID));
-
-                return;
-            } catch (final Exception e) {
-                context.sendError(HttpServletResponse.SC_NOT_FOUND);
-
-                return;
-            }
-        }
-
-        final OptionQueryService optionQueryService = beanManager.getReference(OptionQueryService.class);
-        final JSONObject preference = optionQueryService.getPreference();
-        final boolean allowVisitDraftViaPermalink = preference.getBoolean(Option.ID_C_ALLOW_VISIT_DRAFT_VIA_PERMALINK);
-        if (Article.ARTICLE_STATUS_C_PUBLISHED != article.optInt(Article.ARTICLE_STATUS) && !allowVisitDraftViaPermalink) {
-            context.sendError(HttpServletResponse.SC_NOT_FOUND);
-
-            return;
-        }
-
-        dispatchToArticleProcessor(context, article);
+    JSONObject article;
+    try {
+      final InitService initService = beanManager.getReference(InitService.class);
+      if (!initService.isInited()) {
         context.handle();
+
+        return;
+      }
+
+      final String requestURI = context.requestURI();
+      final String contextPath = Latkes.getContextPath();
+      final String permalink = StringUtils.substringAfter(requestURI, contextPath);
+      if (PermalinkQueryService.invalidPermalinkFormat(permalink)) {
+        LOGGER.log(Level.DEBUG, "Skip permalink handling request [URI={0}]", permalink);
+        context.handle();
+
+        return;
+      }
+
+      final ArticleRepository articleRepository = beanManager.getReference(ArticleRepository.class);
+      article = articleRepository.getByPermalink(permalink);
+      if (null == article) {
+        LOGGER.log(Level.DEBUG, "Not found article with permalink [{0}]", permalink);
+        context.handle();
+
+        return;
+      }
+    } catch (final RepositoryException e) {
+      LOGGER.log(Level.ERROR, "Processes article permalink handler failed", e);
+      context.sendError(HttpServletResponse.SC_NOT_FOUND);
+
+      return;
     }
 
-    /**
-     * Dispatches the specified request to the specified article processor with the specified response.
-     *
-     * @param context the specified request context
-     * @param article the specified article
-     * @see DispatcherServlet#result(RequestContext)
-     */
-    private void dispatchToArticleProcessor(final RequestContext context, final JSONObject article) {
-        context.attr(Article.ARTICLE, article);
-        context.attr(Keys.HttpRequest.REQUEST_URI, Latkes.getContextPath() + "/article");
-        context.attr(Keys.HttpRequest.REQUEST_METHOD, HttpMethod.GET.name());
+    // If requests an article and the article need view password, sends redirect to the password
+    // form
+    if (Solos.needViewPwd(context, article)) {
+      try {
+        context.sendRedirect(
+            Latkes.getServePath()
+                + "/console/article-pwd?articleId="
+                + article.optString(Keys.OBJECT_ID));
+
+        return;
+      } catch (final Exception e) {
+        context.sendError(HttpServletResponse.SC_NOT_FOUND);
+
+        return;
+      }
     }
+
+    final OptionQueryService optionQueryService =
+        beanManager.getReference(OptionQueryService.class);
+    final JSONObject preference = optionQueryService.getPreference();
+    final boolean allowVisitDraftViaPermalink =
+        preference.getBoolean(Option.ID_C_ALLOW_VISIT_DRAFT_VIA_PERMALINK);
+    if (Article.ARTICLE_STATUS_C_PUBLISHED != article.optInt(Article.ARTICLE_STATUS)
+        && !allowVisitDraftViaPermalink) {
+      context.sendError(HttpServletResponse.SC_NOT_FOUND);
+
+      return;
+    }
+
+    dispatchToArticleProcessor(context, article);
+    context.handle();
+  }
+
+  /**
+   * Dispatches the specified request to the specified article processor with the specified
+   * response.
+   *
+   * @param context the specified request context
+   * @param article the specified article
+   * @see DispatcherServlet#result(RequestContext)
+   */
+  private void dispatchToArticleProcessor(final RequestContext context, final JSONObject article) {
+    context.attr(Article.ARTICLE, article);
+    context.attr(Keys.HttpRequest.REQUEST_URI, Latkes.getContextPath() + "/article");
+    context.attr(Keys.HttpRequest.REQUEST_METHOD, HttpMethod.GET.name());
+  }
 }

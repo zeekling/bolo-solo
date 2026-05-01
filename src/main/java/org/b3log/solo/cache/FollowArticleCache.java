@@ -20,7 +20,6 @@ package org.b3log.solo.cache;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.b3log.latke.ioc.Singleton;
 import org.json.JSONObject;
 
@@ -33,25 +32,25 @@ import org.json.JSONObject;
 @Singleton
 public class FollowArticleCache {
 
-    private final Map<String, Map<String, JSONObject>> followArticleCache = new ConcurrentHashMap<>();
+  private final Map<String, Map<String, JSONObject>> followArticleCache = new ConcurrentHashMap<>();
 
-    public Map<String, JSONObject> getFollowArticles(final String followName) {
-        final Map<String, JSONObject> articles = followArticleCache.get(followName);
-        if (null == articles) {
-            return Collections.emptyMap();
-        }
-        return articles;
+  public Map<String, JSONObject> getFollowArticles(final String followName) {
+    final Map<String, JSONObject> articles = followArticleCache.get(followName);
+    if (null == articles) {
+      return Collections.emptyMap();
     }
+    return articles;
+  }
 
-    public Map<String, JSONObject> removeFollowArticles(final String followName) {
-        return followArticleCache.remove(followName);
-    }
+  public Map<String, JSONObject> removeFollowArticles(final String followName) {
+    return followArticleCache.remove(followName);
+  }
 
-    public void putArticles(final String followName, final Map<String, JSONObject> articles) {
-        followArticleCache.put(followName, articles);
-    }
+  public void putArticles(final String followName, final Map<String, JSONObject> articles) {
+    followArticleCache.put(followName, articles);
+  }
 
-    public void clear() {
-        followArticleCache.clear();
-    }
+  public void clear() {
+    followArticleCache.clear();
+  }
 }

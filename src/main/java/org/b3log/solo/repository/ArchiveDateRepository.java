@@ -17,6 +17,8 @@
  */
 package org.b3log.solo.repository;
 
+import java.text.ParseException;
+import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
@@ -28,9 +30,6 @@ import org.b3log.solo.model.ArchiveDate;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.util.List;
-
 /**
  * Archive date repository.
  *
@@ -41,82 +40,83 @@ import java.util.List;
 @Repository
 public class ArchiveDateRepository extends AbstractRepository {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(ArchiveDateRepository.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(ArchiveDateRepository.class);
 
-    /**
-     * Archive date-Article repository.
-     */
-    @Inject
-    private ArchiveDateArticleRepository archiveDateArticleRepository;
+  /** Archive date-Article repository. */
+  @Inject private ArchiveDateArticleRepository archiveDateArticleRepository;
 
-    /**
-     * Public constructor.
-     */
-    public ArchiveDateRepository() {
-        super(ArchiveDate.ARCHIVE_DATE.toLowerCase());
+  /** Public constructor. */
+  public ArchiveDateRepository() {
+    super(ArchiveDate.ARCHIVE_DATE.toLowerCase());
+  }
+
+  /**
+   * Gets an archive date by the specified archive date string.
+   *
+   * @param archiveDate the specified archive date stirng (yyyy/MM)
+   * @return an archive date, {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByArchiveDate(final String archiveDate) throws RepositoryException {
+    long time;
+    try {
+      time = DateUtils.parseDate(archiveDate, new String[] {"yyyy/MM"}).getTime();
+    } catch (final ParseException e) {
+      return null;
     }
 
-    /**
-     * Gets an archive date by the specified archive date string.
-     *
-     * @param archiveDate the specified archive date stirng (yyyy/MM)
-     * @return an archive date, {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByArchiveDate(final String archiveDate) throws RepositoryException {
-        long time;
-        try {
-            time = DateUtils.parseDate(archiveDate, new String[]{"yyyy/MM"}).getTime();
-        } catch (final ParseException e) {
-            return null;
-        }
+    LOGGER.log(Level.TRACE, "Archive date [{0}] parsed to time [{1}]", archiveDate, time);
 
-        LOGGER.log(Level.TRACE, "Archive date [{0}] parsed to time [{1}]", archiveDate, time);
+    Query query =
+        new Query()
+            .setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time))
+            .setPageCount(1);
+    JSONObject result = get(query);
+    JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      // Try to fix wired timezone issue: https://github.com/b3log/solo/issues/12435
+      try {
+        time = DateUtils.parseDate(archiveDate, new String[] {"yyyy/MM"}).getTime();
+        time += 60 * 1000 * 60 * 8;
+      } catch (final ParseException e) {
+        return null;
+      }
 
-        Query query = new Query().setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time)).setPageCount(1);
-        JSONObject result = get(query);
-        JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            // Try to fix wired timezone issue: https://github.com/b3log/solo/issues/12435
-            try {
-                time = DateUtils.parseDate(archiveDate, new String[]{"yyyy/MM"}).getTime();
-                time += 60 * 1000 * 60 * 8;
-            } catch (final ParseException e) {
-                return null;
-            }
+      LOGGER.log(Level.TRACE, "Fix archive date [{0}] parsed to time [{1}]", archiveDate, time);
 
-            LOGGER.log(Level.TRACE, "Fix archive date [{0}] parsed to time [{1}]", archiveDate, time);
-
-            query = new Query().setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time)).setPageCount(1);
-            result = get(query);
-            array = result.optJSONArray(Keys.RESULTS);
-            if (0 == array.length()) {
-                return null;
-            }
-        }
-
-        return array.optJSONObject(0);
+      query =
+          new Query()
+              .setFilter(new PropertyFilter(ArchiveDate.ARCHIVE_TIME, FilterOperator.EQUAL, time))
+              .setPageCount(1);
+      result = get(query);
+      array = result.optJSONArray(Keys.RESULTS);
+      if (0 == array.length()) {
+        return null;
+      }
     }
 
-    /**
-     * Get archive dates.
-     *
-     * @return a list of archive date, returns an empty list if not found
-     * @throws RepositoryException repository exception
-     */
-    public List<JSONObject> getArchiveDates() throws RepositoryException {
-        final Query query = new Query().addSort(ArchiveDate.ARCHIVE_TIME, SortDirection.DESCENDING).setPageCount(1);
-        // TODO: Performance issue
-        final List<JSONObject> ret = getList(query);
-        for (final JSONObject archiveDate : ret) {
-            final String archiveDateId = archiveDate.optString(Keys.OBJECT_ID);
-            final int publishedArticleCount = archiveDateArticleRepository.getPublishedArticleCount(archiveDateId);
-            archiveDate.put(ArchiveDate.ARCHIVE_DATE_T_PUBLISHED_ARTICLE_COUNT, publishedArticleCount);
-        }
+    return array.optJSONObject(0);
+  }
 
-        return ret;
+  /**
+   * Get archive dates.
+   *
+   * @return a list of archive date, returns an empty list if not found
+   * @throws RepositoryException repository exception
+   */
+  public List<JSONObject> getArchiveDates() throws RepositoryException {
+    final Query query =
+        new Query().addSort(ArchiveDate.ARCHIVE_TIME, SortDirection.DESCENDING).setPageCount(1);
+    // TODO: Performance issue
+    final List<JSONObject> ret = getList(query);
+    for (final JSONObject archiveDate : ret) {
+      final String archiveDateId = archiveDate.optString(Keys.OBJECT_ID);
+      final int publishedArticleCount =
+          archiveDateArticleRepository.getPublishedArticleCount(archiveDateId);
+      archiveDate.put(ArchiveDate.ARCHIVE_DATE_T_PUBLISHED_ARTICLE_COUNT, publishedArticleCount);
     }
+
+    return ret;
+  }
 }

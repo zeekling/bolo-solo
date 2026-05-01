@@ -26,41 +26,26 @@ package org.b3log.solo.event;
  */
 public final class EventTypes {
 
-    /**
-     * Indicates a add article event.
-     */
-    public static final String ADD_ARTICLE = "Add Article";
+  /** Indicates a add article event. */
+  public static final String ADD_ARTICLE = "Add Article";
 
-    /**
-     * Indicates a update article event.
-     */
-    public static final String UPDATE_ARTICLE = "Update Article";
+  /** Indicates a update article event. */
+  public static final String UPDATE_ARTICLE = "Update Article";
 
-    /**
-     * Indicates a delete article event.
-     */
-    public static final String DELETE_ARTICLE = "Delete Article";
+  /** Indicates a delete article event. */
+  public static final String DELETE_ARTICLE = "Delete Article";
 
-    /**
-     * Indicates a before render article event.
-     */
-    public static final String BEFORE_RENDER_ARTICLE = "Before Render Article";
+  /** Indicates a before render article event. */
+  public static final String BEFORE_RENDER_ARTICLE = "Before Render Article";
 
-    /**
-     * Indicates an add comment to page event.
-     */
-    public static final String ADD_COMMENT_TO_PAGE = "Add Comment To Page";
+  /** Indicates an add comment to page event. */
+  public static final String ADD_COMMENT_TO_PAGE = "Add Comment To Page";
 
-    /**
-     * Indicates a modify follow article event.
-     */
-    public static final String FOLLOW_ARTICLE_REFRESH = "Follow Article Refresher";
+  /** Indicates a modify follow article event. */
+  public static final String FOLLOW_ARTICLE_REFRESH = "Follow Article Refresher";
 
-    public static final String DELETE_FOLLOW = "Delete Follow";
+  public static final String DELETE_FOLLOW = "Delete Follow";
 
-    /**
-     * Private constructor.
-     */
-    private EventTypes() {
-    }
+  /** Private constructor. */
+  private EventTypes() {}
 }

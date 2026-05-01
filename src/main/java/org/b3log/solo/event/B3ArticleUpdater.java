@@ -25,10 +25,10 @@ import org.b3log.latke.logging.Logger;
 import org.json.JSONObject;
 
 /**
- * This listener is responsible for updating article to B3log Rhythm. Sees <a href="https://ld246.com/b3log">B3log 构思</a> for more details.
- * <p>
- * API spec: https://ld246.com/article/1457158841475
- * </p>
+ * This listener is responsible for updating article to B3log Rhythm. Sees <a
+ * href="https://ld246.com/b3log">B3log 构思</a> for more details.
+ *
+ * <p>API spec: https://ld246.com/article/1457158841475
  *
  * @author <a href="http://88250.b3log.org">Liang Ding (Solo Author)</a>
  * @author <a href="https://github.com/adlered">adlered (Bolo Author)</a>
@@ -37,26 +37,28 @@ import org.json.JSONObject;
 @Singleton
 public class B3ArticleUpdater extends AbstractEventListener<JSONObject> {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(B3ArticleUpdater.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(B3ArticleUpdater.class);
 
-    public void action(final Event<JSONObject> event) {
-        final JSONObject data = event.getData();
-        LOGGER.log(Level.DEBUG, "Processing an event [type={0}, data={1}] in listener [className={2}]",
-                event.getType(), data, B3ArticleUpdater.class.getName());
+  public void action(final Event<JSONObject> event) {
+    final JSONObject data = event.getData();
+    LOGGER.log(
+        Level.DEBUG,
+        "Processing an event [type={0}, data={1}] in listener [className={2}]",
+        event.getType(),
+        data,
+        B3ArticleUpdater.class.getName());
 
-        B3ArticleSender.pushArticleToRhy(data);
-    }
+    B3ArticleSender.pushArticleToRhy(data);
+  }
 
-    /**
-     * Gets the event type {@linkplain EventTypes#UPDATE_ARTICLE}.
-     *
-     * @return event type
-     */
-    @Override
-    public String getEventType() {
-        return EventTypes.UPDATE_ARTICLE;
-    }
+  /**
+   * Gets the event type {@linkplain EventTypes#UPDATE_ARTICLE}.
+   *
+   * @return event type
+   */
+  @Override
+  public String getEventType() {
+    return EventTypes.UPDATE_ARTICLE;
+  }
 }

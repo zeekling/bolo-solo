@@ -40,45 +40,48 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.zip.ZipEntry;
-
 import org.zeroturnaround.zip.NameMapper;
 import org.zeroturnaround.zip.ZipEntryCallback;
 import org.zeroturnaround.zip.ZipUtil;
 
 public class ZipFilterUtils {
 
-    public static void unpackFilteredZip(File zipFile, File outputDir, NameMapper mapper) throws IOException {
-        ZipUtil.iterate(zipFile, new ZipEntryCallback() {
-            @Override
-            public void process(InputStream in, ZipEntry zipEntry) throws IOException {
-                String rawName = zipEntry.getName();
+  public static void unpackFilteredZip(File zipFile, File outputDir, NameMapper mapper)
+      throws IOException {
+    ZipUtil.iterate(
+        zipFile,
+        new ZipEntryCallback() {
+          @Override
+          public void process(InputStream in, ZipEntry zipEntry) throws IOException {
+            String rawName = zipEntry.getName();
 
-                // 跳过 __MACOSX 或隐藏文件
-                if (rawName.startsWith("__MACOSX/") || rawName.contains("/__MACOSX/")
-                        || rawName.endsWith(".DS_Store") || rawName.matches(".*(^|/)\\.[^/]+")) {
-                    return;
-                }
-
-                // 名称映射（可为 null 跳过）
-                String name = (mapper != null) ? mapper.map(rawName) : rawName;
-                if (name == null)
-                    return;
-
-                File outFile = new File(outputDir, name);
-
-                if (zipEntry.isDirectory()) {
-                    outFile.mkdirs();
-                } else {
-                    outFile.getParentFile().mkdirs();
-                    try (OutputStream out = new FileOutputStream(outFile)) {
-                        byte[] buffer = new byte[4096];
-                        int len;
-                        while ((len = in.read(buffer)) != -1) {
-                            out.write(buffer, 0, len);
-                        }
-                    }
-                }
+            // 跳过 __MACOSX 或隐藏文件
+            if (rawName.startsWith("__MACOSX/")
+                || rawName.contains("/__MACOSX/")
+                || rawName.endsWith(".DS_Store")
+                || rawName.matches(".*(^|/)\\.[^/]+")) {
+              return;
             }
+
+            // 名称映射（可为 null 跳过）
+            String name = (mapper != null) ? mapper.map(rawName) : rawName;
+            if (name == null) return;
+
+            File outFile = new File(outputDir, name);
+
+            if (zipEntry.isDirectory()) {
+              outFile.mkdirs();
+            } else {
+              outFile.getParentFile().mkdirs();
+              try (OutputStream out = new FileOutputStream(outFile)) {
+                byte[] buffer = new byte[4096];
+                int len;
+                while ((len = in.read(buffer)) != -1) {
+                  out.write(buffer, 0, len);
+                }
+              }
+            }
+          }
         });
-    }
+  }
 }

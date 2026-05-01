@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class LogHelperExecutor {
 
-    public static void submit(final List<Map<String, Object>> logs) {
-        SharedExecutorPool.executor.execute(new LogHelper(logs));
-    }
+  public static void submit(final List<Map<String, Object>> logs) {
+    SharedExecutorPool.executor.execute(new LogHelper(logs));
+  }
 }

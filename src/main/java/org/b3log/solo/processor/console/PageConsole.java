@@ -49,313 +49,299 @@ import org.json.JSONObject;
 @Before(ConsoleAdminAuthAdvice.class)
 public class PageConsole {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(PageConsole.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(PageConsole.class);
 
-    /**
-     * User query service.
-     */
-    @Inject
-    private UserQueryService userQueryService;
+  /** User query service. */
+  @Inject private UserQueryService userQueryService;
 
-    /**
-     * Page query service.
-     */
-    @Inject
-    private PageQueryService pageQueryService;
+  /** Page query service. */
+  @Inject private PageQueryService pageQueryService;
 
-    /**
-     * Page management service.
-     */
-    @Inject
-    private PageMgmtService pageMgmtService;
+  /** Page management service. */
+  @Inject private PageMgmtService pageMgmtService;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Updates a page by the specified request.
-     * <p>
-     * Request json:
-     * <pre>
-     * {
-     *     "page": {
-     *         "oId": "",
-     *         "pageTitle": "",
-     *         "pageOrder": int,
-     *         "pagePermalink": "",
-     *         "pageOpenTarget": "",
-     *         "pageIcon": ""
-     *     }
-     * }
-     * </pre>
-     * </p>
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void updatePage(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject ret = new JSONObject();
+  /**
+   * Updates a page by the specified request.
+   *
+   * <p>Request json:
+   *
+   * <pre>
+   * {
+   *     "page": {
+   *         "oId": "",
+   *         "pageTitle": "",
+   *         "pageOrder": int,
+   *         "pagePermalink": "",
+   *         "pageOpenTarget": "",
+   *         "pageIcon": ""
+   *     }
+   * }
+   * </pre>
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void updatePage(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject ret = new JSONObject();
 
-        try {
-            final JSONObject requestJSON = context.requestJSON();
-            pageMgmtService.updatePage(requestJSON);
+    try {
+      final JSONObject requestJSON = context.requestJSON();
+      pageMgmtService.updatePage(requestJSON);
 
-            ret.put(Keys.STATUS_CODE, true);
-            ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
-            renderer.setJSONObject(ret);
-        } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      ret.put(Keys.STATUS_CODE, true);
+      ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
+      renderer.setJSONObject(ret);
+    } catch (final ServiceException e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("updateFailLabel"));
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("updateFailLabel"));
     }
+  }
 
-    /**
-     * Removes a page by the specified request.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void removePage(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject jsonObject = new JSONObject();
-        renderer.setJSONObject(jsonObject);
+  /**
+   * Removes a page by the specified request.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void removePage(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject jsonObject = new JSONObject();
+    renderer.setJSONObject(jsonObject);
 
-        try {
-            final String pageId = context.pathVar("id");
-            pageMgmtService.removePage(pageId);
+    try {
+      final String pageId = context.pathVar("id");
+      pageMgmtService.removePage(pageId);
 
-            jsonObject.put(Keys.STATUS_CODE, true);
-            jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      jsonObject.put(Keys.STATUS_CODE, true);
+      jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            jsonObject.put(Keys.STATUS_CODE, false);
-            jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
-
-        }
+      jsonObject.put(Keys.STATUS_CODE, false);
+      jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
     }
+  }
 
-    /**
-     * Adds a page with the specified request.
-     * <p>
-     * Request json:
-     * <pre>
-     * {
-     *     "page": {
-     *         "pageTitle": "",
-     *         "pagePermalink": "" // optional
-     *         "pageOpenTarget": "",
-     *         "pageIcon": ""
-     *     }
-     * }
-     * </pre>
-     * </p>
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "oId": "", // Generated page id
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void addPage(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject ret = new JSONObject();
+  /**
+   * Adds a page with the specified request.
+   *
+   * <p>Request json:
+   *
+   * <pre>
+   * {
+   *     "page": {
+   *         "pageTitle": "",
+   *         "pagePermalink": "" // optional
+   *         "pageOpenTarget": "",
+   *         "pageIcon": ""
+   *     }
+   * }
+   * </pre>
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "oId": "", // Generated page id
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void addPage(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject ret = new JSONObject();
 
-        try {
-            final JSONObject requestJSON = context.requestJSON();
-            final String pageId = pageMgmtService.addPage(requestJSON);
+    try {
+      final JSONObject requestJSON = context.requestJSON();
+      final String pageId = pageMgmtService.addPage(requestJSON);
 
-            ret.put(Keys.OBJECT_ID, pageId);
-            ret.put(Keys.MSG, langPropsService.get("addSuccLabel"));
-            ret.put(Keys.STATUS_CODE, true);
-            renderer.setJSONObject(ret);
-        } catch (final ServiceException e) { // May be permalink check exception
-            LOGGER.log(Level.WARN, e.getMessage(), e);
+      ret.put(Keys.OBJECT_ID, pageId);
+      ret.put(Keys.MSG, langPropsService.get("addSuccLabel"));
+      ret.put(Keys.STATUS_CODE, true);
+      renderer.setJSONObject(ret);
+    } catch (final ServiceException e) { // May be permalink check exception
+      LOGGER.log(Level.WARN, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, e.getMessage());
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, e.getMessage());
     }
+  }
 
-    /**
-     * Changes a page order by the specified page id and direction.
-     * <p>
-     * Request json:
-     * <pre>
-     * {
-     *     "oId": "",
-     *     "direction": "" // "up"/"down"
-     * }
-     * </pre>
-     * </p>
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void changeOrder(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject ret = new JSONObject();
+  /**
+   * Changes a page order by the specified page id and direction.
+   *
+   * <p>Request json:
+   *
+   * <pre>
+   * {
+   *     "oId": "",
+   *     "direction": "" // "up"/"down"
+   * }
+   * </pre>
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void changeOrder(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject ret = new JSONObject();
 
-        try {
-            final JSONObject requestJSONObject = context.requestJSON();
-            final String linkId = requestJSONObject.getString(Keys.OBJECT_ID);
-            final String direction = requestJSONObject.getString(Common.DIRECTION);
+    try {
+      final JSONObject requestJSONObject = context.requestJSON();
+      final String linkId = requestJSONObject.getString(Keys.OBJECT_ID);
+      final String direction = requestJSONObject.getString(Common.DIRECTION);
 
-            pageMgmtService.changeOrder(linkId, direction);
+      pageMgmtService.changeOrder(linkId, direction);
 
-            ret.put(Keys.STATUS_CODE, true);
-            ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
+      ret.put(Keys.STATUS_CODE, true);
+      ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
 
-            renderer.setJSONObject(ret);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      renderer.setJSONObject(ret);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("updateFailLabel"));
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("updateFailLabel"));
     }
+  }
 
-    /**
-     * Gets a page by the specified request.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean
-     *     "page": {
-     *         "oId": "",
-     *         "pageTitle": "",
-     *         "pageOrder": int,
-     *         "pagePermalink": "",
-     *         "pageIcon": ""
-     *     }
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void getPage(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
+  /**
+   * Gets a page by the specified request.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean
+   *     "page": {
+   *         "oId": "",
+   *         "pageTitle": "",
+   *         "pageOrder": int,
+   *         "pagePermalink": "",
+   *         "pageIcon": ""
+   *     }
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void getPage(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
 
-        try {
-            final String pageId = context.pathVar("id");
-            final JSONObject result = pageQueryService.getPage(pageId);
-            if (null == result) {
-                renderer.setJSONObject(new JSONObject().put(Keys.STATUS_CODE, false));
+    try {
+      final String pageId = context.pathVar("id");
+      final JSONObject result = pageQueryService.getPage(pageId);
+      if (null == result) {
+        renderer.setJSONObject(new JSONObject().put(Keys.STATUS_CODE, false));
 
-                return;
-            }
+        return;
+      }
 
-            renderer.setJSONObject(result);
-            result.put(Keys.STATUS_CODE, true);
-            result.put(Keys.MSG, langPropsService.get("getSuccLabel"));
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      renderer.setJSONObject(result);
+      result.put(Keys.STATUS_CODE, true);
+      result.put(Keys.MSG, langPropsService.get("getSuccLabel"));
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
     }
+  }
 
-    /**
-     * Gets pages by the specified request.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "pagination": {
-     *         "paginationPageCount": 100,
-     *         "paginationPageNums": [1, 2, 3, 4, 5]
-     *     },
-     *     "pages": [{
-     *         "oId": "",
-     *         "pageTitle": "",
-     *         "pageOrder": int,
-     *         "pagePermalink": "",
-     *         .{@link PageMgmtService...}
-     *      }, ....]
-     *     "sc": "GET_PAGES_SUCC"
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void getPages(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
+  /**
+   * Gets pages by the specified request.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "pagination": {
+   *         "paginationPageCount": 100,
+   *         "paginationPageNums": [1, 2, 3, 4, 5]
+   *     },
+   *     "pages": [{
+   *         "oId": "",
+   *         "pageTitle": "",
+   *         "pageOrder": int,
+   *         "pagePermalink": "",
+   *         .{@link PageMgmtService...}
+   *      }, ....]
+   *     "sc": "GET_PAGES_SUCC"
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void getPages(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
 
-        try {
-            final String requestURI = context.requestURI();
-            final String path = requestURI.substring((Latkes.getContextPath() + "/console/pages/").length());
-            final JSONObject requestJSONObject = Solos.buildPaginationRequest(path);
-            final JSONObject result = pageQueryService.getPages(requestJSONObject);
-            final JSONArray pages = result.optJSONArray(Page.PAGES);
+    try {
+      final String requestURI = context.requestURI();
+      final String path =
+          requestURI.substring((Latkes.getContextPath() + "/console/pages/").length());
+      final JSONObject requestJSONObject = Solos.buildPaginationRequest(path);
+      final JSONObject result = pageQueryService.getPages(requestJSONObject);
+      final JSONArray pages = result.optJSONArray(Page.PAGES);
 
-            for (int i = 0; i < pages.length(); i++) {
-                final JSONObject page = pages.getJSONObject(i);
-                String title = page.optString(Page.PAGE_TITLE);
-                title = StringEscapeUtils.escapeXml(title);
-                page.put(Page.PAGE_TITLE, title);
-            }
+      for (int i = 0; i < pages.length(); i++) {
+        final JSONObject page = pages.getJSONObject(i);
+        String title = page.optString(Page.PAGE_TITLE);
+        title = StringEscapeUtils.escapeXml(title);
+        page.put(Page.PAGE_TITLE, title);
+      }
 
-            result.put(Keys.STATUS_CODE, true);
-            renderer.setJSONObject(result);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      result.put(Keys.STATUS_CODE, true);
+      renderer.setJSONObject(result);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
     }
+  }
 }

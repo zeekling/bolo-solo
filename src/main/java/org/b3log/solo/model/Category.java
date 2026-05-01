@@ -26,55 +26,34 @@ package org.b3log.solo.model;
  */
 public final class Category {
 
-    /**
-     * Category.
-     */
-    public static final String CATEGORY = "category";
+  /** Category. */
+  public static final String CATEGORY = "category";
 
-    /**
-     * Categories.
-     */
-    public static final String CATEGORIES = "categories";
+  /** Categories. */
+  public static final String CATEGORIES = "categories";
 
-    /**
-     * Key of category title.
-     */
-    public static final String CATEGORY_TITLE = "categoryTitle";
+  /** Key of category title. */
+  public static final String CATEGORY_TITLE = "categoryTitle";
 
-    /**
-     * Key of category URI.
-     */
-    public static final String CATEGORY_URI = "categoryURI";
+  /** Key of category URI. */
+  public static final String CATEGORY_URI = "categoryURI";
 
-    /**
-     * Key of category description.
-     */
-    public static final String CATEGORY_DESCRIPTION = "categoryDescription";
+  /** Key of category description. */
+  public static final String CATEGORY_DESCRIPTION = "categoryDescription";
 
-    /**
-     * Key of category order.
-     */
-    public static final String CATEGORY_ORDER = "categoryOrder";
+  /** Key of category order. */
+  public static final String CATEGORY_ORDER = "categoryOrder";
 
-    /**
-     * Key of category tag count.
-     */
-    public static final String CATEGORY_TAG_CNT = "categoryTagCnt";
+  /** Key of category tag count. */
+  public static final String CATEGORY_TAG_CNT = "categoryTagCnt";
 
-    //// Transient ////
-    /**
-     * Key of category tags.
-     */
-    public static final String CATEGORY_T_TAGS = "categoryTags";
+  //// Transient ////
+  /** Key of category tags. */
+  public static final String CATEGORY_T_TAGS = "categoryTags";
 
-    /**
-     * Key of category published article count.
-     */
-    public static final String CATEGORY_T_PUBLISHED_ARTICLE_COUNT = "categoryPublishedArticleCount";
+  /** Key of category published article count. */
+  public static final String CATEGORY_T_PUBLISHED_ARTICLE_COUNT = "categoryPublishedArticleCount";
 
-    /**
-     * Private constructor.
-     */
-    private Category() {
-    }
+  /** Private constructor. */
+  private Category() {}
 }

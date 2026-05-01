@@ -119,8 +119,9 @@
         <mysql-connector-java.version>8.0.33</mysql-connector-java.version>
         <commons-io.version>2.15.0</commons-io.version>
         <commons-lang.version>3.14.0</commons-lang.version>
-        <qiniu-java-sdk.version>7.15.1</qiniu-java-sdk.version>
-        <cos_api.version>5.6.58</cos_api.version>
+<qiniu-java-sdk.version>7.15.1</qiniu-java-sdk.version>
+    <cos_api.version>5.6.58</cos_api.version>
+    <spotless.version>3.0.0</spotless.version>
 
         <maven.compiler.target>21</maven.compiler.target>
         <maven.compiler.source>21</maven.compiler.source>
@@ -468,13 +469,33 @@
                 </configuration>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>${maven-war-plugin.version}</version>
-            </plugin>
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-war-plugin</artifactId>
+    <version>${maven-war-plugin.version}</version>
+    </plugin>
 
-        </plugins>
+    <plugin>
+    <groupId>com.diffplug.spotless</groupId>
+    <artifactId>spotless-maven-plugin</artifactId>
+    <version>${spotless.version}</version>
+    <configuration>
+        <java>
+            <googleJavaFormat>
+                <version>1.22.0</version>
+            </googleJavaFormat>
+        </java>
+    </configuration>
+    <executions>
+        <execution>
+        <goals>
+            <goal>check</goal>
+        </goals>
+        </execution>
+    </executions>
+    </plugin>
+
+  </plugins>
 
         <finalName>bolo</finalName>
     </build>

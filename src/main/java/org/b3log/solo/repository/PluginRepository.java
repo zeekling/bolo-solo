@@ -31,10 +31,8 @@ import org.b3log.latke.repository.annotation.Repository;
 @Repository
 public class PluginRepository extends AbstractRepository {
 
-    /**
-     * Public constructor.
-     */
-    public PluginRepository() {
-        super(Plugin.PLUGIN);
-    }
+  /** Public constructor. */
+  public PluginRepository() {
+    super(Plugin.PLUGIN);
+  }
 }

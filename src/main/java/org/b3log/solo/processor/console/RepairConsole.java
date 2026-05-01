@@ -45,72 +45,49 @@ import org.json.JSONObject;
 @Before(ConsoleAuthAdvice.class)
 public class RepairConsole {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(RepairConsole.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(RepairConsole.class);
 
-    /**
-     * Option query service.
-     */
-    @Inject
-    private OptionQueryService optionQueryService;
+  /** Option query service. */
+  @Inject private OptionQueryService optionQueryService;
 
-    /**
-     * Preference management service.
-     */
-    @Inject
-    private PreferenceMgmtService preferenceMgmtService;
+  /** Preference management service. */
+  @Inject private PreferenceMgmtService preferenceMgmtService;
 
-    /**
-     * Tag repository.
-     */
-    @Inject
-    private TagRepository tagRepository;
+  /** Tag repository. */
+  @Inject private TagRepository tagRepository;
 
-    /**
-     * Tag-Article repository.
-     */
-    @Inject
-    private TagArticleRepository tagArticleRepository;
+  /** Tag-Article repository. */
+  @Inject private TagArticleRepository tagArticleRepository;
 
-    /**
-     * Article repository.
-     */
-    @Inject
-    private ArticleRepository articleRepository;
+  /** Article repository. */
+  @Inject private ArticleRepository articleRepository;
 
-    /**
-     * Statistic query service.
-     */
-    @Inject
-    private StatisticQueryService statisticQueryService;
+  /** Statistic query service. */
+  @Inject private StatisticQueryService statisticQueryService;
 
-    /**
-     * Statistic management service.
-     */
-    @Inject
-    private StatisticMgmtService statisticMgmtService;
+  /** Statistic management service. */
+  @Inject private StatisticMgmtService statisticMgmtService;
 
-    /**
-     * Restores the signs of preference to default.
-     *
-     * @param context the specified context
-     */
-    public void restoreSigns(final RequestContext context) {
-        final TextHtmlRenderer renderer = new TextHtmlRenderer();
-        context.setRenderer(renderer);
+  /**
+   * Restores the signs of preference to default.
+   *
+   * @param context the specified context
+   */
+  public void restoreSigns(final RequestContext context) {
+    final TextHtmlRenderer renderer = new TextHtmlRenderer();
+    context.setRenderer(renderer);
 
-        try {
-            final JSONObject preference = optionQueryService.getPreference();
-            preference.put(Option.ID_C_SIGNS, Option.DefaultPreference.DEFAULT_SIGNS);
-            preferenceMgmtService.updatePreference(preference);
+    try {
+      final JSONObject preference = optionQueryService.getPreference();
+      preference.put(Option.ID_C_SIGNS, Option.DefaultPreference.DEFAULT_SIGNS);
+      preferenceMgmtService.updatePreference(preference);
 
-            renderer.setContent("Restore signs succeeded.");
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      renderer.setContent("Restore signs succeeded.");
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            renderer.setContent("Restores signs failed, error msg [" + e.getMessage() + "]");
-        }
+      renderer.setContent("Restores signs failed, error msg [" + e.getMessage() + "]");
     }
+  }
 }

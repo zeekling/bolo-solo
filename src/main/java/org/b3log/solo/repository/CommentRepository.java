@@ -17,6 +17,8 @@
  */
 package org.b3log.solo.repository;
 
+import java.util.Iterator;
+import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.logging.Level;
@@ -26,9 +28,6 @@ import org.b3log.latke.repository.annotation.Repository;
 import org.b3log.solo.cache.CommentCache;
 import org.b3log.solo.model.Comment;
 import org.json.JSONObject;
-
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Comment repository.
@@ -40,136 +39,132 @@ import java.util.List;
 @Repository
 public class CommentRepository extends AbstractRepository {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(CommentRepository.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(CommentRepository.class);
 
-    /**
-     * Article repository.
-     */
-    @Inject
-    private ArticleRepository articleRepository;
+  /** Article repository. */
+  @Inject private ArticleRepository articleRepository;
 
-    /**
-     * Comment cache.
-     */
-    @Inject
-    private CommentCache commentCache;
+  /** Comment cache. */
+  @Inject private CommentCache commentCache;
 
-    /**
-     * Public constructor.
-     */
-    public CommentRepository() {
-        super(Comment.COMMENT);
+  /** Public constructor. */
+  public CommentRepository() {
+    super(Comment.COMMENT);
+  }
+
+  @Override
+  public void remove(final String id) throws RepositoryException {
+    super.remove(id);
+
+    commentCache.removeComment(id);
+  }
+
+  @Override
+  public JSONObject get(final String id) throws RepositoryException {
+    JSONObject ret = commentCache.getComment(id);
+    if (null != ret) {
+      return ret;
     }
 
-    @Override
-    public void remove(final String id) throws RepositoryException {
-        super.remove(id);
-
-        commentCache.removeComment(id);
+    ret = super.get(id);
+    if (null == ret) {
+      return null;
     }
 
-    @Override
-    public JSONObject get(final String id) throws RepositoryException {
-        JSONObject ret = commentCache.getComment(id);
-        if (null != ret) {
-            return ret;
-        }
+    commentCache.putComment(ret);
 
-        ret = super.get(id);
-        if (null == ret) {
-            return null;
-        }
+    return ret;
+  }
 
-        commentCache.putComment(ret);
+  @Override
+  public void update(final String id, final JSONObject comment, final String... propertyNames)
+      throws RepositoryException {
+    super.update(id, comment, propertyNames);
 
-        return ret;
+    comment.put(Keys.OBJECT_ID, id);
+    commentCache.putComment(comment);
+  }
+
+  /**
+   * Gets post comments recently with the specified fetch.
+   *
+   * @param fetchSize the specified fetch size
+   * @return a list of comments recently, returns an empty list if not found
+   * @throws RepositoryException repository exception
+   */
+  public List<JSONObject> getRecentComments(final int fetchSize) throws RepositoryException {
+    final Query query =
+        new Query()
+            .addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
+            .setPage(1, fetchSize)
+            .setPageCount(1);
+    final List<JSONObject> ret = getList(query);
+    // Removes unpublished article related comments
+    removeForUnpublishedArticles(ret);
+
+    return ret;
+  }
+
+  /**
+   * Gets comments with the specified on id, current page number and page size.
+   *
+   * @param onId the specified on id
+   * @param currentPageNum the specified current page number
+   * @param pageSize the specified page size
+   * @return a list of comments, returns an empty list if not found
+   * @throws RepositoryException repository exception
+   */
+  public List<JSONObject> getComments(
+      final String onId, final int currentPageNum, final int pageSize) throws RepositoryException {
+    final Query query =
+        new Query()
+            .addSort(Keys.OBJECT_ID, SortDirection.DESCENDING)
+            .setFilter(new PropertyFilter(Comment.COMMENT_ON_ID, FilterOperator.EQUAL, onId))
+            .setPage(currentPageNum, pageSize)
+            .setPageCount(1);
+
+    return getList(query);
+  }
+
+  /**
+   * Removes comments with the specified on id.
+   *
+   * @param onId the specified on id
+   * @return removed count
+   * @throws RepositoryException repository exception
+   */
+  public int removeComments(final String onId) throws RepositoryException {
+    final List<JSONObject> comments = getComments(onId, 1, Integer.MAX_VALUE);
+    for (final JSONObject comment : comments) {
+      final String commentId = comment.optString(Keys.OBJECT_ID);
+      remove(commentId);
     }
 
-    @Override
-    public void update(final String id, final JSONObject comment, final String... propertyNames) throws RepositoryException {
-        super.update(id, comment, propertyNames);
+    LOGGER.log(Level.DEBUG, "Removed comments[onId={0}, removedCnt={1}]", onId, comments.size());
 
-        comment.put(Keys.OBJECT_ID, id);
-        commentCache.putComment(comment);
+    return comments.size();
+  }
+
+  /**
+   * Removes comments of unpublished articles for the specified comments.
+   *
+   * @param comments the specified comments
+   * @throws RepositoryException repository exception
+   */
+  private void removeForUnpublishedArticles(final List<JSONObject> comments)
+      throws RepositoryException {
+    LOGGER.debug("Removing unpublished articles' comments....");
+    final Iterator<JSONObject> iterator = comments.iterator();
+
+    while (iterator.hasNext()) {
+      final JSONObject comment = iterator.next();
+      final String articleId = comment.optString(Comment.COMMENT_ON_ID);
+      if (!articleRepository.isPublished(articleId)) {
+        iterator.remove();
+      }
     }
 
-    /**
-     * Gets post comments recently with the specified fetch.
-     *
-     * @param fetchSize the specified fetch size
-     * @return a list of comments recently, returns an empty list if not found
-     * @throws RepositoryException repository exception
-     */
-    public List<JSONObject> getRecentComments(final int fetchSize) throws RepositoryException {
-        final Query query = new Query().
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
-                setPage(1, fetchSize).setPageCount(1);
-        final List<JSONObject> ret = getList(query);
-        // Removes unpublished article related comments
-        removeForUnpublishedArticles(ret);
-
-        return ret;
-    }
-
-    /**
-     * Gets comments with the specified on id, current page number and
-     * page size.
-     *
-     * @param onId           the specified on id
-     * @param currentPageNum the specified current page number
-     * @param pageSize       the specified page size
-     * @return a list of comments, returns an empty list if not found
-     * @throws RepositoryException repository exception
-     */
-    public List<JSONObject> getComments(final String onId, final int currentPageNum, final int pageSize) throws RepositoryException {
-        final Query query = new Query().
-                addSort(Keys.OBJECT_ID, SortDirection.DESCENDING).
-                setFilter(new PropertyFilter(Comment.COMMENT_ON_ID, FilterOperator.EQUAL, onId)).
-                setPage(currentPageNum, pageSize).setPageCount(1);
-
-        return getList(query);
-    }
-
-    /**
-     * Removes comments with the specified on id.
-     *
-     * @param onId the specified on id
-     * @return removed count
-     * @throws RepositoryException repository exception
-     */
-    public int removeComments(final String onId) throws RepositoryException {
-        final List<JSONObject> comments = getComments(onId, 1, Integer.MAX_VALUE);
-        for (final JSONObject comment : comments) {
-            final String commentId = comment.optString(Keys.OBJECT_ID);
-            remove(commentId);
-        }
-
-        LOGGER.log(Level.DEBUG, "Removed comments[onId={0}, removedCnt={1}]", onId, comments.size());
-
-        return comments.size();
-    }
-
-    /**
-     * Removes comments of unpublished articles for the specified comments.
-     *
-     * @param comments the specified comments
-     * @throws RepositoryException repository exception
-     */
-    private void removeForUnpublishedArticles(final List<JSONObject> comments) throws RepositoryException {
-        LOGGER.debug("Removing unpublished articles' comments....");
-        final Iterator<JSONObject> iterator = comments.iterator();
-
-        while (iterator.hasNext()) {
-            final JSONObject comment = iterator.next();
-            final String articleId = comment.optString(Comment.COMMENT_ON_ID);
-            if (!articleRepository.isPublished(articleId)) {
-                iterator.remove();
-            }
-        }
-
-        LOGGER.debug("Removed unpublished articles' comments....");
-    }
+    LOGGER.debug("Removed unpublished articles' comments....");
+  }
 }

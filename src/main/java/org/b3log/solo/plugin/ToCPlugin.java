@@ -17,6 +17,9 @@
  */
 package org.b3log.solo.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.event.AbstractEventListener;
 import org.b3log.latke.event.Event;
@@ -31,10 +34,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /**
  * ToC event handler.
  *
@@ -44,20 +43,16 @@ import java.util.Map;
  */
 public class ToCPlugin extends NotInteractivePlugin {
 
-    /**
-     * Public constructor.
-     */
-    public ToCPlugin() {
-        addEventListener(new ToCEventHandler());
-    }
+  /** Public constructor. */
+  public ToCPlugin() {
+    addEventListener(new ToCEventHandler());
+  }
 
-    @Override
-    public void prePlug(RequestContext context) {
-    }
+  @Override
+  public void prePlug(RequestContext context) {}
 
-    @Override
-    public void postPlug(Map<String, Object> dataModel, RequestContext context) {
-    }
+  @Override
+  public void postPlug(Map<String, Object> dataModel, RequestContext context) {}
 }
 
 /**
@@ -71,35 +66,33 @@ public class ToCPlugin extends NotInteractivePlugin {
  */
 class ToCEventHandler extends AbstractEventListener<JSONObject> {
 
-    @Override
-    public String getEventType() {
-        return EventTypes.BEFORE_RENDER_ARTICLE;
-    }
+  @Override
+  public String getEventType() {
+    return EventTypes.BEFORE_RENDER_ARTICLE;
+  }
 
-    @Override
-    public void action(final Event<JSONObject> event) {
-        final JSONObject data = event.getData();
-        final JSONObject article = data.optJSONObject(Article.ARTICLE);
-        final String content = article.optString(Article.ARTICLE_CONTENT);
-        final Document doc = Jsoup.parse(content, StringUtils.EMPTY, Parser.htmlParser());
-        doc.outputSettings().prettyPrint(false);
+  @Override
+  public void action(final Event<JSONObject> event) {
+    final JSONObject data = event.getData();
+    final JSONObject article = data.optJSONObject(Article.ARTICLE);
+    final String content = article.optString(Article.ARTICLE_CONTENT);
+    final Document doc = Jsoup.parse(content, StringUtils.EMPTY, Parser.htmlParser());
+    doc.outputSettings().prettyPrint(false);
 
-        final List<JSONObject> toc = new ArrayList<>();
-        final Elements hs = doc.select("h1, h2, h3, h4, h5");
-        for (int i = 0; i < hs.size(); i++) {
-            final Element element = hs.get(i);
-            final String tagName = element.tagName().toLowerCase();
-            final String text = element.text();
-            final String id = "b3_solo_" + tagName + "_" + i;
-            element.attr("id", id);
-            final JSONObject li = new JSONObject().
-                    put("className", "toc__" + tagName).
-                    put("id", id).
-                    put("text", text);
-            toc.add(li);
-        }
-        final Element body = doc.getElementsByTag("body").get(0);
-        article.put(Article.ARTICLE_CONTENT, body.html());
-        article.put(Article.ARTICLE_T_TOC, (Object) toc);
+    final List<JSONObject> toc = new ArrayList<>();
+    final Elements hs = doc.select("h1, h2, h3, h4, h5");
+    for (int i = 0; i < hs.size(); i++) {
+      final Element element = hs.get(i);
+      final String tagName = element.tagName().toLowerCase();
+      final String text = element.text();
+      final String id = "b3_solo_" + tagName + "_" + i;
+      element.attr("id", id);
+      final JSONObject li =
+          new JSONObject().put("className", "toc__" + tagName).put("id", id).put("text", text);
+      toc.add(li);
     }
+    final Element body = doc.getElementsByTag("body").get(0);
+    article.put(Article.ARTICLE_CONTENT, body.html());
+    article.put(Article.ARTICLE_T_TOC, (Object) toc);
+  }
 }

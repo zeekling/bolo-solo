@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.service;
 
+import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.logging.Level;
@@ -29,8 +30,6 @@ import org.b3log.solo.repository.TagArticleRepository;
 import org.b3log.solo.repository.TagRepository;
 import org.json.JSONObject;
 
-import java.util.List;
-
 /**
  * Tag management service.
  *
@@ -41,64 +40,50 @@ import java.util.List;
 @Service
 public class TagMgmtService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(TagMgmtService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(TagMgmtService.class);
 
-    /**
-     * Tag query service.
-     */
-    @Inject
-    private TagQueryService tagQueryService;
+  /** Tag query service. */
+  @Inject private TagQueryService tagQueryService;
 
-    /**
-     * Tag repository.
-     */
-    @Inject
-    private TagRepository tagRepository;
+  /** Tag repository. */
+  @Inject private TagRepository tagRepository;
 
-    /**
-     * Category-tag repository.
-     */
-    @Inject
-    private CategoryTagRepository categoryTagRepository;
+  /** Category-tag repository. */
+  @Inject private CategoryTagRepository categoryTagRepository;
 
-    /**
-     * Tag-Article repository.
-     */
-    @Inject
-    private TagArticleRepository tagArticleRepository;
+  /** Tag-Article repository. */
+  @Inject private TagArticleRepository tagArticleRepository;
 
-    /**
-     * Removes all unused tags.
-     *
-     * @throws ServiceException if get tags failed, or remove failed
-     */
-    public void removeUnusedTags() throws ServiceException {
-        final Transaction transaction = tagRepository.beginTransaction();
+  /**
+   * Removes all unused tags.
+   *
+   * @throws ServiceException if get tags failed, or remove failed
+   */
+  public void removeUnusedTags() throws ServiceException {
+    final Transaction transaction = tagRepository.beginTransaction();
 
-        try {
-            final List<JSONObject> tags = tagQueryService.getTags();
-            for (int i = 0; i < tags.size(); i++) {
-                final JSONObject tag = tags.get(i);
-                final String tagId = tag.optString(Keys.OBJECT_ID);
-                final int articleCount = tagArticleRepository.getArticleCount(tagId);
-                if (1 > articleCount) {
-                    categoryTagRepository.removeByTagId(tagId);
-                    tagRepository.remove(tagId);
-                }
-            }
-
-            transaction.commit();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            LOGGER.log(Level.ERROR, "Removes unused tags failed", e);
-
-            throw new ServiceException(e);
+    try {
+      final List<JSONObject> tags = tagQueryService.getTags();
+      for (int i = 0; i < tags.size(); i++) {
+        final JSONObject tag = tags.get(i);
+        final String tagId = tag.optString(Keys.OBJECT_ID);
+        final int articleCount = tagArticleRepository.getArticleCount(tagId);
+        if (1 > articleCount) {
+          categoryTagRepository.removeByTagId(tagId);
+          tagRepository.remove(tagId);
         }
+      }
+
+      transaction.commit();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+
+      LOGGER.log(Level.ERROR, "Removes unused tags failed", e);
+
+      throw new ServiceException(e);
     }
+  }
 }

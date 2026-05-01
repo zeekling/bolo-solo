@@ -17,6 +17,11 @@
  */
 package org.b3log.solo.processor;
 
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Latkes;
@@ -45,12 +50,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.owasp.encoder.Encode;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.InputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Search processor.
  *
@@ -62,107 +61,100 @@ import java.util.Map;
 @RequestProcessor
 public class SearchProcessor {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(SearchProcessor.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(SearchProcessor.class);
 
-    /**
-     * Article query service.
-     */
-    @Inject
-    private ArticleQueryService articleQueryService;
+  /** Article query service. */
+  @Inject private ArticleQueryService articleQueryService;
 
-    /**
-     * User query service.
-     */
-    @Inject
-    private UserQueryService userQueryService;
+  /** User query service. */
+  @Inject private UserQueryService userQueryService;
 
-    /**
-     * Option query service.
-     */
-    @Inject
-    private OptionQueryService optionQueryService;
+  /** Option query service. */
+  @Inject private OptionQueryService optionQueryService;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * DataModelService.
-     */
-    @Inject
-    private DataModelService dataModelService;
+  /** DataModelService. */
+  @Inject private DataModelService dataModelService;
 
-    /**
-     * Shows opensearch.xml.
-     *
-     * @param context the specified context
-     */
-    @RequestProcessing(value = "/opensearch.xml", method = HttpMethod.GET)
-    public void showOpensearchXML(final RequestContext context) {
-        final TextXmlRenderer renderer = new TextXmlRenderer();
-        context.setRenderer(renderer);
+  /**
+   * Shows opensearch.xml.
+   *
+   * @param context the specified context
+   */
+  @RequestProcessing(value = "/opensearch.xml", method = HttpMethod.GET)
+  public void showOpensearchXML(final RequestContext context) {
+    final TextXmlRenderer renderer = new TextXmlRenderer();
+    context.setRenderer(renderer);
 
-        try {
-            final InputStream resourceAsStream = SearchProcessor.class.getResourceAsStream("/opensearch.xml");
-            String content = IOUtils.toString(resourceAsStream, "UTF-8");
-            final JSONObject preference = optionQueryService.getPreference();
-            content = StringUtils.replace(content, "${blogTitle}", Jsoup.clean(preference.optString(Option.ID_C_BLOG_TITLE), Whitelist.none()));
-            content = StringUtils.replace(content, "${blogSubtitle}", Jsoup.clean(preference.optString(Option.ID_C_BLOG_SUBTITLE), Whitelist.none()));
-            content = StringUtils.replace(content, "${servePath}", Latkes.getServePath());
+    try {
+      final InputStream resourceAsStream =
+          SearchProcessor.class.getResourceAsStream("/opensearch.xml");
+      String content = IOUtils.toString(resourceAsStream, "UTF-8");
+      final JSONObject preference = optionQueryService.getPreference();
+      content =
+          StringUtils.replace(
+              content,
+              "${blogTitle}",
+              Jsoup.clean(preference.optString(Option.ID_C_BLOG_TITLE), Whitelist.none()));
+      content =
+          StringUtils.replace(
+              content,
+              "${blogSubtitle}",
+              Jsoup.clean(preference.optString(Option.ID_C_BLOG_SUBTITLE), Whitelist.none()));
+      content = StringUtils.replace(content, "${servePath}", Latkes.getServePath());
 
-            renderer.setContent(content);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Shows opensearch.xml failed", e);
-        }
+      renderer.setContent(content);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Shows opensearch.xml failed", e);
     }
+  }
 
-    /**
-     * Searches articles.
-     *
-     * @param context the specified context
-     */
-    @RequestProcessing(value = "/search", method = HttpMethod.GET)
-    public void search(final RequestContext context) {
-        final HttpServletRequest request = context.getRequest();
-        final AbstractFreeMarkerRenderer renderer = new SkinRenderer(context, "common-template/search.ftl");
-        final Map<String, String> langs = langPropsService.getAll(Latkes.getLocale());
-        final Map<String, Object> dataModel = renderer.getDataModel();
-        dataModel.putAll(langs);
+  /**
+   * Searches articles.
+   *
+   * @param context the specified context
+   */
+  @RequestProcessing(value = "/search", method = HttpMethod.GET)
+  public void search(final RequestContext context) {
+    final HttpServletRequest request = context.getRequest();
+    final AbstractFreeMarkerRenderer renderer =
+        new SkinRenderer(context, "common-template/search.ftl");
+    final Map<String, String> langs = langPropsService.getAll(Latkes.getLocale());
+    final Map<String, Object> dataModel = renderer.getDataModel();
+    dataModel.putAll(langs);
 
-        final int pageNum = Paginator.getPage(request);
-        String keyword = context.param(Common.KEYWORD);
-        if (StringUtils.isBlank(keyword)) {
-            keyword = "";
-        }
-        keyword = Encode.forHtml(keyword);
-
-        dataModel.put(Common.KEYWORD, keyword);
-        final JSONObject result = articleQueryService.searchKeyword(keyword, pageNum, 15);
-        final List<JSONObject> articles = (List<JSONObject>) result.opt(Article.ARTICLES);
-
-        try {
-            final JSONObject preference = optionQueryService.getPreference();
-
-            dataModelService.fillCommon(context, dataModel, preference);
-            dataModelService.fillFaviconURL(dataModel, preference);
-            dataModelService.fillUsite(dataModel);
-            dataModelService.setArticlesExProperties(context, articles, preference);
-
-            dataModel.put(Article.ARTICLES, articles);
-            final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
-            pagination.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, pageNum);
-            dataModel.put(Pagination.PAGINATION, pagination);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Search articles failed");
-
-            dataModel.put(Article.ARTICLES, Collections.emptyList());
-        } finally {
-            dataModel.put(Common.BOLO_VERSION, SoloServletListener.BOLO_VERSION);
-        }
+    final int pageNum = Paginator.getPage(request);
+    String keyword = context.param(Common.KEYWORD);
+    if (StringUtils.isBlank(keyword)) {
+      keyword = "";
     }
+    keyword = Encode.forHtml(keyword);
+
+    dataModel.put(Common.KEYWORD, keyword);
+    final JSONObject result = articleQueryService.searchKeyword(keyword, pageNum, 15);
+    final List<JSONObject> articles = (List<JSONObject>) result.opt(Article.ARTICLES);
+
+    try {
+      final JSONObject preference = optionQueryService.getPreference();
+
+      dataModelService.fillCommon(context, dataModel, preference);
+      dataModelService.fillFaviconURL(dataModel, preference);
+      dataModelService.fillUsite(dataModel);
+      dataModelService.setArticlesExProperties(context, articles, preference);
+
+      dataModel.put(Article.ARTICLES, articles);
+      final JSONObject pagination = result.optJSONObject(Pagination.PAGINATION);
+      pagination.put(Pagination.PAGINATION_CURRENT_PAGE_NUM, pageNum);
+      dataModel.put(Pagination.PAGINATION, pagination);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Search articles failed");
+
+      dataModel.put(Article.ARTICLES, Collections.emptyList());
+    } finally {
+      dataModel.put(Common.BOLO_VERSION, SoloServletListener.BOLO_VERSION);
+    }
+  }
 }

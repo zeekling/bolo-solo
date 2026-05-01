@@ -17,6 +17,8 @@
  */
 package org.b3log.solo.service;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
@@ -35,9 +37,6 @@ import org.b3log.solo.repository.PluginRepository;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * Plugin management service.
  *
@@ -48,206 +47,191 @@ import java.util.Map;
 @Service
 public class PluginMgmtService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(PluginMgmtService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(PluginMgmtService.class);
 
-    /**
-     * Plugin repository.
-     */
-    @Inject
-    private PluginRepository pluginRepository;
+  /** Plugin repository. */
+  @Inject private PluginRepository pluginRepository;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Initialization service.
-     */
-    @Inject
-    private InitService initService;
+  /** Initialization service. */
+  @Inject private InitService initService;
 
-    /**
-     * Plugin manager.
-     */
-    @Inject
-    private PluginManager pluginManager;
+  /** Plugin manager. */
+  @Inject private PluginManager pluginManager;
 
-    /**
-     * Updates datastore plugin descriptions with the specified plugins.
-     *
-     * @param plugins the specified plugins
-     * @throws Exception exception
-     */
-    public void refresh(final List<AbstractPlugin> plugins) throws Exception {
-        if (!initService.isInited()) {
-            return;
+  /**
+   * Updates datastore plugin descriptions with the specified plugins.
+   *
+   * @param plugins the specified plugins
+   * @throws Exception exception
+   */
+  public void refresh(final List<AbstractPlugin> plugins) throws Exception {
+    if (!initService.isInited()) {
+      return;
+    }
+
+    final List<JSONObject> persistedPlugins = pluginRepository.getList(new Query());
+    try {
+      // Reads plugin status from datastore and clear plugin datastore
+      for (final JSONObject oldPluginDesc : persistedPlugins) {
+        final String descId = oldPluginDesc.getString(Keys.OBJECT_ID);
+        final AbstractPlugin plugin = get(plugins, descId);
+
+        pluginRepository.remove(descId);
+
+        if (null != plugin) {
+          final String status = oldPluginDesc.getString(Plugin.PLUGIN_STATUS);
+          final String setting = oldPluginDesc.optString(Plugin.PLUGIN_SETTING);
+
+          plugin.setStatus(PluginStatus.valueOf(status));
+          try {
+            if (StringUtils.isNotBlank(setting)) {
+              plugin.setSetting(new JSONObject(setting));
+            }
+          } catch (final JSONException e) {
+            LOGGER.log(Level.WARN, "the formatter of the old config failed to convert to json", e);
+          }
         }
+      }
 
-        final List<JSONObject> persistedPlugins = pluginRepository.getList(new Query());
+      // Adds these plugins into datastore
+      for (final AbstractPlugin plugin : plugins) {
+        final JSONObject pluginDesc = plugin.toJSONObject();
+
+        pluginRepository.add(pluginDesc);
+
+        LOGGER.log(Level.TRACE, "Refreshed plugin[{0}]", pluginDesc);
+      }
+
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Refresh plugins failed", e);
+    }
+  }
+
+  /**
+   * Gets a plugin in the specified plugins with the specified id.
+   *
+   * @param plugins the specified plugins
+   * @param id the specified id, must NOT be {@code null}
+   * @return a plugin, returns {@code null} if not found
+   */
+  private AbstractPlugin get(final List<AbstractPlugin> plugins, final String id) {
+    if (null == id) {
+      throw new IllegalArgumentException("id must not be null");
+    }
+
+    for (final AbstractPlugin plugin : plugins) {
+      if (id.equals(plugin.getId())) {
+        return plugin;
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Sets a plugin's status with the specified plugin id, status.
+   *
+   * @param pluginId the specified plugin id
+   * @param status the specified status, see {@link PluginStatus}
+   * @return for example,
+   *     <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   */
+  public JSONObject setPluginStatus(final String pluginId, final String status) {
+    final Map<String, String> langs = langPropsService.getAll(Latkes.getLocale());
+
+    final List<AbstractPlugin> plugins = pluginManager.getPlugins();
+
+    final JSONObject ret = new JSONObject();
+
+    for (final AbstractPlugin plugin : plugins) {
+      if (plugin.getId().equals(pluginId)) {
+        final Transaction transaction = pluginRepository.beginTransaction();
+
         try {
-            // Reads plugin status from datastore and clear plugin datastore
-            for (final JSONObject oldPluginDesc : persistedPlugins) {
-                final String descId = oldPluginDesc.getString(Keys.OBJECT_ID);
-                final AbstractPlugin plugin = get(plugins, descId);
+          plugin.setStatus(PluginStatus.valueOf(status));
+          pluginRepository.update(pluginId, plugin.toJSONObject());
 
-                pluginRepository.remove(descId);
+          transaction.commit();
 
-                if (null != plugin) {
-                    final String status = oldPluginDesc.getString(Plugin.PLUGIN_STATUS);
-                    final String setting = oldPluginDesc.optString(Plugin.PLUGIN_SETTING);
+          plugin.changeStatus();
 
-                    plugin.setStatus(PluginStatus.valueOf(status));
-                    try {
-                        if (StringUtils.isNotBlank(setting)) {
-                            plugin.setSetting(new JSONObject(setting));
-                        }
-                    } catch (final JSONException e) {
-                        LOGGER.log(Level.WARN, "the formatter of the old config failed to convert to json", e);
-                    }
-                }
-            }
+          ret.put(Keys.STATUS_CODE, true);
+          ret.put(Keys.MSG, langs.get("setSuccLabel"));
 
-            // Adds these plugins into datastore
-            for (final AbstractPlugin plugin : plugins) {
-                final JSONObject pluginDesc = plugin.toJSONObject();
-
-                pluginRepository.add(pluginDesc);
-
-                LOGGER.log(Level.TRACE, "Refreshed plugin[{0}]", pluginDesc);
-            }
-
+          return ret;
         } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Refresh plugins failed", e);
+          if (transaction.isActive()) {
+            transaction.rollback();
+          }
+
+          LOGGER.log(Level.ERROR, "Set plugin status error", e);
+
+          ret.put(Keys.STATUS_CODE, false);
+          ret.put(Keys.MSG, langs.get("setFailLabel"));
+
+          return ret;
         }
+      }
     }
 
-    /**
-     * Gets a plugin in the specified plugins with the specified id.
-     *
-     * @param plugins the specified plugins
-     * @param id      the specified id, must NOT be {@code null}
-     * @return a plugin, returns {@code null} if not found
-     */
-    private AbstractPlugin get(final List<AbstractPlugin> plugins, final String id) {
-        if (null == id) {
-            throw new IllegalArgumentException("id must not be null");
-        }
+    ret.put(Keys.STATUS_CODE, false);
+    ret.put(Keys.MSG, langs.get("refreshAndRetryLabel"));
 
-        for (final AbstractPlugin plugin : plugins) {
-            if (id.equals(plugin.getId())) {
-                return plugin;
-            }
-        }
+    return ret;
+  }
 
-        return null;
+  /**
+   * updatePluginSetting.
+   *
+   * @param pluginId the specified pluginoId
+   * @param setting the specified setting
+   * @return the ret json
+   */
+  public JSONObject updatePluginSetting(final String pluginId, final String setting) {
+    final JSONObject ret = new JSONObject();
+
+    final Map<String, String> langs = langPropsService.getAll(Latkes.getLocale());
+    final List<AbstractPlugin> plugins = pluginManager.getPlugins();
+    for (final AbstractPlugin plugin : plugins) {
+      if (plugin.getId().equals(pluginId)) {
+        final Transaction transaction = pluginRepository.beginTransaction();
+
+        try {
+          final JSONObject pluginJson = plugin.toJSONObject();
+          pluginJson.put(Plugin.PLUGIN_SETTING, setting);
+          pluginRepository.update(pluginId, pluginJson);
+
+          transaction.commit();
+
+          ret.put(Keys.STATUS_CODE, true);
+          ret.put(Keys.MSG, langs.get("setSuccLabel"));
+
+          return ret;
+        } catch (final Exception e) {
+          if (transaction.isActive()) {
+            transaction.rollback();
+          }
+          LOGGER.log(Level.ERROR, "Set plugin status error", e);
+          ret.put(Keys.STATUS_CODE, false);
+          ret.put(Keys.MSG, langs.get("setFailLabel"));
+
+          return ret;
+        }
+      }
     }
 
-    /**
-     * Sets a plugin's status with the specified plugin id, status.
-     *
-     * @param pluginId the specified plugin id
-     * @param status   the specified status, see {@link PluginStatus}
-     * @return for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     */
-    public JSONObject setPluginStatus(final String pluginId, final String status) {
-        final Map<String, String> langs = langPropsService.getAll(Latkes.getLocale());
+    ret.put(Keys.STATUS_CODE, false);
+    ret.put(Keys.MSG, langs.get("refreshAndRetryLabel"));
 
-        final List<AbstractPlugin> plugins = pluginManager.getPlugins();
-
-        final JSONObject ret = new JSONObject();
-
-        for (final AbstractPlugin plugin : plugins) {
-            if (plugin.getId().equals(pluginId)) {
-                final Transaction transaction = pluginRepository.beginTransaction();
-
-                try {
-                    plugin.setStatus(PluginStatus.valueOf(status));
-                    pluginRepository.update(pluginId, plugin.toJSONObject());
-
-                    transaction.commit();
-
-                    plugin.changeStatus();
-
-                    ret.put(Keys.STATUS_CODE, true);
-                    ret.put(Keys.MSG, langs.get("setSuccLabel"));
-
-                    return ret;
-                } catch (final Exception e) {
-                    if (transaction.isActive()) {
-                        transaction.rollback();
-                    }
-
-                    LOGGER.log(Level.ERROR, "Set plugin status error", e);
-
-                    ret.put(Keys.STATUS_CODE, false);
-                    ret.put(Keys.MSG, langs.get("setFailLabel"));
-
-                    return ret;
-                }
-            }
-        }
-
-        ret.put(Keys.STATUS_CODE, false);
-        ret.put(Keys.MSG, langs.get("refreshAndRetryLabel"));
-
-        return ret;
-    }
-
-    /**
-     * updatePluginSetting.
-     *
-     * @param pluginId the specified pluginoId
-     * @param setting  the specified setting
-     * @return the ret json
-     */
-    public JSONObject updatePluginSetting(final String pluginId, final String setting) {
-        final JSONObject ret = new JSONObject();
-
-        final Map<String, String> langs = langPropsService.getAll(Latkes.getLocale());
-        final List<AbstractPlugin> plugins = pluginManager.getPlugins();
-        for (final AbstractPlugin plugin : plugins) {
-            if (plugin.getId().equals(pluginId)) {
-                final Transaction transaction = pluginRepository.beginTransaction();
-
-                try {
-                    final JSONObject pluginJson = plugin.toJSONObject();
-                    pluginJson.put(Plugin.PLUGIN_SETTING, setting);
-                    pluginRepository.update(pluginId, pluginJson);
-
-                    transaction.commit();
-
-                    ret.put(Keys.STATUS_CODE, true);
-                    ret.put(Keys.MSG, langs.get("setSuccLabel"));
-
-                    return ret;
-                } catch (final Exception e) {
-                    if (transaction.isActive()) {
-                        transaction.rollback();
-                    }
-                    LOGGER.log(Level.ERROR, "Set plugin status error", e);
-                    ret.put(Keys.STATUS_CODE, false);
-                    ret.put(Keys.MSG, langs.get("setFailLabel"));
-
-                    return ret;
-                }
-            }
-        }
-
-        ret.put(Keys.STATUS_CODE, false);
-        ret.put(Keys.MSG, langs.get("refreshAndRetryLabel"));
-
-        return ret;
-
-    }
+    return ret;
+  }
 }

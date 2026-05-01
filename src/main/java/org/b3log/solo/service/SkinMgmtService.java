@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.service;
 
+import java.util.Set;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
@@ -29,8 +30,6 @@ import org.b3log.solo.repository.OptionRepository;
 import org.b3log.solo.util.Skins;
 import org.json.JSONObject;
 
-import java.util.Set;
-
 /**
  * Skin management service.
  *
@@ -41,93 +40,100 @@ import java.util.Set;
 @Service
 public class SkinMgmtService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(SkinMgmtService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(SkinMgmtService.class);
 
-    /**
-     * Option query service.
-     */
-    @Inject
-    private OptionQueryService optionQueryService;
+  /** Option query service. */
+  @Inject private OptionQueryService optionQueryService;
 
-    /**
-     * Option repository.
-     */
-    @Inject
-    private OptionRepository optionRepository;
+  /** Option repository. */
+  @Inject private OptionRepository optionRepository;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Loads skins.
-     *
-     * @param skin the specified skin
-     * @throws Exception exception
-     */
-    public void loadSkins(final JSONObject skin) throws Exception {
-        final Set<String> skinDirNames = Skins.getSkinDirNames();
-        if (!UpgradeService.boloFastMigration) {
-            final String currentSkinDirName = skin.optString(Option.ID_C_SKIN_DIR_NAME);
-            if (!skinDirNames.contains(currentSkinDirName)) {
-                LOGGER.log(Level.WARN, "Not found skin [dirName={0}] configured, try to use default skin [dirName="
-                        + Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME + "] instead", currentSkinDirName);
-                if (!skinDirNames.contains(Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME)) {
-                    LOGGER.log(Level.ERROR, "Not found default skin [dirName=" + Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME
-                            + "], please redeploy your Solo and make sure contains the default skin.");
-                    System.exit(-1);
-                }
-
-                skin.put(Option.ID_C_SKIN_DIR_NAME, Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
-                updateSkin(skin);
-            }
-
-            final String currentMobileSkinDirName = skin.optString(Option.ID_C_MOBILE_SKIN_DIR_NAME);
-            if (!skinDirNames.contains(currentMobileSkinDirName)) {
-                LOGGER.log(Level.WARN, "Not found mobile skin [dirName={0}] configured, try to use default mobile skin [dirName="
-                        + Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME + "] instead", currentMobileSkinDirName);
-                if (!skinDirNames.contains(Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME)) {
-                    LOGGER.log(Level.ERROR, "Not found default mobile skin [dirName=" + Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME
-                            + "], please redeploy your Solo and make sure contains the default mobile skin.");
-                    System.exit(-1);
-                }
-
-                skin.put(Option.ID_C_MOBILE_SKIN_DIR_NAME, Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME);
-                updateSkin(skin);
-            }
+  /**
+   * Loads skins.
+   *
+   * @param skin the specified skin
+   * @throws Exception exception
+   */
+  public void loadSkins(final JSONObject skin) throws Exception {
+    final Set<String> skinDirNames = Skins.getSkinDirNames();
+    if (!UpgradeService.boloFastMigration) {
+      final String currentSkinDirName = skin.optString(Option.ID_C_SKIN_DIR_NAME);
+      if (!skinDirNames.contains(currentSkinDirName)) {
+        LOGGER.log(
+            Level.WARN,
+            "Not found skin [dirName={0}] configured, try to use default skin [dirName="
+                + Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME
+                + "] instead",
+            currentSkinDirName);
+        if (!skinDirNames.contains(Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME)) {
+          LOGGER.log(
+              Level.ERROR,
+              "Not found default skin [dirName="
+                  + Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME
+                  + "], please redeploy your Solo and make sure contains the default skin.");
+          System.exit(-1);
         }
-    }
 
-    /**
-     * Updates the skin with the specified skin.
-     *
-     * @param skin the specified skin
-     * @throws ServiceException service exception
-     */
-    public void updateSkin(final JSONObject skin) throws ServiceException {
-        final Transaction transaction = optionRepository.beginTransaction();
-        try {
-            final JSONObject skinDirNameOpt = optionRepository.get(Option.ID_C_SKIN_DIR_NAME);
-            skinDirNameOpt.put(Option.OPTION_VALUE, skin.optString(Option.ID_C_SKIN_DIR_NAME));
-            optionRepository.update(Option.ID_C_SKIN_DIR_NAME, skinDirNameOpt);
+        skin.put(Option.ID_C_SKIN_DIR_NAME, Option.DefaultPreference.DEFAULT_SKIN_DIR_NAME);
+        updateSkin(skin);
+      }
 
-            final JSONObject mobileSkinDirNameOpt = optionRepository.get(Option.ID_C_MOBILE_SKIN_DIR_NAME);
-            mobileSkinDirNameOpt.put(Option.OPTION_VALUE, skin.optString(Option.ID_C_MOBILE_SKIN_DIR_NAME));
-            optionRepository.update(Option.ID_C_MOBILE_SKIN_DIR_NAME, mobileSkinDirNameOpt);
-
-            transaction.commit();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            LOGGER.log(Level.ERROR, "Updates skin failed", e);
-            throw new ServiceException(langPropsService.get("updateFailLabel"));
+      final String currentMobileSkinDirName = skin.optString(Option.ID_C_MOBILE_SKIN_DIR_NAME);
+      if (!skinDirNames.contains(currentMobileSkinDirName)) {
+        LOGGER.log(
+            Level.WARN,
+            "Not found mobile skin [dirName={0}] configured, try to use default mobile skin [dirName="
+                + Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME
+                + "] instead",
+            currentMobileSkinDirName);
+        if (!skinDirNames.contains(Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME)) {
+          LOGGER.log(
+              Level.ERROR,
+              "Not found default mobile skin [dirName="
+                  + Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME
+                  + "], please redeploy your Solo and make sure contains the default mobile skin.");
+          System.exit(-1);
         }
+
+        skin.put(
+            Option.ID_C_MOBILE_SKIN_DIR_NAME,
+            Option.DefaultPreference.DEFAULT_MOBILE_SKIN_DIR_NAME);
+        updateSkin(skin);
+      }
     }
+  }
+
+  /**
+   * Updates the skin with the specified skin.
+   *
+   * @param skin the specified skin
+   * @throws ServiceException service exception
+   */
+  public void updateSkin(final JSONObject skin) throws ServiceException {
+    final Transaction transaction = optionRepository.beginTransaction();
+    try {
+      final JSONObject skinDirNameOpt = optionRepository.get(Option.ID_C_SKIN_DIR_NAME);
+      skinDirNameOpt.put(Option.OPTION_VALUE, skin.optString(Option.ID_C_SKIN_DIR_NAME));
+      optionRepository.update(Option.ID_C_SKIN_DIR_NAME, skinDirNameOpt);
+
+      final JSONObject mobileSkinDirNameOpt =
+          optionRepository.get(Option.ID_C_MOBILE_SKIN_DIR_NAME);
+      mobileSkinDirNameOpt.put(
+          Option.OPTION_VALUE, skin.optString(Option.ID_C_MOBILE_SKIN_DIR_NAME));
+      optionRepository.update(Option.ID_C_MOBILE_SKIN_DIR_NAME, mobileSkinDirNameOpt);
+
+      transaction.commit();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+
+      LOGGER.log(Level.ERROR, "Updates skin failed", e);
+      throw new ServiceException(langPropsService.get("updateFailLabel"));
+    }
+  }
 }

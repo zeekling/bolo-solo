@@ -26,60 +26,41 @@ package org.b3log.solo.model;
  */
 public final class Page {
 
-    /**
-     * Page.
-     */
-    public static final String PAGE = "page";
+  /** Page. */
+  public static final String PAGE = "page";
 
-    /**
-     * Pages.
-     */
-    public static final String PAGES = "pages";
+  /** Pages. */
+  public static final String PAGES = "pages";
 
-    /**
-     * Key of title.
-     */
-    public static final String PAGE_TITLE = "pageTitle";
+  /** Key of title. */
+  public static final String PAGE_TITLE = "pageTitle";
 
-    /**
-     * Key of order.
-     */
-    public static final String PAGE_ORDER = "pageOrder";
+  /** Key of order. */
+  public static final String PAGE_ORDER = "pageOrder";
 
-    /**
-     * Key of permalink.
-     */
-    public static final String PAGE_PERMALINK = "pagePermalink";
+  /** Key of permalink. */
+  public static final String PAGE_PERMALINK = "pagePermalink";
 
-    /**
-     * Key of open target.
-     * <p>
-     * Available values:
-     * <ul>
-     * <li>_blank</li>
-     * Opens the linked document in a new window or tab.
-     * <li>_self</li>
-     * Opens the linked document in the same frame as it was clicked (this is default).
-     * <li>_parent</li>
-     * Opens the linked document in the parent frame.
-     * <li>_top</li>
-     * Opens the linked document in the full body of the window.
-     * <li><i>frame name</i></li>
-     * Opens the linked document in a named frame.
-     * </ul>
-     * See <a href="http://www.w3schools.com/tags/att_a_target.asp">here</a> for more details.
-     * </p>
-     */
-    public static final String PAGE_OPEN_TARGET = "pageOpenTarget";
+  /**
+   * Key of open target.
+   *
+   * <p>Available values:
+   *
+   * <ul>
+   *   <li>_blank Opens the linked document in a new window or tab.
+   *   <li>_self Opens the linked document in the same frame as it was clicked (this is default).
+   *   <li>_parent Opens the linked document in the parent frame.
+   *   <li>_top Opens the linked document in the full body of the window.
+   *   <li><i>frame name</i> Opens the linked document in a named frame.
+   * </ul>
+   *
+   * See <a href="http://www.w3schools.com/tags/att_a_target.asp">here</a> for more details.
+   */
+  public static final String PAGE_OPEN_TARGET = "pageOpenTarget";
 
-    /**
-     * Key of icon URL.
-     */
-    public static final String PAGE_ICON = "pageIcon";
+  /** Key of icon URL. */
+  public static final String PAGE_ICON = "pageIcon";
 
-    /**
-     * Private constructor.
-     */
-    private Page() {
-    }
+  /** Private constructor. */
+  private Page() {}
 }
