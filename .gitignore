@@ -9,3 +9,5 @@
 /image/
 /temp/
 src/main/webapp/tmp_favicon
+docs
+.worktrees
