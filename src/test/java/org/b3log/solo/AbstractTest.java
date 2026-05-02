@@ -1,24 +1,19 @@
 /*
- * Bolo - A stable and beautiful blogging system based in Solo.
+ * Bolo - 一个基于 Solo 的稳定美丽的博客系统。
  * Copyright (c) 2020-present, https://github.com/bolo-blog
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * 本程序是自由软件：您可以 redistribute 它并根据 GNU Affero General Public License 的条款
+ * 修改它，要么按照版本 3，要么（根据您的选择）任何后来的版本。
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * 本程序旨在有用，但 WITHOUT ANY WARRANTY。
+ * 您应该收到了 GNU Affero General Public License 的副本
+ * 如果没有，请参阅 <https://www.gnu.org/licenses/>。
  */
 package org.b3log.solo;
 
 import org.b3log.latke.ioc.BeanManager;
 import org.mockito.Mockito;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
 /**
@@ -39,7 +34,18 @@ public abstract class AbstractTest {
             field.setAccessible(true);
             field.set(null, mockBeanManager);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to set mock BeanManager", e);
+            throw new RuntimeException("Failed to set mock BeanManager: instance field not accessible", e);
+        }
+    }
+
+    @AfterMethod
+    public void tearDown() {
+        try {
+            var field = BeanManager.class.getDeclaredField("instance");
+            field.setAccessible(true);
+            field.set(null, null);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to clean up mock BeanManager: instance field not accessible", e);
         }
     }
 }
