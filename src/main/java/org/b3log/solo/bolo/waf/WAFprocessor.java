@@ -23,16 +23,21 @@ import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 
 /**
+ *
+ *
  * <h3>bolo-solo</h3>
- * <p>Processor of WAF.</p>
+ *
+ * <p>Processor of WAF.
  *
  * @author : https://github.com/adlered
  * @date : 2020-05-31
- **/
+ */
 @RequestProcessor
 public class WAFprocessor {
-    @RequestProcessing(value = "/waf/denied", method = {HttpMethod.GET})
-    public void accessDenied(final RequestContext context) {
-        context.renderJSON().renderMsg("访问频率过快，请稍候再试！");
-    }
+  @RequestProcessing(
+      value = "/waf/denied",
+      method = {HttpMethod.GET})
+  public void accessDenied(final RequestContext context) {
+    context.renderJSON().renderMsg("访问频率过快，请稍候再试！");
+  }
 }

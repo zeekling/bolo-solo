@@ -17,14 +17,13 @@
  */
 package org.b3log.solo.cache;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Singleton;
 import org.b3log.solo.model.Option;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Option cache.
@@ -36,99 +35,93 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class OptionCache {
 
-    /**
-     * Option cache.
-     */
-    private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
+  /** Option cache. */
+  private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
 
-    /**
-     * Category option caches.
-     */
-    private final Map<String, JSONObject> categoryCache = new ConcurrentHashMap<>();
+  /** Category option caches. */
+  private final Map<String, JSONObject> categoryCache = new ConcurrentHashMap<>();
 
-    /**
-     * Removes a category cache specified by the given category.
-     *
-     * @param category the given category
-     */
-    public void removeCategory(final String category) {
-        categoryCache.remove(category);
+  /**
+   * Removes a category cache specified by the given category.
+   *
+   * @param category the given category
+   */
+  public void removeCategory(final String category) {
+    categoryCache.remove(category);
+  }
+
+  /**
+   * Gets merged options as a JSON object for the specified category
+   *
+   * @param category the specified category
+   * @return merged options
+   */
+  public JSONObject getCategory(final String category) {
+    JSONObject ret = categoryCache.get(category);
+    if (null == ret) {
+      return null;
     }
 
-    /**
-     * Gets merged options as a JSON object for the specified category
-     *
-     * @param category the specified category
-     * @return merged options
-     */
-    public JSONObject getCategory(final String category) {
-        JSONObject ret = categoryCache.get(category);
-        if (null == ret) {
-            return null;
-        }
+    return Solos.clone(ret);
+  }
 
-        return Solos.clone(ret);
+  /**
+   * Puts the specified merged options with the specified category.
+   *
+   * @param category the specified category
+   * @param mergedOptions the specified merged options
+   */
+  public void putCategory(final String category, final JSONObject mergedOptions) {
+    categoryCache.put(category, mergedOptions);
+  }
+
+  /**
+   * Gets an option by the specified option id.
+   *
+   * @param id the specified option id
+   * @return option, returns {@code null} if not found
+   */
+  public JSONObject getOption(final String id) {
+    final JSONObject option = cache.get(id);
+    if (null == option) {
+      return null;
     }
 
-    /**
-     * Puts the specified merged options with the specified category.
-     *
-     * @param category      the specified category
-     * @param mergedOptions the specified merged options
-     */
-    public void putCategory(final String category, final JSONObject mergedOptions) {
-        categoryCache.put(category, mergedOptions);
+    return Solos.clone(option);
+  }
+
+  /**
+   * Adds or updates the specified option.
+   *
+   * @param option the specified option
+   */
+  public void putOption(final JSONObject option) {
+    cache.put(option.optString(Keys.OBJECT_ID), Solos.clone(option));
+
+    final String category = option.optString(Option.OPTION_CATEGORY);
+    removeCategory(category);
+  }
+
+  /**
+   * Removes an option by the specified option id.
+   *
+   * @param id the specified option id
+   */
+  public void removeOption(final String id) {
+    final JSONObject option = getOption(id);
+    if (null == option) {
+      return;
     }
 
-    /**
-     * Gets an option by the specified option id.
-     *
-     * @param id the specified option id
-     * @return option, returns {@code null} if not found
-     */
-    public JSONObject getOption(final String id) {
-        final JSONObject option = cache.get(id);
-        if (null == option) {
-            return null;
-        }
+    final String category = option.optString(Option.OPTION_CATEGORY);
+    removeCategory(category);
 
-        return Solos.clone(option);
-    }
+    cache.remove(id);
+  }
 
-    /**
-     * Adds or updates the specified option.
-     *
-     * @param option the specified option
-     */
-    public void putOption(final JSONObject option) {
-        cache.put(option.optString(Keys.OBJECT_ID), Solos.clone(option));
-
-        final String category = option.optString(Option.OPTION_CATEGORY);
-        removeCategory(category);
-    }
-
-    /**
-     * Removes an option by the specified option id.
-     *
-     * @param id the specified option id
-     */
-    public void removeOption(final String id) {
-        final JSONObject option = getOption(id);
-        if (null == option) {
-            return;
-        }
-
-        final String category = option.optString(Option.OPTION_CATEGORY);
-        removeCategory(category);
-
-        cache.remove(id);
-    }
-
-    /**
-     * Clears all cached data.
-     */
-    public void clear() {
-        cache.clear();
-        categoryCache.clear();
-    }
+  /** Clears all cached data. */
+  public void clear() {
+    cache.clear();
+    categoryCache.clear();
+  }
 }

@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.processor;
 
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
@@ -30,8 +31,6 @@ import org.b3log.solo.improve.ImproveHelperExecutor;
 import org.b3log.solo.service.InitService;
 import org.b3log.solo.service.UpgradeService;
 
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * Checks initialization handler.
  *
@@ -41,67 +40,63 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class InitCheckHandler implements Handler {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(InitCheckHandler.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(InitCheckHandler.class);
 
-    /**
-     * Whether initialization info reported.
-     */
-    private static boolean initReported;
+  /** Whether initialization info reported. */
+  private static boolean initReported;
 
-    @Override
-    public void handle(final RequestContext context) {
-        final String requestURI = context.requestURI();
-        final boolean isSpiderBot = (boolean) context.attr(Keys.HttpRequest.IS_SEARCH_ENGINE_BOT);
-        LOGGER.log(Level.TRACE, "Request [URI={0}]", requestURI);
+  @Override
+  public void handle(final RequestContext context) {
+    final String requestURI = context.requestURI();
+    final boolean isSpiderBot = (boolean) context.attr(Keys.HttpRequest.IS_SEARCH_ENGINE_BOT);
+    LOGGER.log(Level.TRACE, "Request [URI={0}]", requestURI);
 
-        // Bolo WAF
-        String requestIP = context.remoteAddr();
-        if (!WAF.in(requestIP, requestURI)) {
-            context.sendError(HttpServletResponse.SC_GONE);
+    // Bolo WAF
+    String requestIP = context.remoteAddr();
+    if (!WAF.in(requestIP, requestURI)) {
+      context.sendError(HttpServletResponse.SC_GONE);
 
-            return;
-        }
-
-        // 站点统计
-        ImproveHelperExecutor.submit(context);
-
-        // 禁止直接获取 robots.txt https://github.com/b3log/solo/issues/12543
-        if (requestURI.startsWith("/robots.txt") && !isSpiderBot) {
-            context.sendError(HttpServletResponse.SC_FORBIDDEN);
-
-            return;
-        }
-
-        if (StringUtils.startsWith(requestURI, Latkes.getContextPath() + "/oauth/bolo")) {
-            // Do initialization
-            context.handle();
-
-            return;
-        } else if (UpgradeService.boloFastMigration) {
-            context.attr(Keys.HttpRequest.REQUEST_URI, Latkes.getContextPath() + "/start");
-            context.handle();
-            LOGGER.log(Level.DEBUG, "Bolo Fast Migrating is enabled, so redirects to /start");
-
-            return;
-        }
-
-        final BeanManager beanManager = BeanManager.getInstance();
-        final InitService initService = beanManager.getReference(InitService.class);
-        if (initService.isInited()) {
-            context.handle();
-
-            return;
-        }
-
-        if (!initReported) {
-            LOGGER.log(Level.DEBUG, "Bolo has not been initialized, so redirects to /start");
-            initReported = true;
-        }
-
-        context.attr(Keys.HttpRequest.REQUEST_URI, Latkes.getContextPath() + "/start");
-        context.handle();
+      return;
     }
+
+    // 站点统计
+    ImproveHelperExecutor.submit(context);
+
+    // 禁止直接获取 robots.txt https://github.com/b3log/solo/issues/12543
+    if (requestURI.startsWith("/robots.txt") && !isSpiderBot) {
+      context.sendError(HttpServletResponse.SC_FORBIDDEN);
+
+      return;
+    }
+
+    if (StringUtils.startsWith(requestURI, Latkes.getContextPath() + "/oauth/bolo")) {
+      // Do initialization
+      context.handle();
+
+      return;
+    } else if (UpgradeService.boloFastMigration) {
+      context.attr(Keys.HttpRequest.REQUEST_URI, Latkes.getContextPath() + "/start");
+      context.handle();
+      LOGGER.log(Level.DEBUG, "Bolo Fast Migrating is enabled, so redirects to /start");
+
+      return;
+    }
+
+    final BeanManager beanManager = BeanManager.getInstance();
+    final InitService initService = beanManager.getReference(InitService.class);
+    if (initService.isInited()) {
+      context.handle();
+
+      return;
+    }
+
+    if (!initReported) {
+      LOGGER.log(Level.DEBUG, "Bolo has not been initialized, so redirects to /start");
+      initReported = true;
+    }
+
+    context.attr(Keys.HttpRequest.REQUEST_URI, Latkes.getContextPath() + "/start");
+    context.handle();
+  }
 }

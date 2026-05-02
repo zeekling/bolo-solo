@@ -33,39 +33,41 @@ import org.json.JSONObject;
  */
 public final class V410_420 {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(V410_420.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(V410_420.class);
 
-    /**
-     * Performs upgrade from v4.1.0 to v4.2.0.
-     *
-     * @throws Exception upgrade fails
-     */
-    public static void perform() throws Exception {
-        final String fromVer = "4.1.0";
-        final String toVer = "4.2.0";
+  /**
+   * Performs upgrade from v4.1.0 to v4.2.0.
+   *
+   * @throws Exception upgrade fails
+   */
+  public static void perform() throws Exception {
+    final String fromVer = "4.1.0";
+    final String toVer = "4.2.0";
 
-        LOGGER.log(Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
+    LOGGER.log(
+        Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
 
-        final BeanManager beanManager = BeanManager.getInstance();
-        final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
+    final BeanManager beanManager = BeanManager.getInstance();
+    final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
 
-        try {
-            final Transaction transaction = optionRepository.beginTransaction();
+    try {
+      final Transaction transaction = optionRepository.beginTransaction();
 
-            final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
-            versionOpt.put(Option.OPTION_VALUE, toVer);
-            optionRepository.update(Option.ID_C_VERSION, versionOpt);
+      final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
+      versionOpt.put(Option.OPTION_VALUE, toVer);
+      optionRepository.update(Option.ID_C_VERSION, versionOpt);
 
-            transaction.commit();
+      transaction.commit();
 
-            LOGGER.log(Level.INFO, "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+      LOGGER.log(
+          Level.INFO,
+          "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Upgrade failed!", e);
 
-            throw new Exception("Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
-        }
+      throw new Exception(
+          "Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
     }
+  }
 }

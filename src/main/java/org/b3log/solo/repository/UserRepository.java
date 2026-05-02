@@ -36,85 +36,86 @@ import org.json.JSONObject;
 @Repository
 public class UserRepository extends AbstractRepository {
 
-    /**
-     * User cache.
-     */
-    @Inject
-    private UserCache userCache;
+  /** User cache. */
+  @Inject private UserCache userCache;
 
-    /**
-     * Public constructor.
-     */
-    public UserRepository() {
-        super(User.USER);
+  /** Public constructor. */
+  public UserRepository() {
+    super(User.USER);
+  }
+
+  @Override
+  public void remove(final String id) throws RepositoryException {
+    super.remove(id);
+
+    userCache.removeUser(id);
+  }
+
+  @Override
+  public JSONObject get(final String id) throws RepositoryException {
+    JSONObject ret = userCache.getUser(id);
+    if (null != ret) {
+      return ret;
     }
 
-    @Override
-    public void remove(final String id) throws RepositoryException {
-        super.remove(id);
-
-        userCache.removeUser(id);
+    ret = super.get(id);
+    if (null == ret) {
+      return null;
     }
 
-    @Override
-    public JSONObject get(final String id) throws RepositoryException {
-        JSONObject ret = userCache.getUser(id);
-        if (null != ret) {
-            return ret;
-        }
+    userCache.putUser(ret);
 
-        ret = super.get(id);
-        if (null == ret) {
-            return null;
-        }
+    return ret;
+  }
 
-        userCache.putUser(ret);
+  @Override
+  public void update(final String id, final JSONObject user, final String... propertyNames)
+      throws RepositoryException {
+    super.update(id, user, propertyNames);
 
-        return ret;
+    user.put(Keys.OBJECT_ID, id);
+    userCache.putUser(user);
+
+    if (Role.ADMIN_ROLE.equals(user.optString(User.USER_ROLE))) {
+      userCache.putAdmin(user);
+    }
+  }
+
+  /**
+   * Gets a user by the specified username.
+   *
+   * @param userName the specified username
+   * @return user, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByUserName(final String userName) throws RepositoryException {
+    return getFirst(
+        new Query().setFilter(new PropertyFilter(User.USER_NAME, FilterOperator.EQUAL, userName)));
+  }
+
+  /**
+   * Gets the administrator user.
+   *
+   * @return administrator user, returns {@code null} if not found or error
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getAdmin() throws RepositoryException {
+    JSONObject ret = userCache.getAdmin();
+    if (null != ret) {
+      return ret;
     }
 
-    @Override
-    public void update(final String id, final JSONObject user, final String... propertyNames) throws RepositoryException {
-        super.update(id, user, propertyNames);
-
-        user.put(Keys.OBJECT_ID, id);
-        userCache.putUser(user);
-
-        if (Role.ADMIN_ROLE.equals(user.optString(User.USER_ROLE))) {
-            userCache.putAdmin(user);
-        }
+    ret =
+        getFirst(
+            new Query()
+                .setFilter(
+                    new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.ADMIN_ROLE)));
+    if (null == ret) {
+      return null;
     }
 
-    /**
-     * Gets a user by the specified username.
-     *
-     * @param userName the specified username
-     * @return user, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByUserName(final String userName) throws RepositoryException {
-        return getFirst(new Query().setFilter(new PropertyFilter(User.USER_NAME, FilterOperator.EQUAL, userName)));
-    }
+    userCache.putAdmin(ret);
 
-    /**
-     * Gets the administrator user.
-     *
-     * @return administrator user, returns {@code null} if not found or error
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getAdmin() throws RepositoryException {
-        JSONObject ret = userCache.getAdmin();
-        if (null != ret) {
-            return ret;
-        }
-
-        ret = getFirst(new Query().setFilter(new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.ADMIN_ROLE)));
-        if (null == ret) {
-            return null;
-        }
-
-        userCache.putAdmin(ret);
-
-        return ret;
-    }
+    return ret;
+  }
 }

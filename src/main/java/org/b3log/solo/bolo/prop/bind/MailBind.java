@@ -18,38 +18,41 @@
 package org.b3log.solo.bolo.prop.bind;
 
 /**
+ *
+ *
  * <h3>bolo-solo</h3>
- * <p>Mail bind.</p>
+ *
+ * <p>Mail bind.
  *
  * @author : https://github.com/adlered
  * @date : 2019-12-21 18:31
- **/
+ */
 public class MailBind {
-    private String commentId;
-    private String commentUser;
-    private String commentEmail;
+  private String commentId;
+  private String commentUser;
+  private String commentEmail;
 
-    public String getCommentId() {
-        return commentId;
-    }
+  public String getCommentId() {
+    return commentId;
+  }
 
-    public void setCommentId(String commentId) {
-        this.commentId = commentId;
-    }
+  public void setCommentId(String commentId) {
+    this.commentId = commentId;
+  }
 
-    public String getCommentUser() {
-        return commentUser;
-    }
+  public String getCommentUser() {
+    return commentUser;
+  }
 
-    public void setCommentUser(String commentUser) {
-        this.commentUser = commentUser;
-    }
+  public void setCommentUser(String commentUser) {
+    this.commentUser = commentUser;
+  }
 
-    public String getCommentEmail() {
-        return commentEmail;
-    }
+  public String getCommentEmail() {
+    return commentEmail;
+  }
 
-    public void setCommentEmail(String commentEmail) {
-        this.commentEmail = commentEmail;
-    }
+  public void setCommentEmail(String commentEmail) {
+    this.commentEmail = commentEmail;
+  }
 }

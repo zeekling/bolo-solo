@@ -19,6 +19,8 @@ package org.b3log.solo.bolo.prop;
 
 import io.github.biezhi.ome.OhMyEmail;
 import io.github.biezhi.ome.SendMailException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 import org.b3log.latke.servlet.HttpMethod;
@@ -27,84 +29,112 @@ import org.b3log.latke.servlet.annotation.RequestProcessing;
 import org.b3log.latke.servlet.annotation.RequestProcessor;
 import org.b3log.solo.util.Solos;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
+ *
+ *
  * <h3>bolo-solo</h3>
- * <p>属性 API.</p>
+ *
+ * <p>属性 API.
  *
  * @author : https://github.com/adlered
  * @date : 2019-12-20 20:02
- **/
+ */
 @RequestProcessor
 public class MailProcessor {
-    private static final Logger LOGGER = Logger.getLogger(MailProcessor.class);
+  private static final Logger LOGGER = Logger.getLogger(MailProcessor.class);
 
-    /**
-     * 发送普通邮件
-     *
-     * @param subject
-     * @param from
-     * @param to
-     * @param html
-     * @throws SendMailException
-     */
-    public static void localSendMailMethod(String subject, String from, String to, String html) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
+  /**
+   * 发送普通邮件
+   *
+   * @param subject
+   * @param from
+   * @param to
+   * @param html
+   * @throws SendMailException
+   */
+  public static void localSendMailMethod(String subject, String from, String to, String html) {
+    new Thread(
+            new Runnable() {
+              @Override
+              public void run() {
                 try {
-                    OhMyEmail.subject(subject)
-                            .from(from)
-                            .to(to)
-                            .html(html)
-                            .send();
-                    LOGGER.log(Level.INFO, "Mail has sent [subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
+                  OhMyEmail.subject(subject).from(from).to(to).html(html).send();
+                  LOGGER.log(
+                      Level.INFO,
+                      "Mail has sent [subject="
+                          + subject
+                          + ", from="
+                          + from
+                          + ", to="
+                          + to
+                          + ", html="
+                          + html
+                          + "]");
                 } catch (SendMailException SME) {
-                    LOGGER.log(Level.INFO, "Mail sent failed [cause=" + SME.getCause() + ", subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
+                  LOGGER.log(
+                      Level.INFO,
+                      "Mail sent failed [cause="
+                          + SME.getCause()
+                          + ", subject="
+                          + subject
+                          + ", from="
+                          + from
+                          + ", to="
+                          + to
+                          + ", html="
+                          + html
+                          + "]");
                 }
-            }
-        }).start();
+              }
+            })
+        .start();
+  }
+
+  /*
+     === 静态方法区 ===
+  */
+
+  @RequestProcessing(
+      value = "/prop/mail/send",
+      method = {HttpMethod.GET})
+  public void sendMail(final RequestContext context) {
+    if (!Solos.isAdminLoggedIn(context)) {
+      context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+
+      return;
     }
 
-    /*
-        === 静态方法区 ===
-     */
+    HttpServletRequest request = context.getRequest();
+    String subject = request.getParameter("subject");
+    String from = request.getParameter("from");
+    String to = request.getParameter("to");
+    String html = request.getParameter("html");
 
-    @RequestProcessing(value = "/prop/mail/send", method = {HttpMethod.GET})
-    public void sendMail(final RequestContext context) {
-        if (!Solos.isAdminLoggedIn(context)) {
-            context.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    try {
+      OhMyEmail.subject(subject).from(from).to(to).html(html).send();
 
-            return;
-        }
+      context.renderJSON().renderCode(200);
+      context.renderJSON().renderMsg("Mail has sent.");
+      LOGGER.log(
+          Level.INFO,
+          "Mail has sent [subject="
+              + subject
+              + ", from="
+              + from
+              + ", to="
+              + to
+              + ", html="
+              + html
+              + "]");
 
-        HttpServletRequest request = context.getRequest();
-        String subject = request.getParameter("subject");
-        String from = request.getParameter("from");
-        String to = request.getParameter("to");
-        String html = request.getParameter("html");
+      return;
+    } catch (SendMailException SME) {
+      LOGGER.log(Level.ERROR, "Send mail failed! Please check your MailBox Settings.");
 
-        try {
-            OhMyEmail.subject(subject)
-                    .from(from)
-                    .to(to)
-                    .html(html)
-                    .send();
+      context.renderJSON().renderCode(500);
+      context.renderJSON().renderMsg("Send mail failed! Please check your MailBox Settings.");
 
-            context.renderJSON().renderCode(200);
-            context.renderJSON().renderMsg("Mail has sent.");
-            LOGGER.log(Level.INFO, "Mail has sent [subject=" + subject + ", from=" + from + ", to=" + to + ", html=" + html + "]");
-
-            return;
-        } catch (SendMailException SME) {
-            LOGGER.log(Level.ERROR, "Send mail failed! Please check your MailBox Settings.");
-
-            context.renderJSON().renderCode(500);
-            context.renderJSON().renderMsg("Send mail failed! Please check your MailBox Settings.");
-
-            return;
-        }
+      return;
     }
+  }
 }

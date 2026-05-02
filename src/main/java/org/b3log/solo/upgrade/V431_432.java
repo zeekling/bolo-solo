@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.upgrade;
 
+import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.BeanManager;
 import org.b3log.latke.logging.Level;
@@ -31,8 +32,6 @@ import org.b3log.solo.repository.OptionRepository;
 import org.b3log.solo.repository.UserRepository;
 import org.json.JSONObject;
 
-import java.util.List;
-
 /**
  * Upgrade script from v4.3.1 to v4.3.2.
  *
@@ -41,66 +40,70 @@ import java.util.List;
  */
 public final class V431_432 {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(V431_432.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(V431_432.class);
 
-    /**
-     * Performs upgrade from v4.3.1 to v4.3.2.
-     *
-     * @throws Exception upgrade fails
-     */
-    public static void perform() throws Exception {
-        final String fromVer = "4.3.1";
-        final String toVer = "4.3.2";
+  /**
+   * Performs upgrade from v4.3.1 to v4.3.2.
+   *
+   * @throws Exception upgrade fails
+   */
+  public static void perform() throws Exception {
+    final String fromVer = "4.3.1";
+    final String toVer = "4.3.2";
 
-        LOGGER.log(Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
+    LOGGER.log(
+        Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
 
-        final BeanManager beanManager = BeanManager.getInstance();
-        final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
-        final UserRepository userRepository = beanManager.getReference(UserRepository.class);
-        try {
-            final Transaction transaction = optionRepository.beginTransaction();
+    final BeanManager beanManager = BeanManager.getInstance();
+    final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
+    final UserRepository userRepository = beanManager.getReference(UserRepository.class);
+    try {
+      final Transaction transaction = optionRepository.beginTransaction();
 
-            // 将明文密码和一次MD5加密的密码强制转为二次加密的MD5密码，确保安全性
-            Query query = new Query().setFilter(CompositeFilterOperator.or(
-                    new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.ADMIN_ROLE),
-                    new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.DEFAULT_ROLE),
-                    new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.VISITOR_ROLE)
-            ));
-            List<JSONObject> users = userRepository.getList(query);
-            for (JSONObject user : users) {
-                String username = user.optString(User.USER_NAME);
-                String password = user.optString(UserExt.USER_B3_KEY);
-                String userRole = user.optString(User.USER_ROLE);
-                String id = user.optString(Keys.OBJECT_ID);
+      // 将明文密码和一次MD5加密的密码强制转为二次加密的MD5密码，确保安全性
+      Query query =
+          new Query()
+              .setFilter(
+                  CompositeFilterOperator.or(
+                      new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.ADMIN_ROLE),
+                      new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.DEFAULT_ROLE),
+                      new PropertyFilter(User.USER_ROLE, FilterOperator.EQUAL, Role.VISITOR_ROLE)));
+      List<JSONObject> users = userRepository.getList(query);
+      for (JSONObject user : users) {
+        String username = user.optString(User.USER_NAME);
+        String password = user.optString(UserExt.USER_B3_KEY);
+        String userRole = user.optString(User.USER_ROLE);
+        String id = user.optString(Keys.OBJECT_ID);
 
-                // 密码判断
-                if (password.length() == 32) {
-                    // 一次加密的MD5，进行一次MD5加密
-                    password = MD5Utils.stringToMD5(password);
-                } else {
-                    // 明文密码，进行两次MD5加密
-                    password = MD5Utils.stringToMD5Twice(password);
-                }
-                user.put(UserExt.USER_B3_KEY, password);
-
-                userRepository.update(id, user);
-                System.out.println("[Upgrade] " + username + " / " + password + " / " + userRole);
-            }
-
-            final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
-            versionOpt.put(Option.OPTION_VALUE, toVer);
-            optionRepository.update(Option.ID_C_VERSION, versionOpt);
-
-            transaction.commit();
-
-            LOGGER.log(Level.INFO, "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
-
-            throw new Exception("Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
+        // 密码判断
+        if (password.length() == 32) {
+          // 一次加密的MD5，进行一次MD5加密
+          password = MD5Utils.stringToMD5(password);
+        } else {
+          // 明文密码，进行两次MD5加密
+          password = MD5Utils.stringToMD5Twice(password);
         }
+        user.put(UserExt.USER_B3_KEY, password);
+
+        userRepository.update(id, user);
+        System.out.println("[Upgrade] " + username + " / " + password + " / " + userRole);
+      }
+
+      final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
+      versionOpt.put(Option.OPTION_VALUE, toVer);
+      optionRepository.update(Option.ID_C_VERSION, versionOpt);
+
+      transaction.commit();
+
+      LOGGER.log(
+          Level.INFO,
+          "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+
+      throw new Exception(
+          "Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
     }
+  }
 }

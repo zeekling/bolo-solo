@@ -27,65 +27,52 @@ package org.b3log.solo.model;
  */
 public final class UserExt {
 
-    /**
-     * Key of user avatar.
-     */
-    public static final String USER_AVATAR = "userAvatar";
+  /** Key of user avatar. */
+  public static final String USER_AVATAR = "userAvatar";
 
-    /**
-     * Max user name length.
-     */
-    public static final int MAX_USER_NAME_LENGTH = 64;
+  /** Max user name length. */
+  public static final int MAX_USER_NAME_LENGTH = 64;
 
-    /**
-     * Min user name length.
-     */
-    public static final int MIN_USER_NAME_LENGTH = 1;
+  /** Min user name length. */
+  public static final int MIN_USER_NAME_LENGTH = 1;
 
-    /**
-     * Key of user B3 key.
-     */
-    public static final String USER_B3_KEY = "userB3Key";
+  /** Key of user B3 key. */
+  public static final String USER_B3_KEY = "userB3Key";
 
-    /**
-     * Key of GitHub open id.
-     */
-    public static final String USER_GITHUB_ID = "userGitHubId";
+  /** Key of GitHub open id. */
+  public static final String USER_GITHUB_ID = "userGitHubId";
 
-    /**
-     * Private constructor.
-     */
-    private UserExt() {
-    }
+  /** Private constructor. */
+  private UserExt() {}
 
-    /**
-     * Checks whether the specified name is invalid.
-     * <p>
-     * A valid user name:
-     * <ul>
-     * <li>length [1, 64]</li>
-     * <li>content {a-z, A-Z, 0-9, -}</li>
-     * <li>Not contains "admin"/"Admin"</li>
-     * </ul>
-     * </p>
-     *
-     * @param name the specified name
-     * @return {@code true} if it is invalid, returns {@code false} otherwise
-     */
-    public static boolean invalidUserName(final String name) {
-        final int length = name.length();
-        return length < MIN_USER_NAME_LENGTH || length > MAX_USER_NAME_LENGTH;
+  /**
+   * Checks whether the specified name is invalid.
+   *
+   * <p>A valid user name:
+   *
+   * <ul>
+   *   <li>length [1, 64]
+   *   <li>content {a-z, A-Z, 0-9, -}
+   *   <li>Not contains "admin"/"Admin"
+   * </ul>
+   *
+   * @param name the specified name
+   * @return {@code true} if it is invalid, returns {@code false} otherwise
+   */
+  public static boolean invalidUserName(final String name) {
+    final int length = name.length();
+    return length < MIN_USER_NAME_LENGTH || length > MAX_USER_NAME_LENGTH;
 
-        /* char c;
-        for (int i = 0; i < length; i++) {
-            c = name.charAt(i);
-            if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || '-' == c) {
-                continue;
-            }
+    /* char c;
+    for (int i = 0; i < length; i++) {
+        c = name.charAt(i);
+        if (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || ('0' <= c && c <= '9') || '-' == c) {
+            continue;
+        }
 
-            return true;
-        } */
+        return true;
+    } */
 
-        // return StringUtils.containsIgnoreCase(name, "admin");
-    }
+    // return StringUtils.containsIgnoreCase(name, "admin");
+  }
 }

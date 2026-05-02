@@ -33,43 +33,47 @@ import org.json.JSONObject;
  */
 public final class V432_433 {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(V432_433.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(V432_433.class);
 
-    /**
-     * Performs upgrade from v4.3.2 to v4.3.3.
-     *
-     * @throws Exception upgrade fails
-     */
-    public static void perform() throws Exception {
-        final String fromVer = "4.3.2";
-        final String toVer = "4.3.3";
+  /**
+   * Performs upgrade from v4.3.2 to v4.3.3.
+   *
+   * @throws Exception upgrade fails
+   */
+  public static void perform() throws Exception {
+    final String fromVer = "4.3.2";
+    final String toVer = "4.3.3";
 
-        LOGGER.log(Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
+    LOGGER.log(
+        Level.INFO, "Upgrading from version [" + fromVer + "] to version [" + toVer + "]....");
 
-        final BeanManager beanManager = BeanManager.getInstance();
-        final OptionMgmtService optionMgmtService = beanManager.getReference(OptionMgmtService.class);
-        final OptionQueryService optionQueryService = beanManager.getReference(OptionQueryService.class);
-        try {
-            // usite添加个人简历
-            JSONObject usiteJsonObject = optionQueryService.getOptionById(Option.ID_C_USITE);
-            if (null == usiteJsonObject) {
-                // 如果没设置过则跳过 https://github.com/bolo-blog/bolo-solo/issues/307
-                return;
-            }
-            String optionValueJson = usiteJsonObject.optString(Option.OPTION_VALUE);
-            usiteJsonObject.put(Option.OPTION_VALUE, new JSONObject(optionValueJson).put("usiteResume", "").toString());
-            optionMgmtService.addOrUpdateOption(usiteJsonObject);
-            final JSONObject versionOpt = optionQueryService.getOptionById(Option.ID_C_VERSION);
-            versionOpt.put(Option.OPTION_VALUE, toVer);
-            optionMgmtService.addOrUpdateOption(versionOpt);
-            LOGGER.log(Level.INFO, "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+    final BeanManager beanManager = BeanManager.getInstance();
+    final OptionMgmtService optionMgmtService = beanManager.getReference(OptionMgmtService.class);
+    final OptionQueryService optionQueryService =
+        beanManager.getReference(OptionQueryService.class);
+    try {
+      // usite添加个人简历
+      JSONObject usiteJsonObject = optionQueryService.getOptionById(Option.ID_C_USITE);
+      if (null == usiteJsonObject) {
+        // 如果没设置过则跳过 https://github.com/bolo-blog/bolo-solo/issues/307
+        return;
+      }
+      String optionValueJson = usiteJsonObject.optString(Option.OPTION_VALUE);
+      usiteJsonObject.put(
+          Option.OPTION_VALUE, new JSONObject(optionValueJson).put("usiteResume", "").toString());
+      optionMgmtService.addOrUpdateOption(usiteJsonObject);
+      final JSONObject versionOpt = optionQueryService.getOptionById(Option.ID_C_VERSION);
+      versionOpt.put(Option.OPTION_VALUE, toVer);
+      optionMgmtService.addOrUpdateOption(versionOpt);
+      LOGGER.log(
+          Level.INFO,
+          "Upgraded from version [" + fromVer + "] to version [" + toVer + "] successfully");
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Upgrade failed!", e);
 
-            throw new Exception("Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
-        }
+      throw new Exception(
+          "Upgrade failed from version [" + fromVer + "] to version [" + toVer + "]");
     }
+  }
 }

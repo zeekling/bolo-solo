@@ -21,46 +21,47 @@ import org.b3log.latke.logging.Level;
 import org.b3log.latke.logging.Logger;
 
 /**
+ *
+ *
  * <h3>bolo-solo</h3>
- * <p>Logger of WAF.</p>
+ *
+ * <p>Logger of WAF.
  *
  * @author : https://github.com/adlered
  * @date : 2020-05-31
- **/
+ */
 public class WAFlogger {
 
-    public static final String prefix = "[WAF] ";
+  public static final String prefix = "[WAF] ";
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(WAFlogger.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(WAFlogger.class);
 
-    public static void log(String log) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(prefix);
-        stringBuilder.append(log);
-        LOGGER.log(Level.INFO, stringBuilder.toString());
-    }
+  public static void log(String log) {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(prefix);
+    stringBuilder.append(log);
+    LOGGER.log(Level.INFO, stringBuilder.toString());
+  }
 
-    public static void logTrace(String requestIP, String requestURL) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(prefix);
-        stringBuilder.append(requestIP + " accessed " + requestURL);
-        LOGGER.log(Level.INFO, stringBuilder.toString());
-    }
+  public static void logTrace(String requestIP, String requestURL) {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(prefix);
+    stringBuilder.append(requestIP + " accessed " + requestURL);
+    LOGGER.log(Level.INFO, stringBuilder.toString());
+  }
 
-    public static void logError(String log) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(prefix);
-        stringBuilder.append(log);
-        LOGGER.log(Level.ERROR, stringBuilder.toString());
-    }
+  public static void logError(String log) {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(prefix);
+    stringBuilder.append(log);
+    LOGGER.log(Level.ERROR, stringBuilder.toString());
+  }
 
-    public static void logWarn(String log) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(prefix);
-        stringBuilder.append(log);
-        LOGGER.log(Level.WARN, stringBuilder.toString());
-    }
+  public static void logWarn(String log) {
+    StringBuilder stringBuilder = new StringBuilder();
+    stringBuilder.append(prefix);
+    stringBuilder.append(log);
+    LOGGER.log(Level.WARN, stringBuilder.toString());
+  }
 }

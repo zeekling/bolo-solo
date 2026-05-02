@@ -17,6 +17,9 @@
  */
 package org.b3log.solo.upgrade;
 
+import java.sql.Connection;
+import java.sql.Statement;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
@@ -33,10 +36,6 @@ import org.b3log.solo.repository.OptionRepository;
 import org.b3log.solo.util.Images;
 import org.json.JSONObject;
 
-import java.sql.Connection;
-import java.sql.Statement;
-import java.util.List;
-
 /**
  * Upgrade script from v3.0.0 to v3.1.0.
  *
@@ -46,65 +45,71 @@ import java.util.List;
  */
 public final class V300_310 {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(V300_310.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(V300_310.class);
 
-    /**
-     * Performs upgrade from v3.0.0 to v3.1.0.
-     *
-     * @throws Exception upgrade fails
-     */
-    public static void perform() throws Exception {
-        LOGGER.log(Level.INFO, "Upgrading from version [3.0.0] to version [3.1.0]....");
+  /**
+   * Performs upgrade from v3.0.0 to v3.1.0.
+   *
+   * @throws Exception upgrade fails
+   */
+  public static void perform() throws Exception {
+    LOGGER.log(Level.INFO, "Upgrading from version [3.0.0] to version [3.1.0]....");
 
-        final BeanManager beanManager = BeanManager.getInstance();
-        final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
-        final ArticleRepository articleRepository = beanManager.getReference(ArticleRepository.class);
+    final BeanManager beanManager = BeanManager.getInstance();
+    final OptionRepository optionRepository = beanManager.getReference(OptionRepository.class);
+    final ArticleRepository articleRepository = beanManager.getReference(ArticleRepository.class);
 
-        try {
-            Connection connection = Connections.getConnection();
-            Statement statement = connection.createStatement();
+    try {
+      Connection connection = Connections.getConnection();
+      Statement statement = connection.createStatement();
 
-            // 文章表新增首图字段
-            final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
-            statement.executeUpdate("ALTER TABLE `" + tablePrefix + "article` ADD COLUMN `articleAbstractText` TEXT");
-            statement.executeUpdate("ALTER TABLE `" + tablePrefix + "article` ADD COLUMN `articleImg1URL` VARCHAR(255) DEFAULT '' NOT NULL");
-            statement.close();
-            connection.commit();
-            connection.close();
+      // 文章表新增首图字段
+      final String tablePrefix = Latkes.getLocalProperty("jdbc.tablePrefix") + "_";
+      statement.executeUpdate(
+          "ALTER TABLE `" + tablePrefix + "article` ADD COLUMN `articleAbstractText` TEXT");
+      statement.executeUpdate(
+          "ALTER TABLE `"
+              + tablePrefix
+              + "article` ADD COLUMN `articleImg1URL` VARCHAR(255) DEFAULT '' NOT NULL");
+      statement.close();
+      connection.commit();
+      connection.close();
 
-            final Transaction transaction = optionRepository.beginTransaction();
-            final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
-            versionOpt.put(Option.OPTION_VALUE, "3.1.0");
-            optionRepository.update(Option.ID_C_VERSION, versionOpt);
+      final Transaction transaction = optionRepository.beginTransaction();
+      final JSONObject versionOpt = optionRepository.get(Option.ID_C_VERSION);
+      versionOpt.put(Option.OPTION_VALUE, "3.1.0");
+      optionRepository.update(Option.ID_C_VERSION, versionOpt);
 
-            // 历史文章使用随机图片填充首图字段
-            final List<JSONObject> articles = articleRepository.getList(new Query());
-            for (final JSONObject article : articles) {
-                final String imgURL = Images.imageSize(Images.randImage(), Article.ARTICLE_THUMB_IMG_WIDTH, Article.ARTICLE_THUMB_IMG_HEIGHT);
-                article.put(Article.ARTICLE_IMG1_URL, imgURL);
+      // 历史文章使用随机图片填充首图字段
+      final List<JSONObject> articles = articleRepository.getList(new Query());
+      for (final JSONObject article : articles) {
+        final String imgURL =
+            Images.imageSize(
+                Images.randImage(),
+                Article.ARTICLE_THUMB_IMG_WIDTH,
+                Article.ARTICLE_THUMB_IMG_HEIGHT);
+        article.put(Article.ARTICLE_IMG1_URL, imgURL);
 
-                final String summary = article.optString(Article.ARTICLE_ABSTRACT);
-                String summaryText;
-                if (StringUtils.isBlank(summary)) {
-                    final String content = article.optString(Article.ARTICLE_CONTENT);
-                    summaryText = Article.getAbstractText(content);
-                    article.put(Article.ARTICLE_ABSTRACT, summaryText);
-                } else {
-                    summaryText = Article.getAbstractText(summary);
-                }
-                article.put(Article.ARTICLE_ABSTRACT_TEXT, summaryText);
-
-                articleRepository.update(article.optString(Keys.OBJECT_ID), article);
-            }
-
-            transaction.commit();
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Upgrade failed!", e);
-
-            throw new Exception("Upgrade failed from version [3.0.0] to version [3.1.0]");
+        final String summary = article.optString(Article.ARTICLE_ABSTRACT);
+        String summaryText;
+        if (StringUtils.isBlank(summary)) {
+          final String content = article.optString(Article.ARTICLE_CONTENT);
+          summaryText = Article.getAbstractText(content);
+          article.put(Article.ARTICLE_ABSTRACT, summaryText);
+        } else {
+          summaryText = Article.getAbstractText(summary);
         }
+        article.put(Article.ARTICLE_ABSTRACT_TEXT, summaryText);
+
+        articleRepository.update(article.optString(Keys.OBJECT_ID), article);
+      }
+
+      transaction.commit();
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Upgrade failed!", e);
+
+      throw new Exception("Upgrade failed from version [3.0.0] to version [3.1.0]");
     }
+  }
 }

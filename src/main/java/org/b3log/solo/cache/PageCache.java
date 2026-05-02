@@ -17,13 +17,12 @@
  */
 package org.b3log.solo.cache;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Singleton;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Page cache.
@@ -35,50 +34,46 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class PageCache {
 
-    /**
-     * Page cache.
-     */
-    private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
+  /** Page cache. */
+  private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
 
-    /**
-     * Gets a page by the specified page id.
-     *
-     * @param id the specified page id
-     * @return page, returns {@code null} if not found
-     */
-    public JSONObject getPage(final String id) {
-        final JSONObject page = cache.get(id);
-        if (null == page) {
-            return null;
-        }
-
-        return Solos.clone(page);
+  /**
+   * Gets a page by the specified page id.
+   *
+   * @param id the specified page id
+   * @return page, returns {@code null} if not found
+   */
+  public JSONObject getPage(final String id) {
+    final JSONObject page = cache.get(id);
+    if (null == page) {
+      return null;
     }
 
-    /**
-     * Adds or updates the specified page.
-     *
-     * @param page the specified page
-     */
-    public void putPage(final JSONObject page) {
-        final String pageId = page.optString(Keys.OBJECT_ID);
+    return Solos.clone(page);
+  }
 
-        cache.put(pageId, Solos.clone(page));
-    }
+  /**
+   * Adds or updates the specified page.
+   *
+   * @param page the specified page
+   */
+  public void putPage(final JSONObject page) {
+    final String pageId = page.optString(Keys.OBJECT_ID);
 
-    /**
-     * Removes an page by the specified page id.
-     *
-     * @param id the specified page id
-     */
-    public void removePage(final String id) {
-        cache.remove(id);
-    }
+    cache.put(pageId, Solos.clone(page));
+  }
 
-    /**
-     * Clears all cached data.
-     */
-    public void clear() {
-        cache.clear();
-    }
+  /**
+   * Removes an page by the specified page id.
+   *
+   * @param id the specified page id
+   */
+  public void removePage(final String id) {
+    cache.remove(id);
+  }
+
+  /** Clears all cached data. */
+  public void clear() {
+    cache.clear();
+  }
 }

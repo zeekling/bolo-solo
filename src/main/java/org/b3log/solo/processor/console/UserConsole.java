@@ -49,248 +49,240 @@ import org.json.JSONObject;
 @RequestProcessor
 public class UserConsole {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(UserConsole.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(UserConsole.class);
 
-    /**
-     * User query service.
-     */
-    @Inject
-    private UserQueryService userQueryService;
+  /** User query service. */
+  @Inject private UserQueryService userQueryService;
 
-    /**
-     * User management service.
-     */
-    @Inject
-    private UserMgmtService userMgmtService;
+  /** User management service. */
+  @Inject private UserMgmtService userMgmtService;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Updates a user by the specified request.
-     *
-     * <p>
-     * Request json:
-     * <pre>
-     * {
-     *     "oId": "",
-     *     "userName": "",
-     *     "userRole": "",
-     *     "userURL": "",
-     *     "userAvatar": "",
-     *     "userB3Key": ""
-     * }
-     * </pre>
-     * </p>
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    @Before(ConsoleAdminAuthAdvice.class)
-    public void updateUser(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject ret = new JSONObject();
+  /**
+   * Updates a user by the specified request.
+   *
+   * <p>Request json:
+   *
+   * <pre>
+   * {
+   *     "oId": "",
+   *     "userName": "",
+   *     "userRole": "",
+   *     "userURL": "",
+   *     "userAvatar": "",
+   *     "userB3Key": ""
+   * }
+   * </pre>
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  @Before(ConsoleAdminAuthAdvice.class)
+  public void updateUser(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject ret = new JSONObject();
 
-        try {
-            final JSONObject requestJSONObject = context.requestJSON();
-            userMgmtService.updateUser(requestJSONObject, false);
+    try {
+      final JSONObject requestJSONObject = context.requestJSON();
+      userMgmtService.updateUser(requestJSONObject, false);
 
-            final String password = requestJSONObject.optString(UserExt.USER_B3_KEY);
-            if (password.isEmpty()) {
-                // 密码为空，不更新密码
-                String srcPassword = userQueryService.getUserByName(requestJSONObject.optString("userName")).optString(UserExt.USER_B3_KEY);
-                requestJSONObject.put(UserExt.USER_B3_KEY, srcPassword);
-            } else {
-                // 更新密码
-                requestJSONObject.put(UserExt.USER_B3_KEY, MD5Utils.stringToMD5Twice(password));
-            }
-            userMgmtService.updateUser(requestJSONObject, true);
+      final String password = requestJSONObject.optString(UserExt.USER_B3_KEY);
+      if (password.isEmpty()) {
+        // 密码为空，不更新密码
+        String srcPassword =
+            userQueryService
+                .getUserByName(requestJSONObject.optString("userName"))
+                .optString(UserExt.USER_B3_KEY);
+        requestJSONObject.put(UserExt.USER_B3_KEY, srcPassword);
+      } else {
+        // 更新密码
+        requestJSONObject.put(UserExt.USER_B3_KEY, MD5Utils.stringToMD5Twice(password));
+      }
+      userMgmtService.updateUser(requestJSONObject, true);
 
-            ret.put(Keys.STATUS_CODE, true);
-            ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
-            renderer.setJSONObject(ret);
-        } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      ret.put(Keys.STATUS_CODE, true);
+      ret.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
+      renderer.setJSONObject(ret);
+    } catch (final ServiceException e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("updateFailLabel"));
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("updateFailLabel"));
+    }
+  }
+
+  /**
+   * Removes a user by the specified request.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  @Before(ConsoleAdminAuthAdvice.class)
+  public void removeUser(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject jsonObject = new JSONObject();
+    renderer.setJSONObject(jsonObject);
+    try {
+      final String userId = context.pathVar("id");
+      userMgmtService.removeUser(userId);
+
+      jsonObject.put(Keys.STATUS_CODE, true);
+      jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
+    } catch (final ServiceException e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
+
+      jsonObject.put(Keys.STATUS_CODE, false);
+      jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
+    }
+  }
+
+  /**
+   * Gets users by the specified request json object.
+   *
+   * <p>The request URI contains the pagination arguments. For example, the request URI is
+   * /console/users/1/10/20, means the current page is 1, the page size is 10, and the window size
+   * is 20.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "pagination": {
+   *         "paginationPageCount": 100,
+   *         "paginationPageNums": [1, 2, 3, 4, 5]
+   *     },
+   *     "users": [{
+   *         "oId": "",
+   *         "userName": "",
+   *         "roleName": "",
+   *         ....
+   *      }, ....]
+   *     "sc": true
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  @Before(ConsoleAdminAuthAdvice.class)
+  public void getUsers(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+
+    try {
+      final String requestURI = context.requestURI();
+      final String path =
+          requestURI.substring((Latkes.getContextPath() + "/console/users/").length());
+      final JSONObject requestJSONObject = Solos.buildPaginationRequest(path);
+      final JSONObject result = userQueryService.getUsers(requestJSONObject);
+      result.put(Keys.STATUS_CODE, true);
+      renderer.setJSONObject(result);
+
+      final JSONArray users = result.optJSONArray(User.USERS);
+      for (int i = 0; i < users.length(); i++) {
+        final JSONObject user = users.optJSONObject(i);
+        String userName = user.optString(User.USER_NAME);
+        userName = StringEscapeUtils.escapeXml(userName);
+        user.put(User.USER_NAME, userName);
+      }
+    } catch (final ServiceException e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
+
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
+    }
+  }
+
+  /**
+   * Gets a user by the specified request.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "user": {
+   *         "oId": "",
+   *         "userName": "",
+   *         "userAvatar": ""
+   *     }
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  @Before(ConsoleAdminAuthAdvice.class)
+  public void getUser(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final String userId = context.pathVar("id");
+
+    final JSONObject result = userQueryService.getUser(userId);
+    if (null == result) {
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
+
+      return;
     }
 
-    /**
-     * Removes a user by the specified request.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    @Before(ConsoleAdminAuthAdvice.class)
-    public void removeUser(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject jsonObject = new JSONObject();
-        renderer.setJSONObject(jsonObject);
-        try {
-            final String userId = context.pathVar("id");
-            userMgmtService.removeUser(userId);
+    renderer.setJSONObject(result);
+    result.put(Keys.STATUS_CODE, true);
+  }
 
-            jsonObject.put(Keys.STATUS_CODE, true);
-            jsonObject.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
-        } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+  /**
+   * Change a user role.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  @Before(ConsoleAdminAuthAdvice.class)
+  public void changeUserRole(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject jsonObject = new JSONObject();
+    renderer.setJSONObject(jsonObject);
+    try {
+      final String userId = context.pathVar("id");
+      userMgmtService.changeRole(userId);
 
-            jsonObject.put(Keys.STATUS_CODE, false);
-            jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
-        }
+      jsonObject.put(Keys.STATUS_CODE, true);
+      jsonObject.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
+    } catch (final ServiceException e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
+
+      jsonObject.put(Keys.STATUS_CODE, false);
+      jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
     }
-
-    /**
-     * Gets users by the specified request json object.
-     * <p>
-     * The request URI contains the pagination arguments. For example, the request URI is /console/users/1/10/20, means
-     * the current page is 1, the page size is 10, and the window size is 20.
-     * </p>
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "pagination": {
-     *         "paginationPageCount": 100,
-     *         "paginationPageNums": [1, 2, 3, 4, 5]
-     *     },
-     *     "users": [{
-     *         "oId": "",
-     *         "userName": "",
-     *         "roleName": "",
-     *         ....
-     *      }, ....]
-     *     "sc": true
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    @Before(ConsoleAdminAuthAdvice.class)
-    public void getUsers(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-
-        try {
-            final String requestURI = context.requestURI();
-            final String path = requestURI.substring((Latkes.getContextPath() + "/console/users/").length());
-            final JSONObject requestJSONObject = Solos.buildPaginationRequest(path);
-            final JSONObject result = userQueryService.getUsers(requestJSONObject);
-            result.put(Keys.STATUS_CODE, true);
-            renderer.setJSONObject(result);
-
-            final JSONArray users = result.optJSONArray(User.USERS);
-            for (int i = 0; i < users.length(); i++) {
-                final JSONObject user = users.optJSONObject(i);
-                String userName = user.optString(User.USER_NAME);
-                userName = StringEscapeUtils.escapeXml(userName);
-                user.put(User.USER_NAME, userName);
-            }
-        } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
-
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
-        }
-    }
-
-    /**
-     * Gets a user by the specified request.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "user": {
-     *         "oId": "",
-     *         "userName": "",
-     *         "userAvatar": ""
-     *     }
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    @Before(ConsoleAdminAuthAdvice.class)
-    public void getUser(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final String userId = context.pathVar("id");
-
-        final JSONObject result = userQueryService.getUser(userId);
-        if (null == result) {
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
-
-            return;
-        }
-
-        renderer.setJSONObject(result);
-        result.put(Keys.STATUS_CODE, true);
-    }
-
-    /**
-     * Change a user role.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    @Before(ConsoleAdminAuthAdvice.class)
-    public void changeUserRole(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject jsonObject = new JSONObject();
-        renderer.setJSONObject(jsonObject);
-        try {
-            final String userId = context.pathVar("id");
-            userMgmtService.changeRole(userId);
-
-            jsonObject.put(Keys.STATUS_CODE, true);
-            jsonObject.put(Keys.MSG, langPropsService.get("updateSuccLabel"));
-        } catch (final ServiceException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
-
-            jsonObject.put(Keys.STATUS_CODE, false);
-            jsonObject.put(Keys.MSG, langPropsService.get("removeFailLabel"));
-        }
-    }
+  }
 }

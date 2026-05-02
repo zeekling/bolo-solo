@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.service;
 
+import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.logging.Level;
@@ -29,8 +30,6 @@ import org.b3log.solo.repository.ArchiveDateArticleRepository;
 import org.b3log.solo.repository.ArchiveDateRepository;
 import org.json.JSONObject;
 
-import java.util.List;
-
 /**
  * Archive date query service.
  *
@@ -41,46 +40,37 @@ import java.util.List;
 @Service
 public class ArchiveDateMgmtService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(ArchiveDateMgmtService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(ArchiveDateMgmtService.class);
 
-    /**
-     * Archive date repository.
-     */
-    @Inject
-    private ArchiveDateRepository archiveDateRepository;
+  /** Archive date repository. */
+  @Inject private ArchiveDateRepository archiveDateRepository;
 
-    /**
-     * Archive date-Article repository.
-     */
-    @Inject
-    private ArchiveDateArticleRepository archiveDateArticleRepository;
+  /** Archive date-Article repository. */
+  @Inject private ArchiveDateArticleRepository archiveDateArticleRepository;
 
-
-    /**
-     * Removes all unused archive dates.
-     *
-     * @return a list of archive dates, returns an empty list if not found
-     */
-    public void removeUnusedArchiveDates() {
-        final Transaction transaction = archiveDateRepository.beginTransaction();
-        try {
-            final List<JSONObject> archiveDates = archiveDateRepository.getArchiveDates();
-            for (final JSONObject archiveDate : archiveDates) {
-                if (1 > archiveDate.optInt(ArchiveDate.ARCHIVE_DATE_T_PUBLISHED_ARTICLE_COUNT)) {
-                    final String archiveDateId = archiveDate.optString(Keys.OBJECT_ID);
-                    archiveDateRepository.remove(archiveDateId);
-                }
-            }
-            transaction.commit();
-        } catch (final RepositoryException e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            LOGGER.log(Level.ERROR, "Gets archive dates failed", e);
+  /**
+   * Removes all unused archive dates.
+   *
+   * @return a list of archive dates, returns an empty list if not found
+   */
+  public void removeUnusedArchiveDates() {
+    final Transaction transaction = archiveDateRepository.beginTransaction();
+    try {
+      final List<JSONObject> archiveDates = archiveDateRepository.getArchiveDates();
+      for (final JSONObject archiveDate : archiveDates) {
+        if (1 > archiveDate.optInt(ArchiveDate.ARCHIVE_DATE_T_PUBLISHED_ARTICLE_COUNT)) {
+          final String archiveDateId = archiveDate.optString(Keys.OBJECT_ID);
+          archiveDateRepository.remove(archiveDateId);
         }
+      }
+      transaction.commit();
+    } catch (final RepositoryException e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+
+      LOGGER.log(Level.ERROR, "Gets archive dates failed", e);
     }
+  }
 }

@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.service;
 
+import java.util.*;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
@@ -36,8 +37,6 @@ import org.b3log.solo.util.Markdowns;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
-import java.util.*;
-
 /**
  * Preference management service.
  *
@@ -48,103 +47,90 @@ import java.util.*;
 @Service
 public class PreferenceMgmtService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(PreferenceMgmtService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(PreferenceMgmtService.class);
 
-    /**
-     * Option query service.
-     */
-    @Inject
-    private OptionQueryService optionQueryService;
+  /** Option query service. */
+  @Inject private OptionQueryService optionQueryService;
 
-    /**
-     * Option repository.
-     */
-    @Inject
-    private OptionRepository optionRepository;
+  /** Option repository. */
+  @Inject private OptionRepository optionRepository;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Crontab management service.
-     */
-    @Inject
-    private CronMgmtService cronMgmtService;
+  /** Crontab management service. */
+  @Inject private CronMgmtService cronMgmtService;
 
-    /**
-     * Updates the preference with the specified preference.
-     *
-     * @param preference the specified preference
-     * @throws ServiceException service exception
-     */
-    public void updatePreference(final JSONObject preference) throws ServiceException {
-        final Iterator<String> keys = preference.keys();
-        while (keys.hasNext()) {
-            final String key = keys.next();
-            if (preference.isNull(key)) {
-                LOGGER.log(Level.ERROR, "A value is null of preference [key=" + key + "]");
-            }
-        }
-
-        final Transaction transaction = optionRepository.beginTransaction();
-
-        try {
-            preference.put(Option.ID_C_SIGNS, preference.get(Option.ID_C_SIGNS).toString());
-
-            final JSONObject oldPreference = optionQueryService.getPreference();
-
-            final String version = oldPreference.optString(Option.ID_C_VERSION);
-            preference.put(Option.ID_C_VERSION, version);
-
-            final String localeString = preference.getString(Option.ID_C_LOCALE_STRING);
-            Latkes.setLocale(new Locale(Locales.getLanguage(localeString), Locales.getCountry(localeString)));
-
-            List<String> optionList = Options.loadOptions();
-            for (String i : optionList) {
-                emptyPreferenceOptSave(i, preference.optString(i));
-            }
-
-            transaction.commit();
-
-            final String showCodeBlockLnVal = preference.optString(Option.ID_C_SHOW_CODE_BLOCK_LN);
-            Markdowns.SHOW_CODE_BLOCK_LN = "true".equalsIgnoreCase(showCodeBlockLnVal);
-
-            LOGGER.log(Level.INFO, "Reloading settings ...");
-            Markdowns.clearCache();
-            WAF.set();
-            MailService.loadMailSettings();
-            Solos.enableWelfareLuteService();
-            cronMgmtService.restart();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            LOGGER.log(Level.ERROR, "Updates preference failed", e);
-            throw new ServiceException(langPropsService.get("updateFailLabel"));
-        }
-
-        LOGGER.log(Level.DEBUG, "Updates preference successfully");
+  /**
+   * Updates the preference with the specified preference.
+   *
+   * @param preference the specified preference
+   * @throws ServiceException service exception
+   */
+  public void updatePreference(final JSONObject preference) throws ServiceException {
+    final Iterator<String> keys = preference.keys();
+    while (keys.hasNext()) {
+      final String key = keys.next();
+      if (preference.isNull(key)) {
+        LOGGER.log(Level.ERROR, "A value is null of preference [key=" + key + "]");
+      }
     }
 
-    private void emptyPreferenceOptSave(final String optID, final String val) throws Exception {
-        // 该方法用于向后兼容，如果数据库中不存在该配置项则创建再保存
-        JSONObject opt = optionRepository.get(optID);
-        if (null == opt) {
-            opt = new JSONObject();
-            opt.put(Keys.OBJECT_ID, optID);
-            opt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_PREFERENCE);
-            opt.put(Option.OPTION_VALUE, val);
-            optionRepository.add(opt);
-        } else {
-            opt.put(Option.OPTION_VALUE, val);
-            optionRepository.update(optID, opt);
-        }
+    final Transaction transaction = optionRepository.beginTransaction();
+
+    try {
+      preference.put(Option.ID_C_SIGNS, preference.get(Option.ID_C_SIGNS).toString());
+
+      final JSONObject oldPreference = optionQueryService.getPreference();
+
+      final String version = oldPreference.optString(Option.ID_C_VERSION);
+      preference.put(Option.ID_C_VERSION, version);
+
+      final String localeString = preference.getString(Option.ID_C_LOCALE_STRING);
+      Latkes.setLocale(
+          new Locale(Locales.getLanguage(localeString), Locales.getCountry(localeString)));
+
+      List<String> optionList = Options.loadOptions();
+      for (String i : optionList) {
+        emptyPreferenceOptSave(i, preference.optString(i));
+      }
+
+      transaction.commit();
+
+      final String showCodeBlockLnVal = preference.optString(Option.ID_C_SHOW_CODE_BLOCK_LN);
+      Markdowns.SHOW_CODE_BLOCK_LN = "true".equalsIgnoreCase(showCodeBlockLnVal);
+
+      LOGGER.log(Level.INFO, "Reloading settings ...");
+      Markdowns.clearCache();
+      WAF.set();
+      MailService.loadMailSettings();
+      Solos.enableWelfareLuteService();
+      cronMgmtService.restart();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+
+      LOGGER.log(Level.ERROR, "Updates preference failed", e);
+      throw new ServiceException(langPropsService.get("updateFailLabel"));
     }
+
+    LOGGER.log(Level.DEBUG, "Updates preference successfully");
+  }
+
+  private void emptyPreferenceOptSave(final String optID, final String val) throws Exception {
+    // 该方法用于向后兼容，如果数据库中不存在该配置项则创建再保存
+    JSONObject opt = optionRepository.get(optID);
+    if (null == opt) {
+      opt = new JSONObject();
+      opt.put(Keys.OBJECT_ID, optID);
+      opt.put(Option.OPTION_CATEGORY, Option.CATEGORY_C_PREFERENCE);
+      opt.put(Option.OPTION_VALUE, val);
+      optionRepository.add(opt);
+    } else {
+      opt.put(Option.OPTION_VALUE, val);
+      optionRepository.update(optID, opt);
+    }
+  }
 }

@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.repository;
 
+import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.repository.*;
@@ -25,8 +26,6 @@ import org.b3log.solo.cache.PageCache;
 import org.b3log.solo.model.Page;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.util.List;
 
 /**
  * Page repository.
@@ -38,161 +37,177 @@ import java.util.List;
 @Repository
 public class PageRepository extends AbstractRepository {
 
-    /**
-     * Page cache.
-     */
-    @Inject
-    private PageCache pageCache;
+  /** Page cache. */
+  @Inject private PageCache pageCache;
 
-    /**
-     * Public constructor.
-     */
-    public PageRepository() {
-        super(Page.PAGE);
+  /** Public constructor. */
+  public PageRepository() {
+    super(Page.PAGE);
+  }
+
+  @Override
+  public void remove(final String id) throws RepositoryException {
+    super.remove(id);
+
+    pageCache.removePage(id);
+  }
+
+  @Override
+  public JSONObject get(final String id) throws RepositoryException {
+    JSONObject ret = pageCache.getPage(id);
+    if (null != ret) {
+      return ret;
     }
 
-    @Override
-    public void remove(final String id) throws RepositoryException {
-        super.remove(id);
-
-        pageCache.removePage(id);
+    ret = super.get(id);
+    if (null == ret) {
+      return null;
     }
 
-    @Override
-    public JSONObject get(final String id) throws RepositoryException {
-        JSONObject ret = pageCache.getPage(id);
-        if (null != ret) {
-            return ret;
-        }
+    pageCache.putPage(ret);
 
-        ret = super.get(id);
-        if (null == ret) {
-            return null;
-        }
+    return ret;
+  }
 
-        pageCache.putPage(ret);
+  @Override
+  public void update(final String id, final JSONObject page, final String... propertyNames)
+      throws RepositoryException {
+    super.update(id, page, propertyNames);
 
-        return ret;
+    page.put(Keys.OBJECT_ID, id);
+    pageCache.putPage(page);
+  }
+
+  /**
+   * Gets a page by the specified permalink.
+   *
+   * @param permalink the specified permalink
+   * @return page, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByPermalink(final String permalink) throws RepositoryException {
+    final Query query =
+        new Query()
+            .setFilter(new PropertyFilter(Page.PAGE_PERMALINK, FilterOperator.EQUAL, permalink))
+            .setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return null;
     }
 
-    @Override
-    public void update(final String id, final JSONObject page, final String... propertyNames) throws RepositoryException {
-        super.update(id, page, propertyNames);
+    return array.optJSONObject(0);
+  }
 
-        page.put(Keys.OBJECT_ID, id);
-        pageCache.putPage(page);
+  /**
+   * Gets the maximum order.
+   *
+   * @return order number, returns {@code -1} if not found
+   * @throws RepositoryException repository exception
+   */
+  public int getMaxOrder() throws RepositoryException {
+    final Query query =
+        new Query().addSort(Page.PAGE_ORDER, SortDirection.DESCENDING).setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return -1;
     }
 
-    /**
-     * Gets a page by the specified permalink.
-     *
-     * @param permalink the specified permalink
-     * @return page, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByPermalink(final String permalink) throws RepositoryException {
-        final Query query = new Query().setFilter(new PropertyFilter(Page.PAGE_PERMALINK, FilterOperator.EQUAL, permalink)).setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return null;
-        }
+    return array.optJSONObject(0).optInt(Page.PAGE_ORDER);
+  }
 
-        return array.optJSONObject(0);
+  /**
+   * Gets the upper page of the page specified by the given id.
+   *
+   * @param id the given id
+   * @return upper page, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getUpper(final String id) throws RepositoryException {
+    final JSONObject page = get(id);
+    if (null == page) {
+      return null;
     }
 
-    /**
-     * Gets the maximum order.
-     *
-     * @return order number, returns {@code -1} if not found
-     * @throws RepositoryException repository exception
-     */
-    public int getMaxOrder() throws RepositoryException {
-        final Query query = new Query().addSort(Page.PAGE_ORDER, SortDirection.DESCENDING).setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return -1;
-        }
-
-        return array.optJSONObject(0).optInt(Page.PAGE_ORDER);
+    final Query query =
+        new Query()
+            .setFilter(
+                new PropertyFilter(
+                    Page.PAGE_ORDER, FilterOperator.LESS_THAN, page.optInt(Page.PAGE_ORDER)))
+            .addSort(Page.PAGE_ORDER, SortDirection.DESCENDING)
+            .setPage(1, 1)
+            .setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (1 != array.length()) {
+      return null;
     }
 
-    /**
-     * Gets the upper page of the page specified by the given id.
-     *
-     * @param id the given id
-     * @return upper page, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getUpper(final String id) throws RepositoryException {
-        final JSONObject page = get(id);
-        if (null == page) {
-            return null;
-        }
+    return array.optJSONObject(0);
+  }
 
-        final Query query = new Query().setFilter(new PropertyFilter(Page.PAGE_ORDER, FilterOperator.LESS_THAN, page.optInt(Page.PAGE_ORDER))).
-                addSort(Page.PAGE_ORDER, SortDirection.DESCENDING).setPage(1, 1).setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (1 != array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+  /**
+   * Gets the under page of the page specified by the given id.
+   *
+   * @param id the given id
+   * @return under page, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getUnder(final String id) throws RepositoryException {
+    final JSONObject page = get(id);
+    if (null == page) {
+      return null;
     }
 
-    /**
-     * Gets the under page of the page specified by the given id.
-     *
-     * @param id the given id
-     * @return under page, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getUnder(final String id) throws RepositoryException {
-        final JSONObject page = get(id);
-        if (null == page) {
-            return null;
-        }
-
-        final Query query = new Query().setFilter(new PropertyFilter(Page.PAGE_ORDER, FilterOperator.GREATER_THAN, page.optInt(Page.PAGE_ORDER))).
-                addSort(Page.PAGE_ORDER, SortDirection.ASCENDING).setPage(1, 1).setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (1 != array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+    final Query query =
+        new Query()
+            .setFilter(
+                new PropertyFilter(
+                    Page.PAGE_ORDER, FilterOperator.GREATER_THAN, page.optInt(Page.PAGE_ORDER)))
+            .addSort(Page.PAGE_ORDER, SortDirection.ASCENDING)
+            .setPage(1, 1)
+            .setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (1 != array.length()) {
+      return null;
     }
 
-    /**
-     * Gets a page by the specified order.
-     *
-     * @param order the specified order
-     * @return page, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByOrder(final int order) throws RepositoryException {
-        final Query query = new Query().setFilter(new PropertyFilter(Page.PAGE_ORDER, FilterOperator.EQUAL, order)).setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return null;
-        }
+    return array.optJSONObject(0);
+  }
 
-        return array.optJSONObject(0);
+  /**
+   * Gets a page by the specified order.
+   *
+   * @param order the specified order
+   * @return page, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByOrder(final int order) throws RepositoryException {
+    final Query query =
+        new Query()
+            .setFilter(new PropertyFilter(Page.PAGE_ORDER, FilterOperator.EQUAL, order))
+            .setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return null;
     }
 
-    /**
-     * Gets pages.
-     *
-     * @return a list of pages, returns an empty list if  not found
-     * @throws RepositoryException repository exception
-     */
-    public List<JSONObject> getPages() throws RepositoryException {
-        final Query query = new Query().addSort(Page.PAGE_ORDER, SortDirection.ASCENDING).setPageCount(1);
+    return array.optJSONObject(0);
+  }
 
-        return getList(query);
-    }
+  /**
+   * Gets pages.
+   *
+   * @return a list of pages, returns an empty list if not found
+   * @throws RepositoryException repository exception
+   */
+  public List<JSONObject> getPages() throws RepositoryException {
+    final Query query =
+        new Query().addSort(Page.PAGE_ORDER, SortDirection.ASCENDING).setPageCount(1);
+
+    return getList(query);
+  }
 }

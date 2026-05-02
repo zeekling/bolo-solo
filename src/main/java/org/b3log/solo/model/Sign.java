@@ -25,24 +25,15 @@ package org.b3log.solo.model;
  */
 public final class Sign {
 
-    /**
-     * Key of sign.
-     */
-    public static final String SIGN = "sign";
+  /** Key of sign. */
+  public static final String SIGN = "sign";
 
-    /**
-     * Key of signs.
-     */
-    public static final String SIGNS = "signs";
+  /** Key of signs. */
+  public static final String SIGNS = "signs";
 
-    /**
-     * Key of sign HTML.
-     */
-    public static final String SIGN_HTML = "signHTML";
+  /** Key of sign HTML. */
+  public static final String SIGN_HTML = "signHTML";
 
-    /**
-     * Private constructor.
-     */
-    private Sign() {
-    }
+  /** Private constructor. */
+  private Sign() {}
 }

@@ -27,35 +27,36 @@ import org.b3log.solo.service.FollowService;
 import org.json.JSONObject;
 
 /**
- *
  * @author <a href="https://github.com/gakkiyomi">Gakkiyomi (Bolo Commiter)</a>
  * @since 0.0.1
  */
 @Singleton
 public class FollowArticleRefresher extends AbstractEventListener<JSONObject> {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(FollowArticleRefresher.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(FollowArticleRefresher.class);
 
-    @Override
-    public void action(final Event<JSONObject> event) {
-        final JSONObject data = event.getData();
-        LOGGER.log(Level.DEBUG, "Processing an event [type={0}, data={1}] in listener [className={2}]",
-                event.getType(), data, FollowArticleRefresher.class.getName());
-        final BeanManager beanManager = BeanManager.getInstance();
-        final FollowService followService = beanManager.getReference(FollowService.class);
-        followService.syncFollowArticles(data);
-    }
+  @Override
+  public void action(final Event<JSONObject> event) {
+    final JSONObject data = event.getData();
+    LOGGER.log(
+        Level.DEBUG,
+        "Processing an event [type={0}, data={1}] in listener [className={2}]",
+        event.getType(),
+        data,
+        FollowArticleRefresher.class.getName());
+    final BeanManager beanManager = BeanManager.getInstance();
+    final FollowService followService = beanManager.getReference(FollowService.class);
+    followService.syncFollowArticles(data);
+  }
 
-    /**
-     * Gets the event type {@linkplain EventTypes#FOLLOW_ARTICLE_REFRESH}.
-     *
-     * @return event type
-     */
-    @Override
-    public String getEventType() {
-        return EventTypes.FOLLOW_ARTICLE_REFRESH;
-    }
+  /**
+   * Gets the event type {@linkplain EventTypes#FOLLOW_ARTICLE_REFRESH}.
+   *
+   * @return event type
+   */
+  @Override
+  public String getEventType() {
+    return EventTypes.FOLLOW_ARTICLE_REFRESH;
+  }
 }

@@ -25,40 +25,26 @@ package org.b3log.solo.model;
  */
 public final class ArchiveDate {
 
-    /**
-     * Archive date.
-     */
-    public static final String ARCHIVE_DATE = "archiveDate";
+  /** Archive date. */
+  public static final String ARCHIVE_DATE = "archiveDate";
 
-    /**
-     * Archive dates.
-     */
-    public static final String ARCHIVE_DATES = "archiveDates";
+  /** Archive dates. */
+  public static final String ARCHIVE_DATES = "archiveDates";
 
-    /**
-     * Archive time.
-     */
-    public static final String ARCHIVE_TIME = "archiveTime";
+  /** Archive time. */
+  public static final String ARCHIVE_TIME = "archiveTime";
 
-    //// Transient ////
-    /**
-     * Key of archive date article count.
-     */
-    public static final String ARCHIVE_DATE_T_PUBLISHED_ARTICLE_COUNT = "archiveDatePublishedArticleCount";
+  //// Transient ////
+  /** Key of archive date article count. */
+  public static final String ARCHIVE_DATE_T_PUBLISHED_ARTICLE_COUNT =
+      "archiveDatePublishedArticleCount";
 
-    /**
-     * Archive date year.
-     */
-    public static final String ARCHIVE_DATE_YEAR = "archiveDateYear";
+  /** Archive date year. */
+  public static final String ARCHIVE_DATE_YEAR = "archiveDateYear";
 
-    /**
-     * Archive date month.
-     */
-    public static final String ARCHIVE_DATE_MONTH = "archiveDateMonth";
+  /** Archive date month. */
+  public static final String ARCHIVE_DATE_MONTH = "archiveDateMonth";
 
-    /**
-     * Private constructor.
-     */
-    private ArchiveDate() {
-    }
+  /** Private constructor. */
+  private ArchiveDate() {}
 }

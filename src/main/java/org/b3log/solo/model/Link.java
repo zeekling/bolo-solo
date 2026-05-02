@@ -26,44 +26,27 @@ package org.b3log.solo.model;
  */
 public final class Link {
 
-    /**
-     * Link.
-     */
-    public static final String LINK = "link";
+  /** Link. */
+  public static final String LINK = "link";
 
-    /**
-     * Links.
-     */
-    public static final String LINKS = "links";
+  /** Links. */
+  public static final String LINKS = "links";
 
-    /**
-     * Key of title.
-     */
-    public static final String LINK_TITLE = "linkTitle";
+  /** Key of title. */
+  public static final String LINK_TITLE = "linkTitle";
 
-    /**
-     * Key of address.
-     */
-    public static final String LINK_ADDRESS = "linkAddress";
+  /** Key of address. */
+  public static final String LINK_ADDRESS = "linkAddress";
 
-    /**
-     * Key of description.
-     */
-    public static final String LINK_DESCRIPTION = "linkDescription";
+  /** Key of description. */
+  public static final String LINK_DESCRIPTION = "linkDescription";
 
-    /**
-     * Key of icon URL.
-     */
-    public static final String LINK_ICON = "linkIcon";
+  /** Key of icon URL. */
+  public static final String LINK_ICON = "linkIcon";
 
-    /**
-     * Key of order.
-     */
-    public static final String LINK_ORDER = "linkOrder";
+  /** Key of order. */
+  public static final String LINK_ORDER = "linkOrder";
 
-    /**
-     * Private constructor.
-     */
-    private Link() {
-    }
+  /** Private constructor. */
+  private Link() {}
 }

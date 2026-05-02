@@ -17,12 +17,11 @@
  */
 package org.b3log.solo.model;
 
-import org.apache.commons.lang.StringUtils;
-import org.b3log.latke.util.Strings;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.b3log.latke.util.Strings;
 
 /**
  * This class defines all tag model relevant keys.
@@ -32,120 +31,109 @@ import java.util.regex.Pattern;
  */
 public final class Tag {
 
-    /**
-     * Tag.
-     */
-    public static final String TAG = "tag";
+  /** Tag. */
+  public static final String TAG = "tag";
 
-    /**
-     * Tags.
-     */
-    public static final String TAGS = "tags";
+  /** Tags. */
+  public static final String TAGS = "tags";
 
-    /**
-     * Key of title.
-     */
-    public static final String TAG_TITLE = "tagTitle";
+  /** Key of title. */
+  public static final String TAG_TITLE = "tagTitle";
 
-    //// Transient ////
-    /**
-     * Key of tag reference (published article) count.
-     */
-    public static final String TAG_T_PUBLISHED_REFERENCE_COUNT = "tagPublishedRefCount";
+  //// Transient ////
+  /** Key of tag reference (published article) count. */
+  public static final String TAG_T_PUBLISHED_REFERENCE_COUNT = "tagPublishedRefCount";
 
-    /**
-     * Tag title pattern string.
-     */
-    public static final String TAG_TITLE_PATTERN_STR = "[\\u4e00-\\u9fa5\\w&#+\\-.]+";
+  /** Tag title pattern string. */
+  public static final String TAG_TITLE_PATTERN_STR = "[\\u4e00-\\u9fa5\\w&#+\\-.]+";
 
-    /**
-     * Tag title pattern.
-     */
-    public static final Pattern TAG_TITLE_PATTERN = Pattern.compile(TAG_TITLE_PATTERN_STR);
+  /** Tag title pattern. */
+  public static final Pattern TAG_TITLE_PATTERN = Pattern.compile(TAG_TITLE_PATTERN_STR);
 
-    /**
-     * Max length of a tag.
-     */
-    public static final int MAX_LENGTH = 16;
+  /** Max length of a tag. */
+  public static final int MAX_LENGTH = 16;
 
-    /**
-     * Private constructor.
-     */
-    private Tag() {
+  /** Private constructor. */
+  private Tag() {}
+
+  /**
+   * Formats the specified tags.
+   *
+   * <ul>
+   *   <li>Trims every tag
+   *   <li>Deduplication
+   * </ul>
+   *
+   * @param tagStr the specified tags
+   * @param maxTagCount the specified max tag count
+   * @return formatted tags string
+   */
+  public static String formatTags(final String tagStr, final int maxTagCount) {
+    final String tagStr1 =
+        tagStr
+            .replaceAll("\\s+", "")
+            .replaceAll("，", ",")
+            .replaceAll("、", ",")
+            .replaceAll("；", ",")
+            .replaceAll(";", ",");
+    String[] tagTitles = tagStr1.split(",");
+
+    tagTitles = Strings.trimAll(tagTitles);
+
+    // deduplication
+    final Set<String> titles = new LinkedHashSet<>();
+    for (final String tagTitle : tagTitles) {
+      if (!exists(titles, tagTitle)) {
+        titles.add(tagTitle);
+      }
     }
 
-    /**
-     * Formats the specified tags.
-     * <ul>
-     * <li>Trims every tag</li>
-     * <li>Deduplication</li>
-     * </ul>
-     *
-     * @param tagStr      the specified tags
-     * @param maxTagCount the specified max tag count
-     * @return formatted tags string
-     */
-    public static String formatTags(final String tagStr, final int maxTagCount) {
-        final String tagStr1 = tagStr.replaceAll("\\s+", "").replaceAll("，", ",").replaceAll("、", ",").
-                replaceAll("；", ",").replaceAll(";", ",");
-        String[] tagTitles = tagStr1.split(",");
+    tagTitles = titles.toArray(new String[0]);
 
-        tagTitles = Strings.trimAll(tagTitles);
+    int count = 0;
+    final StringBuilder tagsBuilder = new StringBuilder();
+    for (final String tagTitle : tagTitles) {
+      String title = tagTitle.trim();
+      if (StringUtils.isBlank(title)) {
+        continue;
+      }
 
-        // deduplication
-        final Set<String> titles = new LinkedHashSet<>();
-        for (final String tagTitle : tagTitles) {
-            if (!exists(titles, tagTitle)) {
-                titles.add(tagTitle);
-            }
-        }
+      if (StringUtils.length(title) > MAX_LENGTH) {
+        continue;
+      }
 
-        tagTitles = titles.toArray(new String[0]);
+      if (!TAG_TITLE_PATTERN.matcher(title).matches()) {
+        continue;
+      }
 
-        int count = 0;
-        final StringBuilder tagsBuilder = new StringBuilder();
-        for (final String tagTitle : tagTitles) {
-            String title = tagTitle.trim();
-            if (StringUtils.isBlank(title)) {
-                continue;
-            }
+      tagsBuilder.append(title).append(",");
+      count++;
 
-            if (StringUtils.length(title) > MAX_LENGTH) {
-                continue;
-            }
-
-            if (!TAG_TITLE_PATTERN.matcher(title).matches()) {
-                continue;
-            }
-
-            tagsBuilder.append(title).append(",");
-            count++;
-
-            if (maxTagCount <= count) {
-                break;
-            }
-        }
-        if (tagsBuilder.length() > 0) {
-            tagsBuilder.deleteCharAt(tagsBuilder.length() - 1);
-        }
-
-        return tagsBuilder.toString();
+      if (maxTagCount <= count) {
+        break;
+      }
+    }
+    if (tagsBuilder.length() > 0) {
+      tagsBuilder.deleteCharAt(tagsBuilder.length() - 1);
     }
 
-    /**
-     * Checks the specified title exists in the specified title set.
-     *
-     * @param titles the specified title set
-     * @param title  the specified title to check
-     * @return {@code true} if exists, returns {@code false} otherwise
-     */
-    private static boolean exists(final Set<String> titles, final String title) {
-        for (final String setTitle : titles) {
-            if (setTitle.equalsIgnoreCase(title)) {
-                return true;
-            }
-        }
+    return tagsBuilder.toString();
+  }
 
-        return false;
+  /**
+   * Checks the specified title exists in the specified title set.
+   *
+   * @param titles the specified title set
+   * @param title the specified title to check
+   * @return {@code true} if exists, returns {@code false} otherwise
+   */
+  private static boolean exists(final Set<String> titles, final String title) {
+    for (final String setTitle : titles) {
+      if (setTitle.equalsIgnoreCase(title)) {
+        return true;
+      }
     }
+
+    return false;
+  }
 }

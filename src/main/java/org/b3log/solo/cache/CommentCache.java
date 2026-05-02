@@ -17,13 +17,12 @@
  */
 package org.b3log.solo.cache;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Singleton;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Comment cache.
@@ -35,48 +34,44 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class CommentCache {
 
-    /**
-     * Comment cache.
-     */
-    private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
+  /** Comment cache. */
+  private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
 
-    /**
-     * Gets a comment by the specified comment id.
-     *
-     * @param id the specified comment id
-     * @return comment, returns {@code null} if not found
-     */
-    public JSONObject getComment(final String id) {
-        final JSONObject comment = cache.get(id);
-        if (null == comment) {
-            return null;
-        }
-
-        return Solos.clone(comment);
+  /**
+   * Gets a comment by the specified comment id.
+   *
+   * @param id the specified comment id
+   * @return comment, returns {@code null} if not found
+   */
+  public JSONObject getComment(final String id) {
+    final JSONObject comment = cache.get(id);
+    if (null == comment) {
+      return null;
     }
 
-    /**
-     * Adds or updates the specified comment.
-     *
-     * @param comment the specified comment
-     */
-    public void putComment(final JSONObject comment) {
-        cache.put(comment.optString(Keys.OBJECT_ID), Solos.clone(comment));
-    }
+    return Solos.clone(comment);
+  }
 
-    /**
-     * Removes a comment by the specified comment id.
-     *
-     * @param id the specified comment id
-     */
-    public void removeComment(final String id) {
-        cache.remove(id);
-    }
+  /**
+   * Adds or updates the specified comment.
+   *
+   * @param comment the specified comment
+   */
+  public void putComment(final JSONObject comment) {
+    cache.put(comment.optString(Keys.OBJECT_ID), Solos.clone(comment));
+  }
 
-    /**
-     * Clears all cached data.
-     */
-    public void clear() {
-        cache.clear();
-    }
+  /**
+   * Removes a comment by the specified comment id.
+   *
+   * @param id the specified comment id
+   */
+  public void removeComment(final String id) {
+    cache.remove(id);
+  }
+
+  /** Clears all cached data. */
+  public void clear() {
+    cache.clear();
+  }
 }

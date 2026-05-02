@@ -17,6 +17,7 @@
  */
 package org.b3log.solo.processor.console;
 
+import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.Latkes;
 import org.b3log.latke.ioc.Inject;
@@ -33,8 +34,6 @@ import org.b3log.solo.service.CommentQueryService;
 import org.b3log.solo.util.Solos;
 import org.json.JSONObject;
 
-import java.util.List;
-
 /**
  * Comment console request processing.
  *
@@ -46,167 +45,157 @@ import java.util.List;
 @Before(ConsoleAuthAdvice.class)
 public class CommentConsole {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(CommentConsole.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(CommentConsole.class);
 
-    /**
-     * Comment query service.
-     */
-    @Inject
-    private CommentQueryService commentQueryService;
+  /** Comment query service. */
+  @Inject private CommentQueryService commentQueryService;
 
-    /**
-     * Comment management service.
-     */
-    @Inject
-    private CommentMgmtService commentMgmtService;
+  /** Comment management service. */
+  @Inject private CommentMgmtService commentMgmtService;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Removes a comment of an article by the specified request.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "msg": ""
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void removeArticleComment(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject ret = new JSONObject();
-        renderer.setJSONObject(ret);
+  /**
+   * Removes a comment of an article by the specified request.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "msg": ""
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void removeArticleComment(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject ret = new JSONObject();
+    renderer.setJSONObject(ret);
 
-        try {
-            final String commentId = context.pathVar("id");
-            final JSONObject currentUser = Solos.getCurrentUser(context.getRequest(), context.getResponse());
-            if (!commentQueryService.canAccessComment(commentId, currentUser)) {
-                ret.put(Keys.STATUS_CODE, false);
-                ret.put(Keys.MSG, langPropsService.get("forbiddenLabel"));
+    try {
+      final String commentId = context.pathVar("id");
+      final JSONObject currentUser =
+          Solos.getCurrentUser(context.getRequest(), context.getResponse());
+      if (!commentQueryService.canAccessComment(commentId, currentUser)) {
+        ret.put(Keys.STATUS_CODE, false);
+        ret.put(Keys.MSG, langPropsService.get("forbiddenLabel"));
 
-                return;
-            }
+        return;
+      }
 
-            commentMgmtService.removeArticleComment(commentId);
+      commentMgmtService.removeArticleComment(commentId);
 
-            ret.put(Keys.STATUS_CODE, true);
-            ret.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      ret.put(Keys.STATUS_CODE, true);
+      ret.put(Keys.MSG, langPropsService.get("removeSuccLabel"));
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            ret.put(Keys.STATUS_CODE, false);
-            ret.put(Keys.MSG, langPropsService.get("removeFailLabel"));
-        }
+      ret.put(Keys.STATUS_CODE, false);
+      ret.put(Keys.MSG, langPropsService.get("removeFailLabel"));
     }
+  }
 
-    /**
-     * Gets comments by the specified request.
-     * <p>
-     * The request URI contains the pagination arguments. For example, the
-     * request URI is /console/comments/1/10/20, means the current page is 1, the
-     * page size is 10, and the window size is 20.
-     * </p>
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "pagination": {
-     *         "paginationPageCount": 100,
-     *         "paginationPageNums": [1, 2, 3, 4, 5]
-     *     },
-     *     "comments": [{
-     *         "oId": "",
-     *         "commentTitle": "",
-     *         "commentName": "",
-     *         "thumbnailUrl": "",
-     *         "commentURL": "",
-     *         "commentContent": "",
-     *         "commentTime": long,
-     *         "commentSharpURL": ""
-     *      }, ....]
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void getComments(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
+  /**
+   * Gets comments by the specified request.
+   *
+   * <p>The request URI contains the pagination arguments. For example, the request URI is
+   * /console/comments/1/10/20, means the current page is 1, the page size is 10, and the window
+   * size is 20.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "pagination": {
+   *         "paginationPageCount": 100,
+   *         "paginationPageNums": [1, 2, 3, 4, 5]
+   *     },
+   *     "comments": [{
+   *         "oId": "",
+   *         "commentTitle": "",
+   *         "commentName": "",
+   *         "thumbnailUrl": "",
+   *         "commentURL": "",
+   *         "commentContent": "",
+   *         "commentTime": long,
+   *         "commentSharpURL": ""
+   *      }, ....]
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void getComments(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
 
-        try {
-            final String requestURI = context.requestURI();
-            final String path = requestURI.substring((Latkes.getContextPath() + "/console/comments/").length());
+    try {
+      final String requestURI = context.requestURI();
+      final String path =
+          requestURI.substring((Latkes.getContextPath() + "/console/comments/").length());
 
-            final JSONObject requestJSONObject = Solos.buildPaginationRequest(path);
-            final JSONObject result = commentQueryService.getComments(requestJSONObject);
+      final JSONObject requestJSONObject = Solos.buildPaginationRequest(path);
+      final JSONObject result = commentQueryService.getComments(requestJSONObject);
 
-            result.put(Keys.STATUS_CODE, true);
+      result.put(Keys.STATUS_CODE, true);
 
-            renderer.setJSONObject(result);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      renderer.setJSONObject(result);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
     }
+  }
 
-    /**
-     * Gets comments of an article specified by the article id for administrator.
-     * <p>
-     * Renders the response with a json object, for example,
-     * <pre>
-     * {
-     *     "sc": boolean,
-     *     "comments": [{
-     *         "oId": "",
-     *         "commentName": "",
-     *         "thumbnailUrl": "",
-     *         "commentURL": "",
-     *         "commentContent": "",
-     *         "commentTime": long,
-     *         "commentSharpURL": "",
-     *         "isReply": boolean
-     *      }, ....]
-     * }
-     * </pre>
-     * </p>
-     *
-     * @param context the specified request context
-     */
-    public void getArticleComments(final RequestContext context) {
-        final JsonRenderer renderer = new JsonRenderer();
-        context.setRenderer(renderer);
-        final JSONObject ret = new JSONObject();
-        renderer.setJSONObject(ret);
+  /**
+   * Gets comments of an article specified by the article id for administrator.
+   *
+   * <p>Renders the response with a json object, for example,
+   *
+   * <pre>
+   * {
+   *     "sc": boolean,
+   *     "comments": [{
+   *         "oId": "",
+   *         "commentName": "",
+   *         "thumbnailUrl": "",
+   *         "commentURL": "",
+   *         "commentContent": "",
+   *         "commentTime": long,
+   *         "commentSharpURL": "",
+   *         "isReply": boolean
+   *      }, ....]
+   * }
+   * </pre>
+   *
+   * @param context the specified request context
+   */
+  public void getArticleComments(final RequestContext context) {
+    final JsonRenderer renderer = new JsonRenderer();
+    context.setRenderer(renderer);
+    final JSONObject ret = new JSONObject();
+    renderer.setJSONObject(ret);
 
-        try {
-            final String articleId = context.pathVar("id");
-            final List<JSONObject> comments = commentQueryService.getComments(articleId);
+    try {
+      final String articleId = context.pathVar("id");
+      final List<JSONObject> comments = commentQueryService.getComments(articleId);
 
-            ret.put(Comment.COMMENTS, comments);
-            ret.put(Keys.STATUS_CODE, true);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
+      ret.put(Comment.COMMENTS, comments);
+      ret.put(Keys.STATUS_CODE, true);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
 
-            final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
-            renderer.setJSONObject(jsonObject);
-            jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
-        }
+      final JSONObject jsonObject = new JSONObject().put(Keys.STATUS_CODE, false);
+      renderer.setJSONObject(jsonObject);
+      jsonObject.put(Keys.MSG, langPropsService.get("getFailLabel"));
     }
+  }
 }

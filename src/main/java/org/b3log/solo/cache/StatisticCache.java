@@ -17,12 +17,11 @@
  */
 package org.b3log.solo.cache;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.b3log.latke.ioc.Singleton;
 import org.b3log.solo.model.Option;
 import org.json.JSONObject;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Statistic cache.
@@ -34,33 +33,29 @@ import java.util.concurrent.ConcurrentHashMap;
 @Singleton
 public class StatisticCache {
 
-    /**
-     * Statistic cache.
-     */
-    private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
+  /** Statistic cache. */
+  private final Map<String, JSONObject> cache = new ConcurrentHashMap<>();
 
-    /**
-     * Get the statistic.
-     *
-     * @return statistic
-     */
-    public JSONObject getStatistic() {
-        return cache.get(Option.CATEGORY_C_STATISTIC);
-    }
+  /**
+   * Get the statistic.
+   *
+   * @return statistic
+   */
+  public JSONObject getStatistic() {
+    return cache.get(Option.CATEGORY_C_STATISTIC);
+  }
 
-    /**
-     * Adds or updates the specified statistic.
-     *
-     * @param statistic the specified statistic
-     */
-    public void putStatistic(final JSONObject statistic) {
-        cache.put(Option.CATEGORY_C_STATISTIC, statistic);
-    }
+  /**
+   * Adds or updates the specified statistic.
+   *
+   * @param statistic the specified statistic
+   */
+  public void putStatistic(final JSONObject statistic) {
+    cache.put(Option.CATEGORY_C_STATISTIC, statistic);
+  }
 
-    /**
-     * Clears all cached data.
-     */
-    public void clear() {
-        cache.clear();
-    }
+  /** Clears all cached data. */
+  public void clear() {
+    cache.clear();
+  }
 }

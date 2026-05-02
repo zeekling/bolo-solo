@@ -31,32 +31,30 @@ import org.b3log.solo.service.OptionMgmtService;
  * @author fangcong
  * @version 0.0.1
  * @since Created by work on 2023-05-19 14:16
- **/
+ */
 @Singleton
 public class DeleteArticleListener extends AbstractEventListener<String> {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(DeleteArticleListener.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(DeleteArticleListener.class);
 
-    @Override
-    public String getEventType() {
-        return EventTypes.DELETE_ARTICLE;
-    }
+  @Override
+  public String getEventType() {
+    return EventTypes.DELETE_ARTICLE;
+  }
 
-    @Override
-    public void action(Event<String> event) {
-        final String articleId = event.getData();
-        if (StringUtils.isBlank(articleId)) {
-            return;
-        }
-        final BeanManager instance = BeanManager.getInstance();
-        final OptionMgmtService optionMgmtService = instance.getReference(OptionMgmtService.class);
-        try {
-            optionMgmtService.removeOption("article_" + articleId);
-        } catch (ServiceException e) {
-            LOGGER.log(Level.ERROR, "及联删除帖子[{0}]关联的option失败" + e.getMessage(), articleId);
-        }
+  @Override
+  public void action(Event<String> event) {
+    final String articleId = event.getData();
+    if (StringUtils.isBlank(articleId)) {
+      return;
     }
+    final BeanManager instance = BeanManager.getInstance();
+    final OptionMgmtService optionMgmtService = instance.getReference(OptionMgmtService.class);
+    try {
+      optionMgmtService.removeOption("article_" + articleId);
+    } catch (ServiceException e) {
+      LOGGER.log(Level.ERROR, "及联删除帖子[{0}]关联的option失败" + e.getMessage(), articleId);
+    }
+  }
 }

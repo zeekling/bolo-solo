@@ -17,15 +17,14 @@
  */
 package org.b3log.solo.repository;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.b3log.latke.Keys;
 import org.b3log.latke.ioc.Inject;
 import org.b3log.latke.repository.*;
 import org.b3log.latke.repository.annotation.Repository;
 import org.b3log.solo.model.Tag;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Tag repository.
@@ -37,60 +36,57 @@ import java.util.List;
 @Repository
 public class TagRepository extends AbstractRepository {
 
-    /**
-     * Public constructor.
-     */
-    public TagRepository() {
-        super(Tag.TAG);
+  /** Public constructor. */
+  public TagRepository() {
+    super(Tag.TAG);
+  }
+
+  /** Tag-Article relation repository. */
+  @Inject private TagArticleRepository tagArticleRepository;
+
+  /**
+   * Gets tags of an article specified by the article id.
+   *
+   * @param articleId the specified article id
+   * @return a list of tags of the specified article, returns an empty list if not found
+   * @throws RepositoryException repository exception
+   */
+  public List<JSONObject> getByArticleId(final String articleId) throws RepositoryException {
+    final List<JSONObject> ret = new ArrayList<>();
+
+    final List<JSONObject> tagArticleRelations = tagArticleRepository.getByArticleId(articleId);
+    for (final JSONObject tagArticleRelation : tagArticleRelations) {
+      final String tagId = tagArticleRelation.optString(Tag.TAG + "_" + Keys.OBJECT_ID);
+      final JSONObject tag = get(tagId);
+
+      ret.add(tag);
     }
 
-    /**
-     * Tag-Article relation repository.
-     */
-    @Inject
-    private TagArticleRepository tagArticleRepository;
+    return ret;
+  }
 
-    /**
-     * Gets tags of an article specified by the article id.
-     *
-     * @param articleId the specified article id
-     * @return a list of tags of the specified article, returns an empty list
-     * if not found
-     * @throws RepositoryException repository exception
-     */
-    public List<JSONObject> getByArticleId(final String articleId) throws RepositoryException {
-        final List<JSONObject> ret = new ArrayList<>();
+  /**
+   * Gets a tag by the specified tag title.
+   *
+   * @param tagTitle the specified tag title
+   * @return a tag, {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByTitle(final String tagTitle) throws RepositoryException {
+    final Query query =
+        new Query()
+            .setFilter(new PropertyFilter(Tag.TAG_TITLE, FilterOperator.EQUAL, tagTitle))
+            .setPageCount(1);
 
-        final List<JSONObject> tagArticleRelations = tagArticleRepository.getByArticleId(articleId);
-        for (final JSONObject tagArticleRelation : tagArticleRelations) {
-            final String tagId = tagArticleRelation.optString(Tag.TAG + "_" + Keys.OBJECT_ID);
-            final JSONObject tag = get(tagId);
-
-            ret.add(tag);
-        }
-
-        return ret;
+    final JSONObject ret = getFirst(query);
+    if (null == ret) {
+      return null;
     }
 
-    /**
-     * Gets a tag by the specified tag title.
-     *
-     * @param tagTitle the specified tag title
-     * @return a tag, {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByTitle(final String tagTitle) throws RepositoryException {
-        final Query query = new Query().setFilter(new PropertyFilter(Tag.TAG_TITLE, FilterOperator.EQUAL, tagTitle)).setPageCount(1);
+    final String tagId = ret.optString(Keys.OBJECT_ID);
+    final int articleCount = tagArticleRepository.getPublishedArticleCount(tagId);
+    ret.put(Tag.TAG_T_PUBLISHED_REFERENCE_COUNT, articleCount);
 
-        final JSONObject ret = getFirst(query);
-        if (null == ret) {
-            return null;
-        }
-
-        final String tagId = ret.optString(Keys.OBJECT_ID);
-        final int articleCount = tagArticleRepository.getPublishedArticleCount(tagId);
-        ret.put(Tag.TAG_T_PUBLISHED_REFERENCE_COUNT, articleCount);
-
-        return ret;
-    }
+    return ret;
+  }
 }

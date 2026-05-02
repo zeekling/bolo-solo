@@ -43,221 +43,179 @@ import org.json.JSONObject;
 @Service
 public class PageMgmtService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(PageMgmtService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(PageMgmtService.class);
 
-    /**
-     * Page repository.
-     */
-    @Inject
-    private PageRepository pageRepository;
+  /** Page repository. */
+  @Inject private PageRepository pageRepository;
 
-    /**
-     * Comment repository.
-     */
-    @Inject
-    private CommentRepository commentRepository;
+  /** Comment repository. */
+  @Inject private CommentRepository commentRepository;
 
-    /**
-     * User query service.
-     */
-    @Inject
-    private UserQueryService userQueryService;
+  /** User query service. */
+  @Inject private UserQueryService userQueryService;
 
-    /**
-     * Language service.
-     */
-    @Inject
-    private LangPropsService langPropsService;
+  /** Language service. */
+  @Inject private LangPropsService langPropsService;
 
-    /**
-     * Permalink query service.
-     */
-    @Inject
-    private PermalinkQueryService permalinkQueryService;
+  /** Permalink query service. */
+  @Inject private PermalinkQueryService permalinkQueryService;
 
-    /**
-     * Statistic management service.
-     */
-    @Inject
-    private StatisticMgmtService statisticMgmtService;
+  /** Statistic management service. */
+  @Inject private StatisticMgmtService statisticMgmtService;
 
-    /**
-     * Statistic query service.
-     */
-    @Inject
-    private StatisticQueryService statisticQueryService;
+  /** Statistic query service. */
+  @Inject private StatisticQueryService statisticQueryService;
 
-    /**
-     * Option query service.
-     */
-    @Inject
-    private OptionQueryService optionQueryService;
+  /** Option query service. */
+  @Inject private OptionQueryService optionQueryService;
 
-    /**
-     * Option management service.
-     */
-    @Inject
-    private OptionMgmtService optionMgmtService;
+  /** Option management service. */
+  @Inject private OptionMgmtService optionMgmtService;
 
-    /**
-     * Updates a page by the specified request json object.
-     *
-     * @param requestJSONObject the specified request json object, for example,
-     *                          {
-     *                          "page": {
-     *                          "oId": "",
-     *                          "pageTitle": "",
-     *                          "pageOrder": int,
-     *                          "pagePermalink": "",
-     *                          "pageOpenTarget": "",
-     *                          "pageIcon": "" // optional
-     *                          }
-     *                          }, see {@link Page} for more details
-     * @throws ServiceException service exception
-     */
-    public void updatePage(final JSONObject requestJSONObject) throws ServiceException {
-        final Transaction transaction = pageRepository.beginTransaction();
-        try {
-            final JSONObject page = requestJSONObject.getJSONObject(Page.PAGE);
-            final String pageId = page.getString(Keys.OBJECT_ID);
-            final JSONObject oldPage = pageRepository.get(pageId);
-            final JSONObject newPage = new JSONObject(page, JSONObject.getNames(page));
-            newPage.put(Page.PAGE_ORDER, oldPage.getInt(Page.PAGE_ORDER));
-            final String permalink = page.optString(Page.PAGE_PERMALINK).trim();
-            newPage.put(Page.PAGE_PERMALINK, permalink);
-            page.put(Page.PAGE_ICON, page.optString(Page.PAGE_ICON));
+  /**
+   * Updates a page by the specified request json object.
+   *
+   * @param requestJSONObject the specified request json object, for example, { "page": { "oId": "",
+   *     "pageTitle": "", "pageOrder": int, "pagePermalink": "", "pageOpenTarget": "", "pageIcon":
+   *     "" // optional } }, see {@link Page} for more details
+   * @throws ServiceException service exception
+   */
+  public void updatePage(final JSONObject requestJSONObject) throws ServiceException {
+    final Transaction transaction = pageRepository.beginTransaction();
+    try {
+      final JSONObject page = requestJSONObject.getJSONObject(Page.PAGE);
+      final String pageId = page.getString(Keys.OBJECT_ID);
+      final JSONObject oldPage = pageRepository.get(pageId);
+      final JSONObject newPage = new JSONObject(page, JSONObject.getNames(page));
+      newPage.put(Page.PAGE_ORDER, oldPage.getInt(Page.PAGE_ORDER));
+      final String permalink = page.optString(Page.PAGE_PERMALINK).trim();
+      newPage.put(Page.PAGE_PERMALINK, permalink);
+      page.put(Page.PAGE_ICON, page.optString(Page.PAGE_ICON));
 
-            pageRepository.update(pageId, newPage);
-            transaction.commit();
+      pageRepository.update(pageId, newPage);
+      transaction.commit();
 
-            LOGGER.log(Level.DEBUG, "Updated a page[id={0}]", pageId);
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+      LOGGER.log(Level.DEBUG, "Updated a page[id={0}]", pageId);
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
 
-            throw new ServiceException(e);
-        }
+      throw new ServiceException(e);
     }
+  }
 
-    /**
-     * Removes a page specified by the given page id.
-     *
-     * @param pageId the given page id
-     * @throws ServiceException service exception
-     */
-    public void removePage(final String pageId) throws ServiceException {
-        final Transaction transaction = pageRepository.beginTransaction();
-        try {
-            pageRepository.remove(pageId);
-            commentRepository.removeComments(pageId);
-            transaction.commit();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+  /**
+   * Removes a page specified by the given page id.
+   *
+   * @param pageId the given page id
+   * @throws ServiceException service exception
+   */
+  public void removePage(final String pageId) throws ServiceException {
+    final Transaction transaction = pageRepository.beginTransaction();
+    try {
+      pageRepository.remove(pageId);
+      commentRepository.removeComments(pageId);
+      transaction.commit();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
 
-            LOGGER.log(Level.ERROR, "Removes a page[id=" + pageId + "] failed", e);
+      LOGGER.log(Level.ERROR, "Removes a page[id=" + pageId + "] failed", e);
 
-            throw new ServiceException(e);
-        }
+      throw new ServiceException(e);
     }
+  }
 
-    /**
-     * Adds a page with the specified request json object.
-     *
-     * @param requestJSONObject the specified request json object, for example,
-     *                          {
-     *                          "page": {
-     *                          "pageTitle": "",
-     *                          "pageOpenTarget": "",
-     *                          "pagePermalink": "",
-     *                          "pageIcon": "" // optional
-     *                          }
-     *                          }, see {@link Page} for more details
-     * @return generated page id
-     * @throws ServiceException if permalink format checks failed or persists failed
-     */
-    public String addPage(final JSONObject requestJSONObject) throws ServiceException {
-        final Transaction transaction = pageRepository.beginTransaction();
+  /**
+   * Adds a page with the specified request json object.
+   *
+   * @param requestJSONObject the specified request json object, for example, { "page": {
+   *     "pageTitle": "", "pageOpenTarget": "", "pagePermalink": "", "pageIcon": "" // optional } },
+   *     see {@link Page} for more details
+   * @return generated page id
+   * @throws ServiceException if permalink format checks failed or persists failed
+   */
+  public String addPage(final JSONObject requestJSONObject) throws ServiceException {
+    final Transaction transaction = pageRepository.beginTransaction();
 
-        try {
-            final JSONObject page = requestJSONObject.getJSONObject(Page.PAGE);
-            final int maxOrder = pageRepository.getMaxOrder();
-            page.put(Page.PAGE_ORDER, maxOrder + 1);
+    try {
+      final JSONObject page = requestJSONObject.getJSONObject(Page.PAGE);
+      final int maxOrder = pageRepository.getMaxOrder();
+      page.put(Page.PAGE_ORDER, maxOrder + 1);
 
-            final String permalink = page.optString(Page.PAGE_PERMALINK);
+      final String permalink = page.optString(Page.PAGE_PERMALINK);
 
-            page.put(Page.PAGE_PERMALINK, permalink);
-            page.put(Page.PAGE_ICON, page.optString(Page.PAGE_ICON));
-            final String ret = pageRepository.add(page);
-            transaction.commit();
+      page.put(Page.PAGE_PERMALINK, permalink);
+      page.put(Page.PAGE_ICON, page.optString(Page.PAGE_ICON));
+      final String ret = pageRepository.add(page);
+      transaction.commit();
 
-            return ret;
-        } catch (final JSONException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+      return ret;
+    } catch (final JSONException e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
 
-            throw new ServiceException(e);
-        } catch (final RepositoryException e) {
-            LOGGER.log(Level.ERROR, e.getMessage(), e);
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
+      throw new ServiceException(e);
+    } catch (final RepositoryException e) {
+      LOGGER.log(Level.ERROR, e.getMessage(), e);
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
 
-            throw new ServiceException(e);
-        }
+      throw new ServiceException(e);
     }
+  }
 
-    /**
-     * Changes the order of a page specified by the given page id with the specified direction.
-     *
-     * @param pageId    the given page id
-     * @param direction the specified direction, "up"/"down"
-     * @throws ServiceException service exception
-     */
-    public void changeOrder(final String pageId, final String direction) throws ServiceException {
-        final Transaction transaction = pageRepository.beginTransaction();
-        try {
-            final JSONObject srcPage = pageRepository.get(pageId);
-            final int srcPageOrder = srcPage.getInt(Page.PAGE_ORDER);
+  /**
+   * Changes the order of a page specified by the given page id with the specified direction.
+   *
+   * @param pageId the given page id
+   * @param direction the specified direction, "up"/"down"
+   * @throws ServiceException service exception
+   */
+  public void changeOrder(final String pageId, final String direction) throws ServiceException {
+    final Transaction transaction = pageRepository.beginTransaction();
+    try {
+      final JSONObject srcPage = pageRepository.get(pageId);
+      final int srcPageOrder = srcPage.getInt(Page.PAGE_ORDER);
 
-            JSONObject targetPage;
-            if ("up".equals(direction)) {
-                targetPage = pageRepository.getUpper(pageId);
-            } else { // Down
-                targetPage = pageRepository.getUnder(pageId);
-            }
+      JSONObject targetPage;
+      if ("up".equals(direction)) {
+        targetPage = pageRepository.getUpper(pageId);
+      } else { // Down
+        targetPage = pageRepository.getUnder(pageId);
+      }
 
-            if (null == targetPage) {
-                if (transaction.isActive()) {
-                    transaction.rollback();
-                }
-
-                LOGGER.log(Level.WARN, "Cant not find the target page of source page[order={0}]", srcPageOrder);
-                return;
-            }
-
-            // Swaps
-            srcPage.put(Page.PAGE_ORDER, targetPage.getInt(Page.PAGE_ORDER));
-            targetPage.put(Page.PAGE_ORDER, srcPageOrder);
-            pageRepository.update(srcPage.getString(Keys.OBJECT_ID), srcPage, Page.PAGE_ORDER);
-            pageRepository.update(targetPage.getString(Keys.OBJECT_ID), targetPage, Page.PAGE_ORDER);
-            transaction.commit();
-        } catch (final Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-
-            LOGGER.log(Level.ERROR, "Changes page's order failed", e);
-
-            throw new ServiceException(e);
+      if (null == targetPage) {
+        if (transaction.isActive()) {
+          transaction.rollback();
         }
+
+        LOGGER.log(
+            Level.WARN, "Cant not find the target page of source page[order={0}]", srcPageOrder);
+        return;
+      }
+
+      // Swaps
+      srcPage.put(Page.PAGE_ORDER, targetPage.getInt(Page.PAGE_ORDER));
+      targetPage.put(Page.PAGE_ORDER, srcPageOrder);
+      pageRepository.update(srcPage.getString(Keys.OBJECT_ID), srcPage, Page.PAGE_ORDER);
+      pageRepository.update(targetPage.getString(Keys.OBJECT_ID), targetPage, Page.PAGE_ORDER);
+      transaction.commit();
+    } catch (final Exception e) {
+      if (transaction.isActive()) {
+        transaction.rollback();
+      }
+
+      LOGGER.log(Level.ERROR, "Changes page's order failed", e);
+
+      throw new ServiceException(e);
     }
+  }
 }

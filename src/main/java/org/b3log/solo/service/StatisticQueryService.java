@@ -40,56 +40,52 @@ import org.json.JSONObject;
 @Service
 public class StatisticQueryService {
 
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger.getLogger(StatisticQueryService.class);
+  /** Logger. */
+  private static final Logger LOGGER = Logger.getLogger(StatisticQueryService.class);
 
-    /**
-     * Option query service.
-     */
-    @Inject
-    private OptionQueryService optionQueryService;
+  /** Option query service. */
+  @Inject private OptionQueryService optionQueryService;
 
-    /**
-     * Article repository.
-     */
-    @Inject
-    private ArticleRepository articleRepository;
+  /** Article repository. */
+  @Inject private ArticleRepository articleRepository;
 
-    /**
-     * Comment repository.
-     */
-    @Inject
-    private CommentRepository commentRepository;
+  /** Comment repository. */
+  @Inject private CommentRepository commentRepository;
 
-    /**
-     * Gets the online visitor count.
-     *
-     * @return online visitor count
-     */
-    public static int getOnlineVisitorCount() {
-        return StatisticMgmtService.ONLINE_VISITORS.size();
+  /**
+   * Gets the online visitor count.
+   *
+   * @return online visitor count
+   */
+  public static int getOnlineVisitorCount() {
+    return StatisticMgmtService.ONLINE_VISITORS.size();
+  }
+
+  /**
+   * Gets the statistic.
+   *
+   * @return statistic, returns {@code null} if not found
+   */
+  public JSONObject getStatistic() {
+    try {
+      final JSONObject ret = optionQueryService.getOptions(Option.CATEGORY_C_STATISTIC);
+      final long publishedArticleCount =
+          articleRepository.count(
+              new Query()
+                  .setFilter(
+                      new PropertyFilter(
+                          Article.ARTICLE_STATUS,
+                          FilterOperator.EQUAL,
+                          Article.ARTICLE_STATUS_C_PUBLISHED)));
+      ret.put(Option.ID_T_STATISTIC_PUBLISHED_ARTICLE_COUNT, publishedArticleCount);
+      final long commentCount = commentRepository.count(new Query());
+      ret.put(Option.ID_T_STATISTIC_PUBLISHED_BLOG_COMMENT_COUNT, commentCount);
+
+      return ret;
+    } catch (final Exception e) {
+      LOGGER.log(Level.ERROR, "Gets statistic failed", e);
+
+      return null;
     }
-
-    /**
-     * Gets the statistic.
-     *
-     * @return statistic, returns {@code null} if not found
-     */
-    public JSONObject getStatistic() {
-        try {
-            final JSONObject ret = optionQueryService.getOptions(Option.CATEGORY_C_STATISTIC);
-            final long publishedArticleCount = articleRepository.count(new Query().setFilter(new PropertyFilter(Article.ARTICLE_STATUS, FilterOperator.EQUAL, Article.ARTICLE_STATUS_C_PUBLISHED)));
-            ret.put(Option.ID_T_STATISTIC_PUBLISHED_ARTICLE_COUNT, publishedArticleCount);
-            final long commentCount = commentRepository.count(new Query());
-            ret.put(Option.ID_T_STATISTIC_PUBLISHED_BLOG_COMMENT_COUNT, commentCount);
-
-            return ret;
-        } catch (final Exception e) {
-            LOGGER.log(Level.ERROR, "Gets statistic failed", e);
-
-            return null;
-        }
-    }
+  }
 }

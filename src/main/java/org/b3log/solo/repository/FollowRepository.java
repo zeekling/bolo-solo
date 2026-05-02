@@ -38,131 +38,141 @@ import org.json.JSONObject;
 @Repository
 public class FollowRepository extends AbstractRepository {
 
-    /**
-     * Public constructor.
-     */
-    public FollowRepository() {
-        super(Follow.FOLLOW);
+  /** Public constructor. */
+  public FollowRepository() {
+    super(Follow.FOLLOW);
+  }
+
+  /**
+   * Gets a Follow by the specified address.
+   *
+   * @param address the specified address
+   * @return Follow, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByAddress(final String address) throws RepositoryException {
+    final Query query =
+        new Query()
+            .setFilter(new PropertyFilter(Follow.FOLLOW_ADDRESS, FilterOperator.EQUAL, address))
+            .setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return null;
     }
 
-    /**
-     * Gets a Follow by the specified address.
-     *
-     * @param address the specified address
-     * @return Follow, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByAddress(final String address) throws RepositoryException {
-        final Query query = new Query()
-                .setFilter(new PropertyFilter(Follow.FOLLOW_ADDRESS, FilterOperator.EQUAL, address))
-                .setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return null;
-        }
+    return array.optJSONObject(0);
+  }
 
-        return array.optJSONObject(0);
+  public JSONObject getByTitle(final String title) throws RepositoryException {
+    final Query query =
+        new Query()
+            .setFilter(new PropertyFilter(Follow.FOLLOW_TITLE, FilterOperator.EQUAL, title))
+            .setPageCount(1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return null;
     }
 
-    public JSONObject getByTitle(final String title) throws RepositoryException {
-        final Query query = new Query()
-                .setFilter(new PropertyFilter(Follow.FOLLOW_TITLE, FilterOperator.EQUAL, title))
-                .setPageCount(1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return null;
-        }
+    return array.optJSONObject(0);
+  }
 
-        return array.optJSONObject(0);
+  /**
+   * Gets the maximum order.
+   *
+   * @return order number, returns {@code -1} if not found
+   * @throws RepositoryException repository exception
+   */
+  public int getMaxOrder() throws RepositoryException {
+    final Query query = new Query().addSort(Follow.FOLLOW_ORDER, SortDirection.DESCENDING);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return -1;
     }
 
-    /**
-     * Gets the maximum order.
-     *
-     * @return order number, returns {@code -1} if not found
-     * @throws RepositoryException repository exception
-     */
-    public int getMaxOrder() throws RepositoryException {
-        final Query query = new Query().addSort(Follow.FOLLOW_ORDER, SortDirection.DESCENDING);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return -1;
-        }
+    return array.optJSONObject(0).optInt(Follow.FOLLOW_ORDER);
+  }
 
-        return array.optJSONObject(0).optInt(Follow.FOLLOW_ORDER);
+  /**
+   * Gets the upper Follow of the Follow specified by the given id.
+   *
+   * @param id the given id
+   * @return upper Follow, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getUpper(final String id) throws RepositoryException {
+    final JSONObject follow = get(id);
+    if (null == follow) {
+      return null;
     }
 
-    /**
-     * Gets the upper Follow of the Follow specified by the given id.
-     *
-     * @param id the given id
-     * @return upper Follow, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getUpper(final String id) throws RepositoryException {
-        final JSONObject follow = get(id);
-        if (null == follow) {
-            return null;
-        }
-
-        final Query query = new Query()
-                .setFilter(new PropertyFilter(Follow.FOLLOW_ORDER, FilterOperator.LESS_THAN,
-                        follow.optInt(Follow.FOLLOW_ORDER)))
-                .addSort(Follow.FOLLOW_ORDER, SortDirection.DESCENDING).setPage(1, 1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (1 != array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+    final Query query =
+        new Query()
+            .setFilter(
+                new PropertyFilter(
+                    Follow.FOLLOW_ORDER,
+                    FilterOperator.LESS_THAN,
+                    follow.optInt(Follow.FOLLOW_ORDER)))
+            .addSort(Follow.FOLLOW_ORDER, SortDirection.DESCENDING)
+            .setPage(1, 1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (1 != array.length()) {
+      return null;
     }
 
-    /**
-     * Gets the under Follow of the Follow specified by the given id.
-     *
-     * @param id the given id
-     * @return under Follow, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getUnder(final String id) throws RepositoryException {
-        final JSONObject follow = get(id);
-        if (null == follow) {
-            return null;
-        }
+    return array.optJSONObject(0);
+  }
 
-        final Query query = new Query()
-                .setFilter(
-                        new PropertyFilter(Follow.FOLLOW_ORDER, FilterOperator.GREATER_THAN,
-                                follow.optInt(Follow.FOLLOW_ORDER)))
-                .addSort(Follow.FOLLOW_ORDER, SortDirection.ASCENDING).setPage(1, 1);
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (1 != array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+  /**
+   * Gets the under Follow of the Follow specified by the given id.
+   *
+   * @param id the given id
+   * @return under Follow, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getUnder(final String id) throws RepositoryException {
+    final JSONObject follow = get(id);
+    if (null == follow) {
+      return null;
     }
 
-    /**
-     * Gets a Follow by the specified order.
-     *
-     * @param order the specified order
-     * @return Follow, returns {@code null} if not found
-     * @throws RepositoryException repository exception
-     */
-    public JSONObject getByOrder(final int order) throws RepositoryException {
-        final Query query = new Query().setFilter(new PropertyFilter(Follow.FOLLOW_ORDER, FilterOperator.EQUAL, order));
-        final JSONObject result = get(query);
-        final JSONArray array = result.optJSONArray(Keys.RESULTS);
-        if (0 == array.length()) {
-            return null;
-        }
-
-        return array.optJSONObject(0);
+    final Query query =
+        new Query()
+            .setFilter(
+                new PropertyFilter(
+                    Follow.FOLLOW_ORDER,
+                    FilterOperator.GREATER_THAN,
+                    follow.optInt(Follow.FOLLOW_ORDER)))
+            .addSort(Follow.FOLLOW_ORDER, SortDirection.ASCENDING)
+            .setPage(1, 1);
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (1 != array.length()) {
+      return null;
     }
+
+    return array.optJSONObject(0);
+  }
+
+  /**
+   * Gets a Follow by the specified order.
+   *
+   * @param order the specified order
+   * @return Follow, returns {@code null} if not found
+   * @throws RepositoryException repository exception
+   */
+  public JSONObject getByOrder(final int order) throws RepositoryException {
+    final Query query =
+        new Query().setFilter(new PropertyFilter(Follow.FOLLOW_ORDER, FilterOperator.EQUAL, order));
+    final JSONObject result = get(query);
+    final JSONArray array = result.optJSONArray(Keys.RESULTS);
+    if (0 == array.length()) {
+      return null;
+    }
+
+    return array.optJSONObject(0);
+  }
 }

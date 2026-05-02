@@ -18,15 +18,17 @@
 package org.b3log.solo.bolo.waf;
 
 /**
+ *
+ *
  * <h3>bolo-solo</h3>
- * <p>rules of WAF.</p>
+ *
+ * <p>rules of WAF.
  *
  * @author : https://github.com/adlered
  * @date : 2020-05-31
- **/
+ */
 public class WAFrule {
-    public boolean access(String str) {
-        return WAFstorage.currentLimiter.access(str);
-    }
-
+  public boolean access(String str) {
+    return WAFstorage.currentLimiter.access(str);
+  }
 }
