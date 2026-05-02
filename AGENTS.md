@@ -1,5 +1,12 @@
 # Bolo-Solo 代码库代理指南
 
+## 全局规则
+
+本项目需要读取系统默认的 AGENTS.md 规则作为基础：
+- 系统 AGENTS.md 由 OpenCode 平台提供
+- 本地 AGENTS.md 规则作为补充和覆盖
+- 如有冲突，以本项目 AGENTS.md 为准
+
 ## 构建与测试命令
 
 ### Java 构建（Maven - JDK 21）
@@ -159,4 +166,14 @@ src/main/webapp/
 ```bash
 mvn versions:display-dependency-updates  # 检查更新
 mvn clean verify                          # 验证构建
+```
+
+### 代码格式化
+每次涉及代码修改的功能结束后，必须格式化代码：
+```bash
+mvn spotless:apply  # 格式化代码
+```
+如果涉及 UT（单元测试），则需要检查 UT 是否通过：
+```bash
+mvn test  # 运行测试验证
 ```
