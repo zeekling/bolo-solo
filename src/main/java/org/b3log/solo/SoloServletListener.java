@@ -101,7 +101,7 @@ public final class SoloServletListener extends AbstractServletListener {
   public static final String STABLE_EN = "Stable";
   public static final String BETA_CN = "内测版";
   public static final String BETA_EN = "Beta";
-  public static final String BOLO_VERSION_SOURCE = "2.6.4";
+  public static final String BOLO_VERSION_SOURCE = "2.6.5";
   public static final String BOLO_VERSION = "v" + BOLO_VERSION_SOURCE + " " + STABLE_CN;
   public static final String BOLO_VERSION_EN = "v" + BOLO_VERSION_SOURCE + " " + STABLE_EN;
 
@@ -194,15 +194,7 @@ public final class SoloServletListener extends AbstractServletListener {
             + Runtime.getRuntime().maxMemory() / 1024 / 1024
             + "MB\n"
             + "└";
-    System.out.println("");
-    String[] lines = header.split("\n");
-    for (String line : lines) {
-      System.out.println(line);
-      try {
-        Thread.sleep(100);
-      } catch (InterruptedException ignored) {
-      }
-    }
+    System.out.println(header);
     System.out.println("");
 
     Stopwatchs.end();

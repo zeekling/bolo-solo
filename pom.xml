@@ -18,7 +18,7 @@
     <artifactId>bolo</artifactId>
     <packaging>war</packaging>
     <name>Bolo</name>
-    <version>v2.6.4-stable</version>
+    <version>v2.6.5-stable</version>
     <description>
         本地化、稳定精致的 Java 博客系统 - 菠萝博客。
     </description>
@@ -114,12 +114,12 @@
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
         <coveralls-maven-plugin.version>4.3.0</coveralls-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.11</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <testng.version>7.10.2</testng.version>
         <mysql-connector-java.version>8.0.33</mysql-connector-java.version>
         <commons-io.version>2.15.0</commons-io.version>
         <commons-lang.version>3.14.0</commons-lang.version>
-<qiniu-java-sdk.version>7.15.1</qiniu-java-sdk.version>
+      <qiniu-java-sdk.version>7.15.1</qiniu-java-sdk.version>
     <cos_api.version>5.6.58</cos_api.version>
     <spotless.version>3.0.0</spotless.version>
 
@@ -278,14 +278,14 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.5.11</version>
+            <version>4.5.14</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
-            <version>4.5.11</version>
+            <version>4.5.14</version>
         </dependency>
 
         <dependency>
@@ -298,7 +298,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.8.6</version>
+            <version>2.10.1</version>
         </dependency>
 
         <dependency>
@@ -326,7 +326,7 @@
             </exclusions>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/rome/rome -->
+        <!-- 博客园导出工具依赖 - 旧版 rome API -->
         <dependency>
             <groupId>rome</groupId>
             <artifactId>rome</artifactId>
