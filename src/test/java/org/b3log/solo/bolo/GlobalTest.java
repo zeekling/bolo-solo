@@ -15,21 +15,33 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.b3log.solo;
+package org.b3log.solo.bolo;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
 /**
- * Abstract test base class.
+ * Global 测试类。
  *
  * @author <a href="https://github.com/bolo-blog">Bolo Team</a>
  */
-public abstract class AbstractTest {
+public class GlobalTest {
 
-  @BeforeMethod
-  public void setUp() {}
+  @Test
+  public void shouldHaveCorrectHacpaiDomain() {
+    Assert.assertEquals(Global.HACPAI_DOMAIN, "ld246.com");
+  }
 
-  @AfterMethod
-  public void tearDown() {}
+  @Test
+  public void shouldHaveCorrectFishPiDomain() {
+    Assert.assertEquals(Global.FISH_PI_DOMAIN, "fishpi.cn");
+  }
+
+  @Test
+  public void shouldHaveNonEmptyDomains() {
+    Assert.assertNotNull(Global.HACPAI_DOMAIN);
+    Assert.assertNotNull(Global.FISH_PI_DOMAIN);
+    Assert.assertTrue(Global.HACPAI_DOMAIN.length() > 0);
+    Assert.assertTrue(Global.FISH_PI_DOMAIN.length() > 0);
+  }
 }

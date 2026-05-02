@@ -22,23 +22,23 @@ import org.testng.annotations.Test;
 
 public class MarkdownsTest {
 
-    @Test
-    public void shouldReturnEmpty_whenInputIsNull() {
-        String result = Markdowns.toHTML(null);
-        Assert.assertEquals(result, "");
-    }
+  @Test
+  public void shouldReturnEmpty_whenInputIsNull() {
+    String result = Markdowns.toHTML(null);
+    Assert.assertEquals(result, "");
+  }
 
-    @Test
-    public void shouldReturnEmpty_whenInputIsBlank() {
-        String result = Markdowns.toHTML("");
-        Assert.assertEquals(result, "");
-    }
+  @Test
+  public void shouldReturnEmpty_whenInputIsBlank() {
+    String result = Markdowns.toHTML("");
+    Assert.assertEquals(result, "");
+  }
 
-    @Test
-    public void shouldReturnParagraphTag_whenMarkdownIsHeader() {
-        Markdowns.clearCache();
-        String markdown = "# Test";
-        String result = Markdowns.toHTML(markdown);
-        Assert.assertTrue(result.contains("<p>"));
-    }
+  @Test
+  public void shouldReturnParagraphTag_whenMarkdownIsHeader() {
+    Markdowns.clearCache();
+    String markdown = "# Test";
+    String result = Markdowns.toHTML(markdown);
+    Assert.assertTrue(result.contains("<p>"));
+  }
 }

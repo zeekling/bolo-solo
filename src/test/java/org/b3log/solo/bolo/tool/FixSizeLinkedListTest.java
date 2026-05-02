@@ -27,57 +27,57 @@ import org.testng.annotations.Test;
  */
 public class FixSizeLinkedListTest {
 
-    @Test
-    public void shouldNotExceedCapacity() {
-        FixSizeLinkedList<String> list = new FixSizeLinkedList<>(3);
-        list.add("A");
-        list.add("B");
-        list.add("C");
-        list.add("D");
-        list.add("E");
-        Assert.assertEquals(list.size(), 3);
-    }
+  @Test
+  public void shouldNotExceedCapacity() {
+    FixSizeLinkedList<String> list = new FixSizeLinkedList<>(3);
+    list.add("A");
+    list.add("B");
+    list.add("C");
+    list.add("D");
+    list.add("E");
+    Assert.assertEquals(list.size(), 3);
+  }
 
-    @Test
-    public void shouldRemoveFirstElement_whenCapacityExceeded() {
-        FixSizeLinkedList<String> list = new FixSizeLinkedList<>(3);
-        list.add("A");
-        list.add("B");
-        list.add("C");
-        list.add("D");
-        Assert.assertEquals(list.get(0), "B");
-        Assert.assertEquals(list.get(1), "C");
-        Assert.assertEquals(list.get(2), "D");
-    }
+  @Test
+  public void shouldRemoveFirstElement_whenCapacityExceeded() {
+    FixSizeLinkedList<String> list = new FixSizeLinkedList<>(3);
+    list.add("A");
+    list.add("B");
+    list.add("C");
+    list.add("D");
+    Assert.assertEquals(list.get(0), "B");
+    Assert.assertEquals(list.get(1), "C");
+    Assert.assertEquals(list.get(2), "D");
+  }
 
-    @Test
-    public void shouldMaintainOrder() {
-        FixSizeLinkedList<Integer> list = new FixSizeLinkedList<>(5);
-        list.add(1);
-        list.add(2);
-        list.add(3);
-        Assert.assertEquals((int) list.get(0), 1);
-        Assert.assertEquals((int) list.get(1), 2);
-        Assert.assertEquals((int) list.get(2), 3);
-    }
+  @Test
+  public void shouldMaintainOrder() {
+    FixSizeLinkedList<Integer> list = new FixSizeLinkedList<>(5);
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    Assert.assertEquals((int) list.get(0), 1);
+    Assert.assertEquals((int) list.get(1), 2);
+    Assert.assertEquals((int) list.get(2), 3);
+  }
 
-    @Test
-    public void shouldWorkWithEmptyCapacity() {
-        FixSizeLinkedList<String> list = new FixSizeLinkedList<>(0);
-        try {
-            list.add("A");
-        } catch (Exception e) {
-        }
-        Assert.assertEquals(list.size(), 0);
+  @Test
+  public void shouldWorkWithEmptyCapacity() {
+    FixSizeLinkedList<String> list = new FixSizeLinkedList<>(0);
+    try {
+      list.add("A");
+    } catch (Exception e) {
     }
+    Assert.assertEquals(list.size(), 0);
+  }
 
-    @Test
-    public void shouldWorkWithCapacityOne() {
-        FixSizeLinkedList<String> list = new FixSizeLinkedList<>(1);
-        list.add("A");
-        list.add("B");
-        list.add("C");
-        Assert.assertEquals(list.size(), 1);
-        Assert.assertEquals(list.get(0), "C");
-    }
+  @Test
+  public void shouldWorkWithCapacityOne() {
+    FixSizeLinkedList<String> list = new FixSizeLinkedList<>(1);
+    list.add("A");
+    list.add("B");
+    list.add("C");
+    Assert.assertEquals(list.size(), 1);
+    Assert.assertEquals(list.get(0), "C");
+  }
 }

@@ -27,43 +27,43 @@ import org.testng.annotations.Test;
  */
 public class MD5UtilsTest {
 
-    @Test
-    public void shouldReturnCorrectMD5_whenInputIsValid() {
-        String result = MD5Utils.stringToMD5("hello");
-        Assert.assertEquals(result, "5d41402abc4b2a76b9719d911017c592");
-    }
+  @Test
+  public void shouldReturnCorrectMD5_whenInputIsValid() {
+    String result = MD5Utils.stringToMD5("hello");
+    Assert.assertEquals(result, "5d41402abc4b2a76b9719d911017c592");
+  }
 
-    @Test
-    public void shouldReturnMD5With32Characters_whenInputIsValid() {
-        String result = MD5Utils.stringToMD5("test");
-        Assert.assertEquals(result.length(), 32);
-    }
+  @Test
+  public void shouldReturnMD5With32Characters_whenInputIsValid() {
+    String result = MD5Utils.stringToMD5("test");
+    Assert.assertEquals(result.length(), 32);
+  }
 
-    @Test
-    public void shouldReturnConsistentMD5_forSameInput() {
-        String input = "password123";
-        String result1 = MD5Utils.stringToMD5(input);
-        String result2 = MD5Utils.stringToMD5(input);
-        Assert.assertEquals(result1, result2);
-    }
+  @Test
+  public void shouldReturnConsistentMD5_forSameInput() {
+    String input = "password123";
+    String result1 = MD5Utils.stringToMD5(input);
+    String result2 = MD5Utils.stringToMD5(input);
+    Assert.assertEquals(result1, result2);
+  }
 
-    @Test
-    public void shouldReturnDifferentMD5_forDifferentInput() {
-        String result1 = MD5Utils.stringToMD5("abc");
-        String result2 = MD5Utils.stringToMD5("def");
-        Assert.assertNotEquals(result1, result2);
-    }
+  @Test
+  public void shouldReturnDifferentMD5_forDifferentInput() {
+    String result1 = MD5Utils.stringToMD5("abc");
+    String result2 = MD5Utils.stringToMD5("def");
+    Assert.assertNotEquals(result1, result2);
+  }
 
-    @Test
-    public void shouldReturnEmptyMD5_whenInputIsEmpty() {
-        String result = MD5Utils.stringToMD5("");
-        Assert.assertEquals(result, "d41d8cd98f00b204e9800998ecf8427e");
-    }
+  @Test
+  public void shouldReturnEmptyMD5_whenInputIsEmpty() {
+    String result = MD5Utils.stringToMD5("");
+    Assert.assertEquals(result, "d41d8cd98f00b204e9800998ecf8427e");
+  }
 
-    @Test
-    public void shouldReturnCorrectDoubleMD5() {
-        String result = MD5Utils.stringToMD5Twice("hello");
-        Assert.assertNotNull(result);
-        Assert.assertEquals(result.length(), 32);
-    }
+  @Test
+  public void shouldReturnCorrectDoubleMD5() {
+    String result = MD5Utils.stringToMD5Twice("hello");
+    Assert.assertNotNull(result);
+    Assert.assertEquals(result.length(), 32);
+  }
 }

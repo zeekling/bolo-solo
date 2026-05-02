@@ -15,21 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package org.b3log.solo;
+package org.b3log.solo.service;
 
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.Assert;
+import org.testng.annotations.Test;
 
-/**
- * Abstract test base class.
- *
- * @author <a href="https://github.com/bolo-blog">Bolo Team</a>
- */
-public abstract class AbstractTest {
+public class OptionQueryServiceTest {
 
-  @BeforeMethod
-  public void setUp() {}
-
-  @AfterMethod
-  public void tearDown() {}
+  @Test
+  public void shouldHaveOptionQueryService() {
+    Assert.assertNotNull(new OptionQueryService());
+  }
 }

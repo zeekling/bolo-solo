@@ -40,7 +40,8 @@ public class ImagesTest {
   public void shouldProcessJpgImages() {
     String html = "<img src=\"https://example.com/photo.jpg\">";
     String result = Images.qiniuImgProcessing(html);
-    String expected = "https://example.com/photo.jpg?imageView2/2/w/1280/format/jpg/interlace/1/q/100";
+    String expected =
+        "https://example.com/photo.jpg?imageView2/2/w/1280/format/jpg/interlace/1/q/100";
     Assert.assertTrue(result.contains(expected));
   }
 
@@ -48,7 +49,8 @@ public class ImagesTest {
   public void shouldProcessPngImages() {
     String html = "<img src=\"https://example.com/photo.png\">";
     String result = Images.qiniuImgProcessing(html);
-    String expected = "https://example.com/photo.png?imageView2/2/w/1280/format/jpg/interlace/1/q/100";
+    String expected =
+        "https://example.com/photo.png?imageView2/2/w/1280/format/jpg/interlace/1/q/100";
     Assert.assertTrue(result.contains(expected));
   }
 
