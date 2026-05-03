@@ -93,6 +93,12 @@ public class BlogProcessor {
   /** The cache of favicon. */
   HashMap<String, FaviconCache> faviconCache = new HashMap<>();
 
+  /** Cache for failed favicon downloads (resolution -> failure timestamp). */
+  HashMap<String, Long> faviconFailCache = new HashMap<>();
+
+  /** Duration to cache failed downloads (10 minutes). */
+  private static final long FAVICON_FAIL_CACHE_DURATION = 6 * 60 * 60 * 1000;
+
   static {
     try (final InputStream tplStream =
         BlogProcessor.class.getResourceAsStream("/manifest.json.tpl")) {
@@ -135,6 +141,12 @@ public class BlogProcessor {
     synchronized (this) {
       String resolution = context.pathVar("width") + "/" + context.pathVar("height");
       try {
+        final JSONObject preference = optionQueryService.getPreference();
+        if (null == preference) {
+          return;
+        }
+        String favicon = preference.optString(Option.ID_C_FAVICON_URL);
+
         if (faviconCache.containsKey(resolution)) {
           final HttpServletResponse response = context.getResponse();
           String contentType = faviconCache.get(resolution).getMediaFileType();
@@ -142,12 +154,16 @@ public class BlogProcessor {
           OutputStream outputStream = response.getOutputStream();
           outputStream.write(faviconCache.get(resolution).getData());
           outputStream.close();
-        } else {
-          final JSONObject preference = optionQueryService.getPreference();
-          if (null == preference) {
+        } else if (faviconFailCache.containsKey(resolution)) {
+          Long failTime = faviconFailCache.get(resolution);
+          if (System.currentTimeMillis() - failTime < FAVICON_FAIL_CACHE_DURATION) {
+            LOGGER.log(Level.INFO, "[Favicon] Recent failure cached, redirecting: {0}", resolution);
+            redirectToOriginal(context, favicon);
             return;
+          } else {
+            faviconFailCache.remove(resolution);
           }
-          String favicon = preference.optString(Option.ID_C_FAVICON_URL);
+        } else {
           // 正则表达式
           String regUrl =
               "^([hH][tT]{2}[pP]://|[hH][tT]{2}[pP][sS]://)(([A-Za-z0-9-~]+).)+([A-Za-z0-9-~\\\\/])+$";
@@ -221,9 +237,9 @@ public class BlogProcessor {
             faviconCache.put(resolution, new FaviconCache(contentType, data));
             outputStream.close();
           } catch (Exception e) {
-            LOGGER.log(Level.ERROR, "Unable to resolve favicon");
-            context.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-
+            LOGGER.log(Level.ERROR, "Unable to resolve favicon: " + e.getMessage());
+            faviconFailCache.put(resolution, System.currentTimeMillis());
+            redirectToOriginal(context, favicon);
             return;
           } finally {
             if (faviconFile != null) {
@@ -236,6 +252,26 @@ public class BlogProcessor {
         context.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         return;
+      }
+    }
+  }
+
+  /**
+   * Redirect to original favicon URL.
+   *
+   * @param context the specified context
+   * @param favicon the favicon URL
+   */
+  private void redirectToOriginal(final RequestContext context, final String favicon) {
+    try {
+      context.sendRedirect(favicon);
+    } catch (Exception ex) {
+      LOGGER.log(Level.ERROR, "[Favicon] Redirect failed: " + ex.getMessage(), ex);
+      try {
+        context.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+      } catch (Exception e) {
+        LOGGER.log(Level.ERROR, "[Favicon] Send error failed: " + e.getMessage());
+        context.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       }
     }
   }
