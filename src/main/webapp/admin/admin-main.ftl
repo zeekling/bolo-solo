@@ -133,18 +133,7 @@
             </div>
         </div>
     </div>
-    <div class="module-panel">
-        <div class="module-header">
-            <h2>公告</h2>
-        </div>
-        <div class="module-body padding12">
-            <div id="noticeList" style="background: none;">
-                <script>
-                    $("#noticeList").load("https://ftp.stackoverflow.wiki/bolo/boardcast.html");
-                </script>
-            </div>
-        </div>
-    </div>
+    
     <div class="module-panel">
         <div class="module-header">
             <h2>近期日志</h2>

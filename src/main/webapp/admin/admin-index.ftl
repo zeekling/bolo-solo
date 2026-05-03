@@ -160,14 +160,7 @@
                             </a>
                         </div>
                     </li>
-                    <li>
-                        <div>
-                            <a href="https://doc.stackoverflow.wiki/web/#/7?page_id=46" target="_blank">
-                                <i class="fa fa-question-circle"></i>
-                                ${helpLabel}
-                            </a>
-                        </div>
-                    </li>
+                    
                 </ul>
             </div>
             <div class="tabs__bg" onclick="admin.toggleMenu()"></div>

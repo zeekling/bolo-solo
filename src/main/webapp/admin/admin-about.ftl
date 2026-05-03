@@ -33,22 +33,9 @@
                 当前 Bolo 版本：${boloVersion}<br>
             </div>
 
-            <iframe src="https://ghbtns.com/github-btn.html?user=adlered&repo=bolo-solo&type=star&count=true&size=large"
-                    frameborder="0" scrolling="0" width="160px" height="30px" class="about__iframe"
-                    style="margin: 21px 0 0 20px;border: 0"
-                    class="fn__left"></iframe>
-            <div class="fn__clear"></div>
-            <script type="text/javascript">
-                var version = '${boloVersion}';
-            </script>
-            <b><p id="updateCheck">正在检查版本更新...</p></b>
         </div>
     </div>
-    <span class="fn__clear">
-        <div style="margin: 25px 25px 0px 25px">
-            <iframe src="https://doc.stackoverflow.wiki/web/#/7?page_id=91" frameborder="no" border="0" scrolling="auto" style="display: block; height: 550px; width: 100%;"></iframe>
-        </div>
-    </span>
+    
     <br><br>
 </div>
 
