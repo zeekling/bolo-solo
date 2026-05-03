@@ -17,9 +17,9 @@
  */
 package pers.adlered.blog_platform_export_tool.module.cnblogs;
 
-import com.sun.syndication.feed.synd.*;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
+import com.rometools.rome.feed.synd.*;
+import com.rometools.rome.io.SyndFeedInput;
+import com.rometools.rome.io.XmlReader;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +49,8 @@ public class CNBLOGSModuleServiceImpl implements ModuleService {
         XmlReader xmlReader = new XmlReader(file);
         SyndFeedInput syndFeedInput = new SyndFeedInput();
         SyndFeed syndFeed = syndFeedInput.build(xmlReader);
-        List<SyndEntryImpl> entries = syndFeed.getEntries();
-        for (SyndEntryImpl j : entries) {
+        List<SyndEntry> entries = syndFeed.getEntries();
+        for (SyndEntry j : entries) {
           TranslateResult translateResult = new TranslateResult();
           translateResult.setAuthor(j.getAuthor());
           translateResult.setArticleContent(j.getDescription().getValue());
